@@ -1,0 +1,32 @@
+{
+  "id": "vault-73",
+  "name": "Vault 73 — isolation experiment",
+  "motd": [
+    "Vault-Tec Industries — overseer access granted",
+    "vault designation: 73",
+    "registered residents: 102",
+    "",
+    "abra: `cat overseer.log`, `ls residents`, `ls protocol`",
+    ""
+  ],
+  "commands": {
+    "pipboy": [
+      "PIP-BOY 3000 STATUS",
+      "  HP        ▓▓▓▓▓▓▓▓░░  82/100",
+      "  AP        ▓▓▓▓▓▓░░░░  64/100",
+      "  RADS      ▓▓░░░░░░░░  18 RAD",
+      "  WEIGHT    142 / 200 lbs",
+      "  CAPS      $ 437"
+    ],
+    "rads": [
+      "Radiation reading: 18 RAD",
+      "Background source: trace cobalt-60 in surface vents.",
+      "Recommendation: no immediate decontamination required."
+    ],
+    "holotape": [
+      "HOLOTAPE NOT FOUND.",
+      "available: `holotape orientation`, `holotape final_message`",
+      "(or use `cat holotapes/<name>.txt`)"
+    ]
+  }
+}

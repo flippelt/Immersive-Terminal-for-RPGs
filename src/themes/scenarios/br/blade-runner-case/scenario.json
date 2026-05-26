@@ -1,0 +1,31 @@
+{
+  "id": "blade-runner-case",
+  "name": "Case 4127-A — Nexus-6 escape",
+  "motd": [
+    "ESPER PHOTO ANALYZER",
+    "load and zoom images. issue retirement notices.",
+    "you are a blade runner. you know what to do.",
+    "",
+    "try: `cat case.txt`, `ls subjects`, `vk leon`",
+    ""
+  ],
+  "commands": {
+    "vk": [
+      "VOIGHT-KAMPFF // BASELINE INITIATED",
+      "It's your birthday. Someone gives you a calfskin wallet.",
+      "  pupil dilation .......... ANOMALY",
+      "  capillary response ...... ANOMALY",
+      "  blush response .......... null",
+      "",
+      "subject classification: REPLICANT.",
+      "execute retirement order? [y/N]"
+    ],
+    "enhance": [
+      "track right ............. ok",
+      "enhance 224 to 176 ...... ok",
+      "stop ....................",
+      "track 45 right .......... ok",
+      "enhance ................. give me a hardcopy right there."
+    ]
+  }
+}

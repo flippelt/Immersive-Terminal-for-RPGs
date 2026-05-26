@@ -1,0 +1,5 @@
+BLACK ICE — HELLHOUND
+  class:    pursuit (autonomous trace)
+  range:    cross-subnet
+  drawback: alerts target on engagement
+  usage:    `deploy hellhound`
