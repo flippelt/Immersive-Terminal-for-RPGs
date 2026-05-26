@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import OutputLine from './OutputLine.jsx'
 import Prompt from './Prompt.jsx'
-import { runCommand } from '../engine/commands.js'
+import PasswordModal from './PasswordModal.jsx'
+import { runCommand, buildDecryptLines } from '../engine/commands.js'
 
 let LINE_ID = 0
 const nextId = () => ++LINE_ID
@@ -24,6 +25,7 @@ export default function Terminal({ theme, themes, onSwitchTheme }) {
   const [cmdHistory, setCmdHistory] = useState([])
   const [bootSeq, setBootSeq] = useState(0)
   const [unlocked, setUnlocked] = useState(() => new Set())
+  const [pwPrompt, setPwPrompt] = useState(null)
   const scrollRef = useRef(null)
 
   // Keep a live ref to history so `advance` always reads the latest array
@@ -36,6 +38,7 @@ export default function Terminal({ theme, themes, onSwitchTheme }) {
     setAnimIdx(0)
     setCwd('/')
     setUnlocked(new Set())
+    setPwPrompt(null)
     const boot = (theme.boot ?? []).map(toLine)
     const banner = theme.banner
       ? [toLine({ text: theme.banner, type: 'banner' })]
@@ -88,6 +91,31 @@ export default function Terminal({ theme, themes, onSwitchTheme }) {
     })
   }, [])
 
+  const openPasswordPrompt = useCallback((path, node) => {
+    setPwPrompt({ path, node })
+  }, [])
+
+  const handlePasswordSubmit = useCallback(
+    (key) => {
+      if (!pwPrompt) return
+      const { path, node } = pwPrompt
+      setPwPrompt(null)
+      push([
+        ...buildDecryptLines(theme, path, node, key, unlock),
+        { text: '', instant: true }
+      ])
+    },
+    [pwPrompt, push, theme, unlock]
+  )
+
+  const handlePasswordCancel = useCallback(() => {
+    setPwPrompt(null)
+    push([
+      { text: 'decrypt: cancelled.', type: 'muted' },
+      { text: '', instant: true }
+    ])
+  }, [push])
+
   const handleSubmit = useCallback(
     (raw) => {
       const sigil = `${theme.prompt ?? '$'} ${cwd === '/' ? '/' : cwd} >`
@@ -105,39 +133,49 @@ export default function Terminal({ theme, themes, onSwitchTheme }) {
         reboot,
         switchTheme,
         unlocked,
-        unlock
+        unlock,
+        openPasswordPrompt
       })
       if (out.length) push(out)
       push([{ text: '', instant: true }])
     },
-    [theme, themes, cwd, push, clear, reboot, switchTheme, unlocked, unlock]
+    [theme, themes, cwd, push, clear, reboot, switchTheme, unlocked, unlock, openPasswordPrompt]
   )
 
   const inputReady = animIdx >= history.length
   const speed = theme.crt?.typeSpeed ?? 12
 
   return (
-    <div className="crt__content" ref={scrollRef}>
-      {history.slice(0, animIdx + 1).map((line, i) => {
-        const animate = i === animIdx
-        return (
-          <OutputLine
-            key={line.id}
-            line={animate ? line : { ...line, instant: true }}
-            animate={animate}
-            speed={speed}
-            onDone={animate ? advance : undefined}
+    <>
+      <div className="crt__content" ref={scrollRef}>
+        {history.slice(0, animIdx + 1).map((line, i) => {
+          const animate = i === animIdx
+          return (
+            <OutputLine
+              key={line.id}
+              line={animate ? line : { ...line, instant: true }}
+              animate={animate}
+              speed={speed}
+              onDone={animate ? advance : undefined}
+            />
+          )
+        })}
+        {inputReady && !pwPrompt && (
+          <Prompt
+            sigil={theme.prompt ?? '$'}
+            cwd={cwd}
+            onSubmit={handleSubmit}
+            history={cmdHistory}
           />
-        )
-      })}
-      {inputReady && (
-        <Prompt
-          sigil={theme.prompt ?? '$'}
-          cwd={cwd}
-          onSubmit={handleSubmit}
-          history={cmdHistory}
+        )}
+      </div>
+      {pwPrompt && (
+        <PasswordModal
+          filename={pwPrompt.path}
+          onSubmit={handlePasswordSubmit}
+          onCancel={handlePasswordCancel}
         />
       )}
-    </div>
+    </>
   )
 }
