@@ -45,6 +45,26 @@ export default function App() {
   // GM mode is session-only by design — don't persist (default off each load).
   const [gmMode, setGmMode] = useState(false)
 
+  // Themes the GM has disabled for players. Persisted so the table keeps
+  // the GM's setup across reloads.
+  const [disabledThemes, setDisabledThemes] = useState(() => {
+    try {
+      return new Set(JSON.parse(localStorage.getItem('tirpg.disabledThemes') ?? '[]'))
+    } catch {
+      return new Set()
+    }
+  })
+
+  const toggleThemeDisabled = useCallback((id) => {
+    setDisabledThemes((prev) => {
+      const next = new Set(prev)
+      if (next.has(id)) next.delete(id)
+      else next.add(id)
+      localStorage.setItem('tirpg.disabledThemes', JSON.stringify([...next]))
+      return next
+    })
+  }, [])
+
   const theme = useMemo(
     () => composeTheme(sel.themeId, sel.scenarioId),
     [sel]
@@ -107,7 +127,14 @@ export default function App() {
         />
         <div className="crt__vignette" />
       </div>
-      <ThemeSwitcher themes={THEMES} current={theme.id} onSelect={setTheme} />
+      <ThemeSwitcher
+        themes={THEMES}
+        current={theme.id}
+        onSelect={setTheme}
+        gmMode={gmMode}
+        disabled={disabledThemes}
+        onToggleDisabled={toggleThemeDisabled}
+      />
       <AudioToggle />
     </div>
   )

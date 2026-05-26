@@ -166,6 +166,27 @@
   font-size: 0.7em;
 }
 
+.switcher-chip {
+  display: inline-flex;
+  align-items: stretch;
+}
+
+.switcher-chip__toggle {
+  padding: 4px 6px;
+  border-left: none;
+  opacity: 0.6;
+}
+
+.switcher-chip--off button {
+  opacity: 0.4;
+  text-decoration: line-through;
+}
+
+.switcher-chip--off .switcher-chip__toggle {
+  text-decoration: none;
+  opacity: 0.9;
+}
+
 .audio-toggle {
   position: absolute;
   bottom: 12px;
