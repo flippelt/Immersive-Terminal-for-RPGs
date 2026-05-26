@@ -6,7 +6,7 @@
     "PRIORITY ONE: ENSURE RETURN OF ORGANISM FOR ANALYSIS",
     "ALL OTHER CONSIDERATIONS SECONDARY. CREW EXPENDABLE.",
     "",
-    "type `help` for commands. type `cat directive.txt` to begin.",
+    "type `help` for commands. type `cat directive.md` to begin.",
     ""
   ],
   "commands": {

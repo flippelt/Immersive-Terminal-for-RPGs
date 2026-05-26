@@ -141,16 +141,26 @@ Registre o tema importando-o em [src/themes/index.js](src/themes/index.js).
 
 Um cenário é uma **pasta**: metadata num `scenario.json` e os arquivos do
 terminal como **arquivos reais** dentro de `files/`. O loader descobre tudo
-sozinho — adicionar um arquivo ao terminal = soltar um `.txt` na pasta.
+sozinho — adicionar um arquivo ao terminal = soltar um arquivo na pasta.
 
 ```
 src/themes/scenarios/<tema>/<id>/
   scenario.json              ← motd, commands, overrides
   files/
-    arquivo.txt              → vira /arquivo.txt
-    logs/relatorio.log       → vira /logs/relatorio.log
+    documento.md             → vira /documento.md  (renderizado como markdown)
+    logs/relatorio.log       → vira /logs/relatorio.log  (texto cru)
     cofre/segredo.dat        → arquivo trancado (front-matter no topo)
 ```
+
+**Renderização:** arquivos `.md` passam por um renderizador de markdown no
+`cat` (cinematográfico); qualquer outra extensão (`.log`, `.dat`, ...) imprime
+**cru**, como um dump de dados. Suporte de markdown (nível de linha):
+
+- `# Título` / `## Sub` → destaque em accent, MAIÚSCULO
+- `---` → linha divisória
+- `> citação` → recuo com `▌`
+- `- item` → bullet `•`
+- `**negrito**` → MAIÚSCULO inline · `*itálico*` / `` `código` `` → marcadores removidos
 
 Diretórios são inferidos da árvore. O cenário aparece automaticamente em
 `scenario list`.
