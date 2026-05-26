@@ -166,6 +166,12 @@
   gap: 6px;
   z-index: 6;
   font-size: 0.7em;
+  /* Match the active theme's typeface, not a generic UI font. */
+  font-family: var(--font), monospace;
+}
+
+.theme-switcher button {
+  font-family: var(--font), monospace;
 }
 
 .theme-switcher__trigger {
