@@ -45,6 +45,7 @@ Build de produção:
 npm run build        # versão completa → dist/
 npm run build:demo   # versão demo curada → dist-demo/
 npm run lint         # ESLint
+npm test             # Vitest (engine: parser, filesystem, autocomplete, locks)
 ```
 
 ### Deploy (GitHub Pages)
