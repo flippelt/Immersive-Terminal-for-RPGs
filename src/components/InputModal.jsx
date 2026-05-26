@@ -1,6 +1,15 @@
 import { useEffect, useRef, useState } from 'react'
 
-export default function PasswordModal({ filename, onSubmit, onCancel }) {
+// Generic CRT dialog: a titled, labeled input. Used by both the decrypt
+// password prompt and the crack roll-check prompt.
+export default function InputModal({
+  title,
+  label,
+  inputType = 'text',
+  hint = 'enter to submit · esc to cancel',
+  onSubmit,
+  onCancel
+}) {
   const [value, setValue] = useState('')
   const inputRef = useRef(null)
 
@@ -19,24 +28,21 @@ export default function PasswordModal({ filename, onSubmit, onCancel }) {
   }
 
   return (
-    <div
-      className="modal-overlay"
-      onClick={onCancel}
-      role="presentation"
-    >
+    <div className="modal-overlay" onClick={onCancel} role="presentation">
       <div
         className="modal"
         role="dialog"
         aria-modal="true"
-        aria-label={`Decrypt ${filename}`}
+        aria-label={title}
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="modal__header">DECRYPT // {filename}</div>
+        <div className="modal__header">{title}</div>
         <div className="modal__body">
-          <span className="modal__label">enter key:</span>
+          <span className="modal__label">{label}</span>
           <input
             ref={inputRef}
-            type="text"
+            type={inputType}
+            inputMode={inputType === 'number' ? 'numeric' : undefined}
             className="modal__input"
             value={value}
             onChange={(e) => setValue(e.target.value)}
@@ -44,12 +50,10 @@ export default function PasswordModal({ filename, onSubmit, onCancel }) {
             autoComplete="off"
             autoCapitalize="off"
             spellCheck={false}
-            aria-label="decryption key"
+            aria-label={label}
           />
         </div>
-        <div className="modal__footer">
-          enter to submit · esc to cancel
-        </div>
+        <div className="modal__footer">{hint}</div>
       </div>
     </div>
   )
