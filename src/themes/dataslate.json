@@ -1,0 +1,41 @@
+{
+  "id": "dataslate",
+  "name": "Dataslate — Departmento Munitorum",
+  "header": "ADEPTUS ADMINISTRATUM // DATASLATE MK.III",
+  "prompt": "++slate++",
+  "user": "adept",
+  "palette": {
+    "bg": "#0a0a0c",
+    "bgSoft": "#15140e",
+    "fg": "#f0d890",
+    "accent": "#ffd24a",
+    "muted": "#6b5a32",
+    "error": "#ff3b30"
+  },
+  "font": "'3270 Nerd Font Mono'",
+  "fontSize": "18px",
+  "crt": { "glow": "7px", "typeSpeed": 13 },
+  "sounds": {
+    "whoosh": { "duration": 0.6, "freqStart": 200, "freqEnd": 1500, "tone": 0.6, "type": "triangle", "gain": 0.18 }
+  },
+  "locks": {
+    "crackDefault": 6000,
+    "decryptDefault": 1600,
+    "crackLabel": "BREACHING IMPERIAL CIPHER",
+    "decryptLabel": "INTONING SANCTIONED KEY"
+  },
+  "banner": "╔══════════════════════════════════════════╗\n║   ++ IMPERIAL DATASLATE  MK.III ++       ║\n║   ++ DEPARTMENTO MUNITORUM ++            ║\n║   ++ FOR THE GOD-EMPEROR OF MANKIND ++   ║\n╚══════════════════════════════════════════╝",
+  "boot": [
+    { "text": "++ slate spirit roused ++", "type": "muted" },
+    { "text": "++ aquila seal verified ++", "type": "muted" },
+    { "text": "++ ADEPTUS ADMINISTRATUM — CLEARANCE: ADEPT ++", "type": "ok" },
+    { "text": "++ THE EMPEROR PROTECTS ++", "type": "ok" },
+    { "text": "" }
+  ],
+  "extraHelp": [
+    "  aquila                recite the oath of loyalty",
+    "  vox <unit>            open a vox-channel"
+  ],
+  "unknownHint": "++ INPUT NOT SANCTIONED. THE EMPEROR IS WATCHING. ++",
+  "defaultScenario": "vorlanis"
+}
