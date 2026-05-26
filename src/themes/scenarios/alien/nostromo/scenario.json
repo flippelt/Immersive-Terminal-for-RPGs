@@ -18,6 +18,12 @@
       "OVERRIDE ACCEPTED. SPECIAL ORDER 937 INVOKED.",
       "CREW NON-ESSENTIAL.",
       "..."
+    ],
+    "destruct": [
+      { "text": "EMERGENCY DESTRUCT SYSTEM ENGAGED.", "type": "err" },
+      { "text": "the option to override automatic detonation will expire shortly.", "type": "muted" },
+      { "type": "countdown", "from": 10, "interval": 700, "label": "DETONATION IN", "alarm": true },
+      { "text": "what's the matter with the goddamn—", "type": "err" }
     ]
   }
 }

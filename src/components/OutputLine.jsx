@@ -1,5 +1,6 @@
 import { useTypewriter } from '../hooks/useTypewriter.js'
 import ProgressLine from './ProgressLine.jsx'
+import CountdownLine from './CountdownLine.jsx'
 
 const CLASS_BY_TYPE = {
   err: 'line line--err',
@@ -26,6 +27,9 @@ function TextLine({ line, animate, speed, onDone }) {
 export default function OutputLine({ line, animate, speed, onDone }) {
   if (line.type === 'progress') {
     return <ProgressLine line={line} animate={animate} onDone={onDone} />
+  }
+  if (line.type === 'countdown') {
+    return <CountdownLine line={line} animate={animate} onDone={onDone} />
   }
   return <TextLine line={line} animate={animate} speed={speed} onDone={onDone} />
 }

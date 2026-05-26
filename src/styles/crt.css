@@ -251,6 +251,18 @@
   font-variant-numeric: tabular-nums;
 }
 
+.line--alarm {
+  color: var(--error, #ff4444);
+  font-weight: bold;
+  letter-spacing: 2px;
+  animation: alarm-pulse 0.5s steps(2, end) infinite;
+}
+
+@keyframes alarm-pulse {
+  0%, 50% { opacity: 1; }
+  50.01%, 100% { opacity: 0.25; }
+}
+
 .prompt-line {
   display: flex;
   gap: 0;
@@ -411,7 +423,8 @@
   .crt__content,
   .cursor--inline,
   .modal,
-  .modal-overlay {
+  .modal-overlay,
+  .line--alarm {
     animation: none;
   }
 }
