@@ -1,0 +1,25 @@
+{
+  "id": "mechanicus-archive",
+  "name": "Magos' archive — STC fragments",
+  "motd": [
+    "++ CREDO OMNISSIAH ++",
+    "the flesh is weak. the machine is eternal.",
+    "knowledge is power — guard it well.",
+    "",
+    "magos, your queries: `cat creed.txt`, `ls archives`",
+    ""
+  ],
+  "commands": {
+    "litany": [
+      "++ LITANY OF IGNITION ++",
+      "from the moment i understood the weakness of my flesh,",
+      "it disgusted me. i craved the strength and certainty of steel.",
+      "i aspired to the purity of the blessed machine.",
+      "++ all praise the omnissiah ++"
+    ],
+    "bless": [
+      "++ unction applied. machine spirit appeased. ++",
+      "++ may it serve a thousand more years. ++"
+    ]
+  }
+}

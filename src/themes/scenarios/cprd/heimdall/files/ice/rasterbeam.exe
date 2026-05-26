@@ -1,0 +1,5 @@
+WHITE ICE — RASTERBEAM
+  class:    non-lethal (logout)
+  range:    local host
+  drawback: none
+  usage:    `deploy rasterbeam`

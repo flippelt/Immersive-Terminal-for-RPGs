@@ -266,7 +266,8 @@ const COMMANDS = {
         onComplete: () => ctx.unlock(path)
       },
       { text: success, type: 'ok' },
-      { text: `you can now run \`cat ${path}\`.`, type: 'muted' }
+      { text: `you can now run \`cat ${path}\`.`, type: 'muted' },
+      ...buildRevealLines(ctx.fs, node)
     ]
   },
 
@@ -297,12 +298,34 @@ const COMMANDS = {
       ]
     }
     // Inline path (script/power-user): key already provided.
-    return buildDecryptLines(ctx.theme, path, node, key, ctx.unlock)
+    return buildDecryptLines(ctx.theme, path, node, key, ctx.unlock, ctx.fs)
   }
 }
 
+// Unlock chains: when a file declares `reveals` (one path, or several
+// comma-separated), surface the keys of those files on unlock. Turns
+// isolated locks into a puzzle chain — crack A to learn B's key.
+function buildRevealLines(fs, node) {
+  if (!node?.reveals) return []
+  const paths = String(node.reveals)
+    .split(',')
+    .map((s) => s.trim())
+    .filter(Boolean)
+  const out = []
+  for (const p of paths) {
+    const target = getNode(fs, p)
+    if (target?.password) {
+      out.push({ text: `>>> recovered access key for ${p}`, type: 'ok' })
+      out.push({ text: `    ${target.password}`, type: 'ok' })
+    } else {
+      out.push({ text: `>>> cross-reference found: ${p}`, type: 'muted' })
+    }
+  }
+  return out
+}
+
 // Shared between the inline (commands.js) and modal (Terminal.jsx) flows.
-export function buildDecryptLines(theme, path, node, key, unlock) {
+export function buildDecryptLines(theme, path, node, key, unlock, fs) {
   if (key !== node.password) {
     return [
       { text: 'decrypt: key rejected.', type: 'err' },
@@ -320,7 +343,8 @@ export function buildDecryptLines(theme, path, node, key, unlock) {
       label,
       onComplete: () => unlock(path)
     },
-    { text: `${path} decrypted.`, type: 'ok' }
+    { text: `${path} decrypted.`, type: 'ok' },
+    ...buildRevealLines(fs, node)
   ]
 }
 

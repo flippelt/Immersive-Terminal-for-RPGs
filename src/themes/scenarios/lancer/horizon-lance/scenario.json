@@ -1,0 +1,29 @@
+{
+  "id": "horizon-lance",
+  "name": "Iskandar Lance — Hercynian disturbance",
+  "motd": [
+    "// Union Administrative Notice //",
+    "All Lancer activity logged for the Third Committee.",
+    "Cleared to interface. Try: `cat orders.txt`, `ls mech`",
+    ""
+  ],
+  "commands": {
+    "status": [
+      "MECH STATUS — ENKIDU-class // hull integrity 87%",
+      "  HEAT       ▓▓▓░░░░░░░  3 / 10",
+      "  STRUCTURE  ████░       4 / 4",
+      "  STRESS     ████░       4 / 4",
+      "  CORE       READY  [ press `core` to deploy ]"
+    ],
+    "core": [
+      "CORE POWER ENGAGED.",
+      "AUTHORIZED. RECOMMEND CAUTION.",
+      "Pilot, you know what to do."
+    ],
+    "hail": [
+      "OPENING OMNINET CHANNEL...",
+      "[static]",
+      "...this is Union Operator 9. go ahead, lance."
+    ]
+  }
+}

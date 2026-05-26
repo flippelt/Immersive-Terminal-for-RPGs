@@ -1,0 +1,52 @@
+{
+  "id": "heimdall",
+  "name": "Case 4127-A — Project HEIMDALL",
+  "motd": [
+    "// NetWatch Agent Console — Night City Subnet //",
+    "Active case: 4127-A — illegal incursion, Arasaka Tower",
+    "Last login: 17m ago (your station)",
+    "",
+    "try: `cat case.txt`, `ls suspects`, `architecture`",
+    ""
+  ],
+  "commands": {
+    "trace": [
+      ">>> opening trace channel...",
+      ">>> tracerouting through 7 jump nodes...",
+      ">>> [1] 10.0.0.4    Arasaka backbone — bounce",
+      ">>> [2] 192.0.0.99  Militech relay — bounce",
+      ">>> [3] 198.51.0.7  Night City civic mesh",
+      ">>> [4] [REDACTED]  cloak detected",
+      ">>> trace lost. subject runs Hellhound stealth firmware.",
+      ">>> recommendation: deploy Sabertooth ICE."
+    ],
+    "deploy": [
+      "BLACK ICE DEPLOYMENT — confirm? [y/N]",
+      "y",
+      ">>> SABERTOOTH ICE engaged.",
+      ">>> tracking subject signal...",
+      ">>> hit. neural feedback delivered.",
+      ">>> subject biomonitor: flatline.",
+      "",
+      "case 4127-A: closed. file in /sealed/."
+    ],
+    "architecture": [
+      "NIGHT CITY SUBNET MAP",
+      "                                              ",
+      "  [GLOBAL NET]                                ",
+      "       │                                      ",
+      "  ┌────┴────┐                                 ",
+      "  │ NETWATCH│  ← you are here                 ",
+      "  └────┬────┘                                 ",
+      "       │                                      ",
+      "  ┌────┼─────────────┐                        ",
+      "  │    │             │                        ",
+      "  ▼    ▼             ▼                        ",
+      "[ARA] [MIL]       [CIVIC]                     ",
+      " │     │            │                         ",
+      "host  host        public                      ",
+      "                                              ",
+      " ARA = Arasaka      MIL = Militech            "
+    ]
+  }
+}

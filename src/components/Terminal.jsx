@@ -117,7 +117,7 @@ export default function Terminal({
       const { path, node } = pwPrompt
       setPwPrompt(null)
       push([
-        ...buildDecryptLines(theme, path, node, key, unlock),
+        ...buildDecryptLines(theme, path, node, key, unlock, theme.filesystem),
         { text: '', instant: true }
       ])
     },

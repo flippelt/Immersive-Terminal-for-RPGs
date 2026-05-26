@@ -134,44 +134,61 @@ Registre o tema importando-o em [src/themes/index.js](src/themes/index.js).
 
 ### Cenário (campanha)
 
-Crie `src/themes/scenarios/<id-do-tema>/<nome>.json` — ele aparece
-automaticamente em `scenario list`.
+Um cenário é uma **pasta**: metadata num `scenario.json` e os arquivos do
+terminal como **arquivos reais** dentro de `files/`. O loader descobre tudo
+sozinho — adicionar um arquivo ao terminal = soltar um `.txt` na pasta.
+
+```
+src/themes/scenarios/<tema>/<id>/
+  scenario.json              ← motd, commands, overrides
+  files/
+    arquivo.txt              → vira /arquivo.txt
+    logs/relatorio.log       → vira /logs/relatorio.log
+    cofre/segredo.dat        → arquivo trancado (front-matter no topo)
+```
+
+Diretórios são inferidos da árvore. O cenário aparece automaticamente em
+`scenario list`.
+
+**`scenario.json`:**
 
 ```jsonc
 {
-  "id": "minha-campanha",
   "name": "Rótulo da campanha",
   "motd": [ "linhas mostradas após o banner" ],
   "commands": {                       // comandos custom retornam linhas estáticas
     "meu-comando": [ "linha 1", { "text": "linha 2", "type": "err" } ]
-  },
-  "filesystem": {
-    "/":            { "type": "dir",  "children": ["arquivo.txt"] },
-    "/arquivo.txt": { "type": "file", "content": "..." }
   }
 }
 ```
 
-Um cenário pode sobrescrever `boot`, `motd`, `user`, `header`, `prompt` e `locks`
-do tema. `type` de linha: `normal` · `ok` · `err` · `muted` · `user`.
+Um cenário pode sobrescrever `boot`, `user`, `header`, `prompt` e `locks` do
+tema. `type` de linha: `normal` · `ok` · `err` · `muted` · `user`.
 
-### Arquivos trancados
+### Arquivos do terminal
 
-```jsonc
-"/segredo.dat": {
-  "type": "file",
-  "locked": true,                              // obrigatório
-  "password": "swordfish",                     // habilita decrypt
-  "crackable": true,                           // false = só decrypt
-  "crackTime": 8000,                           // ms (override por arquivo)
-  "decryptTime": 1500,
-  "lockLabel": "BYPASSING ICE",                // label da barra de crack
-  "decryptLabel": "RESOLVING KEY",
-  "crackSuccessMessage": "ACCESS GRANTED.",
-  "crackFailMessage": "encryption too strong", // mostrado se crackable=false
-  "content": "revelado após desbloqueio"
-}
+- **Arquivo aberto** = só o texto. Crie `files/nota.txt` com o conteúdo.
+- **Arquivo trancado** = bloco de front-matter (`---`) no topo + conteúdo:
+
 ```
+---
+locked: true
+password: swordfish            # habilita decrypt
+crackable: true                # false = só decrypt
+crackTime: 8000                # ms (override por arquivo)
+decryptTime: 1500
+lockLabel: BYPASSING ICE       # label da barra de crack
+decryptLabel: RESOLVING KEY
+crackSuccessMessage: ACCESS GRANTED.
+crackFailMessage: encryption too strong   # se crackable=false
+reveals: /cofre/outro.dat      # cadeia: ao destrancar, revela a senha de outro arquivo
+---
+Conteúdo revelado após o desbloqueio.
+```
+
+Valores do front-matter coagem pra boolean/número automaticamente; use aspas
+pra forçar string (ex.: senha numérica `password: "12345"`). `reveals` aceita
+vários paths separados por vírgula.
 
 Desbloqueios duram até `reboot` ou troca de tema. `ls` marca `[LOCKED]`.
 
@@ -195,9 +212,11 @@ src/
     PasswordModal.jsx      diálogo de senha do decrypt
     ThemeSwitcher.jsx · AudioToggle.jsx
   themes/
-    index.js               registry + composeTheme(skin + cenário)
-    <id>.json              skins
-    scenarios/<id>/*.json  campanhas
+    index.js                       registry + loader (glob + front-matter) + composeTheme
+    <id>.json                      skins
+    scenarios/<tema>/<id>/
+      scenario.json                motd + commands
+      files/**                     arquivos do terminal (texto / front-matter)
 public/fonts/              fontes self-hosted (.ttf/.otf)
 ```
 

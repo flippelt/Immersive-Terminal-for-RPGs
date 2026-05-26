@@ -1,0 +1,23 @@
+{
+  "id": "nostromo",
+  "name": "USCSS Nostromo — LV-426 incident",
+  "motd": [
+    "SCIENCE OFFICER EYES ONLY",
+    "PRIORITY ONE: ENSURE RETURN OF ORGANISM FOR ANALYSIS",
+    "ALL OTHER CONSIDERATIONS SECONDARY. CREW EXPENDABLE.",
+    "",
+    "type `help` for commands. type `cat directive.txt` to begin.",
+    ""
+  ],
+  "commands": {
+    "query": [
+      "ACCESS DENIED — SCIENCE OFFICER CLEARANCE REQUIRED.",
+      "RECONSIDER YOUR LAST REQUEST."
+    ],
+    "override": [
+      "OVERRIDE ACCEPTED. SPECIAL ORDER 937 INVOKED.",
+      "CREW NON-ESSENTIAL.",
+      "..."
+    ]
+  }
+}

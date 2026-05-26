@@ -1,0 +1,7 @@
+CAPT  Dallas      [DECEASED]
+XO    Kane        [DECEASED]
+NAV   Lambert     [DECEASED]
+ENG   Parker      [DECEASED]
+ENG   Brett       [DECEASED]
+SCI   Ash         [SYNTHETIC // TERMINATED]
+WO    Ripley      [STATUS: SURVIVING]
