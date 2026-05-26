@@ -1,150 +1,223 @@
-# Terminal Immersivo para RPG
+# Terminal Imersivo para RPG
 
 ### → [**LIVE DEMO**](https://flippelt.github.io/terminal-immersive-rpg/demo/) ←
 
-Site que simula um terminal de console (estilo *cool-retro-term*) com skins
-trocáveis para sistemas de RPG: **Alien (MU/TH/UR)**, **Lancer (COMP/CON)**,
-**Blade Runner (Esper)** e **Warhammer 40K (Cogitator)**.
+Um site que simula um terminal de console retrô (estilo *cool-retro-term*) para
+usar como prop em mesas de RPG. Troque de "sistema" e o visual, os textos e o
+conteúdo mudam por completo. O Mestre cria cenários editando só arquivos JSON.
 
-Stack: React + Vite. Sem backend. Conteúdo (textos, arquivos, NPCs) vive em
-JSON — Mestres editam só os temas.
+Sistemas incluídos: **Alien** (MU/TH/UR), **Lancer** (COMP/CON), **Blade Runner**
+(Esper), **Warhammer 40K** (Cogitator), **Fallout** (RobCo Termlink) e
+**Cyberpunk RED** (NetWatch).
 
-## Rodando
+Stack: **React + Vite**, 100% estático, sem backend. Áudio sintetizado no
+navegador (sem assets), fontes self-hosted (sem Google Fonts).
+
+---
+
+## Recursos
+
+- **CRT em CSS puro** — scanlines, glow de fósforo, flicker, sweep, curvatura e
+  vinheta. Respeita `prefers-reduced-motion`.
+- **Terminal híbrido** — boot animado por typewriter + prompt interativo com
+  cursor inline que segue a digitação e as setas ←/→.
+- **Arquivos trancados** — `crack` (força bruta animada) e `decrypt` (modal
+  cinematográfico de senha) com barra de progresso configurável.
+- **Modo Mestre** (escondido) — revela senhas e conteúdo trancado sem destrancar
+  pros jogadores.
+- **Som sintetizado** — clique de tecla, beep de sucesso/erro e whoosh de boot,
+  com volume controlável.
+- **Temas + cenários** — skin reutilizável separada do conteúdo da campanha; um
+  tema pode hospedar várias campanhas.
+
+---
+
+## Rodando localmente
 
 ```bash
 npm install
-npm run dev
+npm run dev      # http://localhost:5173
 ```
 
-Abre em `http://localhost:5173`.
-
-Build estático para hospedar (Netlify, GitHub Pages, etc.):
+Build de produção:
 
 ```bash
-npm run build
-# saída em ./dist
+npm run build        # versão completa → dist/
+npm run build:demo   # versão demo curada → dist-demo/
+npm run lint         # ESLint
 ```
 
-### GitHub Pages (automático)
+### Deploy (GitHub Pages)
 
-A cada push em `main`, o site é publicado via
-[`.github/workflows/deploy.yml`](.github/workflows/deploy.yml).
-
-`vite.config.js` define o `base` por modo:
-- `npm run dev` → `/` (localhost)
-- `npm run build` → `/terminal-immersive-rpg/`
-- `npm run build:demo` → `/terminal-immersive-rpg/demo/` (`dist-demo/`)
-
-Pra ajustar quais temas aparecem no demo, edite `DEMO_IDS` em
+A cada push em `main`, [`.github/workflows/deploy.yml`](.github/workflows/deploy.yml)
+publica o site. O `base` do Vite é ajustado por modo (`/` em dev,
+`/terminal-immersive-rpg/` no build, `/terminal-immersive-rpg/demo/` no demo).
+A lista de temas que aparecem no demo fica em `DEMO_IDS` em
 [src/themes/index.js](src/themes/index.js).
 
-## Como usar na mesa
+---
 
-- O switcher embaixo da tela troca de sistema (também via comando `theme <id>`).
-- Comandos básicos disponíveis em todos os sistemas: `help`, `ls`, `cd`, `cat`,
-  `pwd`, `whoami`, `date`, `clear`, `motd`, `theme`, `reboot`.
-- ↑/↓ navegam histórico de comandos. `Ctrl+L` limpa a tela.
-- Cada tema adiciona comandos próprios (ex: `vk`, `enhance` no Blade Runner,
-  `litany`, `bless` no WH40K, `status`, `core`, `hail` no Lancer).
-- Boot sequence, banner ASCII, prompt, paleta, fonte e MOTD são todos por tema.
+## Usando na mesa
 
-## Criando um sistema novo
+**Comandos disponíveis em todos os sistemas:**
 
-1. Copie um arquivo em `src/themes/` (`alien.json` é um bom modelo).
-2. Edite `id`, `name`, `palette`, `font`, `boot`, `motd`, `filesystem`,
-   `commands` (comandos customizados retornam linhas estáticas).
-3. Adicione o import em `src/themes/index.js`.
+| Comando | Ação |
+|---|---|
+| `help` | lista de comandos |
+| `ls [path]` · `cd <path>` · `cat <file>` · `pwd` | navegação no filesystem |
+| `crack <file>` | força bruta em arquivo trancado (barra de progresso) |
+| `decrypt <file> [key]` | desbloqueia por senha; sem `key` abre um modal |
+| `theme [id]` | troca de sistema |
+| `scenario [list\|load <id>]` | troca de campanha dentro do sistema |
+| `volume [0-100\|mute\|unmute]` | nível de áudio |
+| `whoami` · `date` · `motd` · `clear` · `reboot` | utilitários |
 
-### Schema mínimo
+Cada cenário ainda adiciona comandos próprios (ex.: `vk`/`enhance` no Blade
+Runner, `pipboy`/`rads` no Fallout, `trace`/`deploy` no Cyberpunk).
+
+**Atalhos e UI:**
+
+- ↑/↓ navegam o histórico de comandos · `Ctrl+L` limpa a tela.
+- Switcher de tema embaixo · toggle de áudio no canto inferior direito.
+- **`Ctrl+Shift+G`** (ou o comando `gm`) liga o **Modo Mestre**: arquivos
+  trancados mostram a senha no `ls` e o conteúdo no `cat`, sem afetar o que os
+  jogadores veem. Sessão-only (reseta ao recarregar).
+
+**Carregar uma campanha direto por URL** (útil pra bookmark do GM):
+
+```
+.../?theme=cprd&scenario=heimdall
+```
+
+---
+
+## Criando conteúdo
+
+Um **tema** é a skin (cores, fonte, banner, som). Um **cenário** é o conteúdo da
+campanha (textos, arquivos, comandos). Um tema pode ter vários cenários.
+
+```
+src/themes/<id>.json                     skin + defaultScenario
+src/themes/scenarios/<id>/<nome>.json    campanha
+```
+
+### Tema (skin)
 
 ```jsonc
 {
   "id": "meu-sistema",
   "name": "Nome legível",
   "header": "texto no topo da tela",
-  "prompt": "prefixo>",
-  "palette": { "bg": "#000", "fg": "#33ff33", "accent": "#a0ffa0",
-               "muted": "#1a661a", "error": "#ff5252" },
-  "font": "'3270 Nerd Font Mono'",  // declarada em src/styles/base.css
+  "prompt": "prefixo",
+  "user": "operador",
+  "palette": { "bg": "#000", "bgSoft": "#001a00", "fg": "#33ff33",
+               "accent": "#a0ffa0", "muted": "#1a661a", "error": "#ff5252" },
+  "font": "'3270 Nerd Font Mono'",   // declarada em src/styles/base.css
   "fontSize": "18px",
   "crt": { "glow": "8px", "typeSpeed": 14 },
-  "locks": {                 // defaults para crack/decrypt neste sistema
-    "crackDefault": 5000,    // ms
-    "decryptDefault": 1500,
-    "crackLabel": "BRUTE-FORCING",
-    "decryptLabel": "DECRYPTING"
+  "sounds": {                         // opcional — defaults sensatos se ausente
+    "keystroke": { "freq": 1400, "duration": 0.012, "type": "square" },
+    "beep":      { "freq": 880,  "duration": 0.06,  "type": "sine" },
+    "whoosh":    { "duration": 0.7, "freqStart": 80, "freqEnd": 1400 }
   },
-  "banner": "ASCII art opcional",
-  "boot":  [ { "text": "linha 1", "type": "ok" }, ... ],
-  "motd":  [ "linhas mostradas após o banner" ],
+  "locks": { "crackDefault": 5000, "decryptDefault": 1500,
+             "crackLabel": "BRUTE-FORCING", "decryptLabel": "DECRYPTING" },
+  "banner": "ASCII art / box-drawing opcional",
+  "boot":  [ { "text": "linha de boot", "type": "ok" } ],
   "extraHelp": [ "  cmd       descrição extra no help" ],
-  "unknownHint": "fallback quando comando não existe",
-  "commands": {
+  "unknownHint": "fallback quando o comando não existe",
+  "defaultScenario": "minha-campanha"
+}
+```
+
+Registre o tema importando-o em [src/themes/index.js](src/themes/index.js).
+
+### Cenário (campanha)
+
+Crie `src/themes/scenarios/<id-do-tema>/<nome>.json` — ele aparece
+automaticamente em `scenario list`.
+
+```jsonc
+{
+  "id": "minha-campanha",
+  "name": "Rótulo da campanha",
+  "motd": [ "linhas mostradas após o banner" ],
+  "commands": {                       // comandos custom retornam linhas estáticas
     "meu-comando": [ "linha 1", { "text": "linha 2", "type": "err" } ]
   },
   "filesystem": {
-    "/":       { "type": "dir",  "children": ["arquivo.txt"] },
+    "/":            { "type": "dir",  "children": ["arquivo.txt"] },
     "/arquivo.txt": { "type": "file", "content": "..." }
   }
 }
 ```
 
-### Arquivos protegidos
+Um cenário pode sobrescrever `boot`, `motd`, `user`, `header`, `prompt` e `locks`
+do tema. `type` de linha: `normal` · `ok` · `err` · `muted` · `user`.
 
-Qualquer arquivo pode ser trancado. Campos disponíveis (todos opcionais menos
-`locked`):
+### Arquivos trancados
 
 ```jsonc
 "/segredo.dat": {
   "type": "file",
   "locked": true,                              // obrigatório
-  "password": "swordfish",                     // habilita `decrypt`
-  "crackable": true,                           // se false, só decrypt funciona
+  "password": "swordfish",                     // habilita decrypt
+  "crackable": true,                           // false = só decrypt
   "crackTime": 8000,                           // ms (override por arquivo)
-  "decryptTime": 1500,                         // ms (override por arquivo)
-  "lockLabel": "BYPASSING WEYLAND ICE",        // label no progresso de crack
-  "decryptLabel": "RESOLVING KEY",             // label no progresso de decrypt
-  "crackSuccessMessage": "ACCESS GRANTED.",    // override da mensagem de sucesso
+  "decryptTime": 1500,
+  "lockLabel": "BYPASSING ICE",                // label da barra de crack
+  "decryptLabel": "RESOLVING KEY",
+  "crackSuccessMessage": "ACCESS GRANTED.",
   "crackFailMessage": "encryption too strong", // mostrado se crackable=false
-  "content": "conteúdo revelado após desbloqueio"
+  "content": "revelado após desbloqueio"
 }
 ```
 
-Comandos do jogador para desbloquear:
+Desbloqueios duram até `reboot` ou troca de tema. `ls` marca `[LOCKED]`.
 
-- `crack <arquivo>` — força bruta, mostra barra de progresso de `crackTime` ms.
-  Falha imediata se `crackable: false`.
-- `decrypt <arquivo> <chave>` — checa `password`. Errou: rejeitado na hora.
-  Acertou: barra de `decryptTime` ms e o arquivo abre.
-
-Desbloqueios duram até `reboot` ou troca de tema. `ls` mostra `[LOCKED]` em
-arquivos ainda trancados.
+---
 
 ## Estrutura
 
 ```
 src/
-  App.jsx                  estado global de tema + CSS vars
-  styles/
-    base.css               reset + tipografia base
-    crt.css                CRT (scanlines, glow, flicker, sweep, vignette)
+  App.jsx                  estado de tema/cenário, GM mode, CSS vars, URL params
+  audio/sfx.js             síntese Web Audio (keystroke/beep/whoosh)
+  styles/{base,crt}.css    fontes @font-face + efeito CRT
   engine/
-    filesystem.js          path resolver + listDir
-    commands.js            parser e built-ins
+    commands.js            parser + comandos built-in
+    filesystem.js          resolver de path + listDir
   components/
-    Terminal.jsx           histórico, fila de typewriter, prompt
-    Prompt.jsx             input + histórico ↑↓
-    OutputLine.jsx         linha animada (typewriter) ou banner
-    ThemeSwitcher.jsx
-  hooks/
-    useTypewriter.js
+    Terminal.jsx           histórico, fila de typewriter, ctx dos comandos
+    Prompt.jsx             input com cursor inline
+    OutputLine.jsx         linha (typewriter / banner / progress)
+    ProgressLine.jsx       barra animada (crack/decrypt)
+    PasswordModal.jsx      diálogo de senha do decrypt
+    ThemeSwitcher.jsx · AudioToggle.jsx
   themes/
-    index.js               registry
-    *.json                 um por sistema
+    index.js               registry + composeTheme(skin + cenário)
+    <id>.json              skins
+    scenarios/<id>/*.json  campanhas
+public/fonts/              fontes self-hosted (.ttf/.otf)
 ```
 
-## Notas
+---
 
-- O efeito CRT é só CSS — sem WebGL. `prefers-reduced-motion` desliga
-  flicker/sweep.
-- O tema escolhido fica salvo em `localStorage` (chave `tirpg.theme`).
+## Fontes
+
+Self-hosted em [public/fonts/](public/fonts/) — sem chamadas externas.
+
+- **3270 Nerd Font** — BSD-2-Clause (3270) + MIT (Nerd Font).
+- **Terminal Grotesque** (Raphaël Bastide) — SIL Open Font License.
+
+---
+
+## Licença
+
+Código sob [MIT](LICENSE) © 2026 Felipe Lippelt.
+
+> **Conteúdo de fã, não-oficial.** Os temas referenciam universos de terceiros
+> (Alien, Lancer, Blade Runner, Warhammer 40,000, Fallout, Cyberpunk) apenas
+> para uso em mesas de RPG. Este projeto não é afiliado nem endossado pelos
+> detentores dessas marcas, que permanecem propriedade de seus respectivos
+> donos. A licença MIT cobre apenas o código-fonte original deste repositório.
