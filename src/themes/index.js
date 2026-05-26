@@ -4,6 +4,7 @@ import bladerunner from './bladerunner.json'
 import wh40k from './wh40k.json'
 import fallout from './fallout.json'
 import cyberpunk from './cyberpunk.json'
+import dataslate from './dataslate.json'
 
 // A THEME is a skin (palette, font, banner, sounds, boot, locks defaults).
 // A SCENARIO is a campaign that plugs into a theme. Its layout on disk:
@@ -15,7 +16,7 @@ import cyberpunk from './cyberpunk.json'
 // A locked file carries front-matter (a --- block) with its metadata;
 // a plain file is just its text. Directories are inferred from the tree.
 
-const THEME_LIST = [alien, lancer, bladerunner, wh40k, fallout, cyberpunk]
+const THEME_LIST = [alien, lancer, bladerunner, wh40k, fallout, cyberpunk, dataslate]
 const THEME_REGISTRY = Object.fromEntries(THEME_LIST.map((t) => [t.id, t]))
 
 // --- front-matter --------------------------------------------------------

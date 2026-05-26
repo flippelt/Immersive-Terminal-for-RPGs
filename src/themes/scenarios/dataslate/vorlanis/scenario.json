@@ -1,0 +1,28 @@
+{
+  "id": "vorlanis",
+  "name": "Cadian 412th — Vorlanis Secundus",
+  "motd": [
+    "++ ADEPTUS ADMINISTRATUM — FIELD DATASLATE ++",
+    "theatre: Vorlanis Secundus  //  regiment: Cadian 412th",
+    "clearance: ADEPT  //  thought for the day: obedience is its own reward",
+    "",
+    "open: `cat briefing.txt`, `ls munitorum`, `ls orders`",
+    ""
+  ],
+  "commands": {
+    "aquila": [
+      "++ OATH OF LOYALTY ++",
+      "I am the hammer. I am the point of His spear.",
+      "I am the gauntlet about His fist.",
+      "I am the woes of daemonkind.",
+      "I am His will done.",
+      "++ ave Imperator ++"
+    ],
+    "vox": [
+      "++ OPENING VOX-CHANNEL... ++",
+      "[squelch]",
+      "...command, this is Iron Wall actual. line holds. send promethium.",
+      "...for Cadia. out."
+    ]
+  }
+}
