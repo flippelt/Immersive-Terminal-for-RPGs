@@ -162,9 +162,10 @@ const COMMANDS = {
   decrypt: (ctx) => {
     const [file, ...rest] = ctx.args
     const key = rest.join(' ')
-    if (!file || !key)
+    if (!file)
       return [
-        { text: 'decrypt: usage: decrypt <file> <key>', type: 'err' }
+        { text: 'decrypt: usage: decrypt <file> [key]', type: 'err' },
+        { text: '(omit key to be prompted by a secure dialog)', type: 'muted' }
       ]
     const { path, node } = resolveTarget(ctx, file)
     if (!node) return [{ text: `decrypt: ${path}: no such file`, type: 'err' }]
@@ -177,26 +178,39 @@ const COMMANDS = {
         { text: `decrypt: ${path}: no password-based encryption.`, type: 'err' },
         { text: 'try `crack` instead.', type: 'muted' }
       ]
-    if (key !== node.password) {
+    // Cinematic path: no key on the command line -> open the modal.
+    if (!key) {
+      ctx.openPasswordPrompt?.(path, node)
       return [
-        { text: 'decrypt: key rejected.', type: 'err' },
-        { text: 'system flags this attempt.', type: 'muted' }
+        { text: `${path} — encrypted. authentication required.`, type: 'muted' }
       ]
     }
-    const duration = node.decryptTime ?? ctx.theme.locks?.decryptDefault ?? 1500
-    const label =
-      node.decryptLabel ?? ctx.theme.locks?.decryptLabel ?? 'DECRYPTING'
+    // Inline path (script/power-user): key already provided.
+    return buildDecryptLines(ctx.theme, path, node, key, ctx.unlock)
+  }
+}
+
+// Shared between the inline (commands.js) and modal (Terminal.jsx) flows.
+export function buildDecryptLines(theme, path, node, key, unlock) {
+  if (key !== node.password) {
     return [
-      { text: 'key accepted. applying...', type: 'muted' },
-      {
-        type: 'progress',
-        duration,
-        label,
-        onComplete: () => ctx.unlock(path)
-      },
-      { text: `${path} decrypted.`, type: 'ok' }
+      { text: 'decrypt: key rejected.', type: 'err' },
+      { text: 'system flags this attempt.', type: 'muted' }
     ]
   }
+  const duration = node.decryptTime ?? theme.locks?.decryptDefault ?? 1500
+  const label =
+    node.decryptLabel ?? theme.locks?.decryptLabel ?? 'DECRYPTING'
+  return [
+    { text: 'key accepted. applying...', type: 'muted' },
+    {
+      type: 'progress',
+      duration,
+      label,
+      onComplete: () => unlock(path)
+    },
+    { text: `${path} decrypted.`, type: 'ok' }
+  ]
 }
 
 export function runCommand(input, ctx) {
