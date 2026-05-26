@@ -6,7 +6,7 @@
     "theatre: Vorlanis Secundus  //  regiment: Cadian 412th",
     "clearance: ADEPT  //  thought for the day: obedience is its own reward",
     "",
-    "open: `cat briefing.txt`, `ls munitorum`, `ls orders`",
+    "open: `cat briefing.md`, `ls munitorum`, `ls orders`",
     ""
   ],
   "commands": {

@@ -26,7 +26,7 @@
     "holotape": [
       "HOLOTAPE NOT FOUND.",
       "available: `holotape orientation`, `holotape final_message`",
-      "(or use `cat holotapes/<name>.txt`)"
+      "(or use `cat holotapes/<name>.md`)"
     ]
   }
 }

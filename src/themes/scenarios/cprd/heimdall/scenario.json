@@ -6,7 +6,7 @@
     "Active case: 4127-A — illegal incursion, Arasaka Tower",
     "Last login: 17m ago (your station)",
     "",
-    "try: `cat case.txt`, `ls suspects`, `architecture`",
+    "try: `cat case.md`, `ls suspects`, `architecture`",
     ""
   ],
   "commands": {

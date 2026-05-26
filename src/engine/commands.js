@@ -1,4 +1,5 @@
 import { normalizePath, getNode, listDir } from './filesystem.js'
+import { renderMarkdown } from './markdown.js'
 import {
   setVolume as audioSetVolume,
   setMuted as audioSetMuted,
@@ -35,6 +36,15 @@ const help = (extra = []) => [
   { text: '  volume [0-100|mute]   audio level' },
   ...extra.map((line) => ({ text: line, type: 'muted' }))
 ]
+
+// .md files render through the markdown layer; everything else (.log,
+// .dat, ...) prints raw, like a data dump.
+function renderFileContent(path, content) {
+  const text = content ?? ''
+  return path.endsWith('.md')
+    ? renderMarkdown(text)
+    : text.split('\n').map((t) => ({ text: t }))
+}
 
 function resolveTarget(ctx, arg) {
   const path = normalizePath(ctx.cwd, arg)
@@ -128,7 +138,7 @@ const COMMANDS = {
             text: `★ GM preview // ${path} [LOCKED${meta.length ? ' ' + meta.join(' ') : ''}]`,
             type: 'muted'
           },
-          ...(node.content ?? '').split('\n').map((text) => ({ text })),
+          ...renderFileContent(path, node.content),
           { text: '★ end preview (file remains locked for players)', type: 'muted' }
         ]
       }
@@ -143,7 +153,7 @@ const COMMANDS = {
         { text: hint, type: 'muted' }
       ]
     }
-    return (node.content ?? '').split('\n').map((text) => ({ text }))
+    return renderFileContent(path, node.content)
   },
 
   scenario: (ctx) => {
