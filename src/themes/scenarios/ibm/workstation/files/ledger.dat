@@ -1,0 +1,18 @@
+---
+locked: true
+password: LEDGER-7
+crackable: true
+crackDC: 12
+crackAttempts: 3
+lockLabel: BRUTE-FORCING LEDGER CIPHER
+crackSuccessMessage: ledger.dat decrypted. accounts exposed.
+reveals: /vault.dat
+---
+HALDEN CYBERNETICS // OFF-BOOK ACCOUNTS
+=======================================
+  Q1   -2,400,000   -> "site maintenance" (no site on record)
+  Q2   -3,100,000   -> same payee, routing redacted
+  Q3   -5,800,000   -> wired to VAULT, location sealed
+
+The money built a place that isn't on any map.
+Everything else is in vault.dat.

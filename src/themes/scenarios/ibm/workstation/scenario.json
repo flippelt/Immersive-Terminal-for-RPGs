@@ -1,0 +1,19 @@
+{
+  "id": "workstation",
+  "name": "Dr. Halden's workstation",
+  "motd": [
+    "PC-DOS 3.30  —  (C) IBM Corp 1981, 1987",
+    "last user: HALDEN, E.  //  last login: [date corrupted]",
+    "",
+    "type `help` for commands. start with `cat readme.md`.",
+    ""
+  ],
+  "commands": {
+    "ver": ["IBM Personal Computer DOS", "Version 3.30"],
+    "mem": [
+      "    655360 bytes total conventional memory",
+      "    652288 bytes available to DOS",
+      "    largest executable program size: 631 KB"
+    ]
+  }
+}
