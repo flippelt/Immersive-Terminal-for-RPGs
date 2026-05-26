@@ -29,7 +29,11 @@ const toLine = (l) => ({
   instant: !!l.instant,
   duration: l.duration,
   label: l.label,
-  onComplete: l.onComplete
+  onComplete: l.onComplete,
+  // countdown fields
+  from: l.from,
+  interval: l.interval,
+  alarm: l.alarm
 })
 
 export default function Terminal({

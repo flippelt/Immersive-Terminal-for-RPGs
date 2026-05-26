@@ -278,6 +278,23 @@ const COMMANDS = {
       : [{ text: `find: no files matching "${pat}"`, type: 'muted' }]
   },
 
+  // Hidden — dramatic countdown. Themeable via theme.selfDestruct; scenarios
+  // can also define their own command with a `countdown` line.
+  selfdestruct: (ctx) => {
+    const c = ctx.theme.selfDestruct ?? {}
+    return [
+      { text: c.armed ?? 'WARNING: SELF-DESTRUCT SEQUENCE ARMED', type: 'err' },
+      {
+        type: 'countdown',
+        from: c.from ?? 10,
+        interval: c.interval ?? 800,
+        label: c.label ?? 'DETONATION IN',
+        alarm: true
+      },
+      { text: c.detonate ?? 'DETONATION.', type: 'err' }
+    ]
+  },
+
   // Hidden — GM prep dump of every locked file's secrets. GM mode only.
   gmsheet: (ctx) => {
     if (!ctx.gmMode)
