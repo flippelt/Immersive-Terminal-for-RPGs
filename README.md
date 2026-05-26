@@ -60,8 +60,8 @@ via [`.github/workflows/deploy.yml`](.github/workflows/deploy.yml) a cada push.
   "prompt": "prefixo>",
   "palette": { "bg": "#000", "fg": "#33ff33", "accent": "#a0ffa0",
                "muted": "#1a661a", "error": "#ff5252" },
-  "font": "'VT323'",
-  "fontSize": "20px",
+  "font": "'3270 Nerd Font Mono'",  // declarada em src/styles/base.css
+  "fontSize": "18px",
   "crt": { "glow": "8px", "typeSpeed": 14 },
   "locks": {                 // defaults para crack/decrypt neste sistema
     "crackDefault": 5000,    // ms
