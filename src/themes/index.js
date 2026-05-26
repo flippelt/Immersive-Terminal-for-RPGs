@@ -3,6 +3,16 @@ import lancer from './lancer.json'
 import bladerunner from './bladerunner.json'
 import wh40k from './wh40k.json'
 
-export const THEMES = [alien, lancer, bladerunner, wh40k]
+const ALL = [alien, lancer, bladerunner, wh40k]
+
+// Demo build (vite build --mode demo) shows a curated subset suitable
+// for a public showcase. Edit DEMO_IDS to taste — keep it stable.
+const DEMO_IDS = ['alien', 'lancer', 'br']
+
+export const IS_DEMO = import.meta.env.MODE === 'demo'
+
+export const THEMES = IS_DEMO
+  ? ALL.filter((t) => DEMO_IDS.includes(t.id))
+  : ALL
 export const THEME_BY_ID = Object.fromEntries(THEMES.map((t) => [t.id, t]))
-export const DEFAULT_THEME = alien
+export const DEFAULT_THEME = THEMES[0] ?? ALL[0]

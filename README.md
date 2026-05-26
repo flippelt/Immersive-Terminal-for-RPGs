@@ -25,13 +25,21 @@ npm run build
 
 ### GitHub Pages (automático)
 
-`main` é deployada automaticamente em
-[**flippelt.github.io/terminal-immersive-rpg**](https://flippelt.github.io/terminal-immersive-rpg/)
-via [`.github/workflows/deploy.yml`](.github/workflows/deploy.yml) a cada push.
+A cada push em `main`, dois sites são publicados via
+[`.github/workflows/deploy.yml`](.github/workflows/deploy.yml):
 
-`vite.config.js` ajusta `base` automaticamente:
+| URL | Conteúdo |
+|---|---|
+| [flippelt.github.io/terminal-immersive-rpg](https://flippelt.github.io/terminal-immersive-rpg/) | versão completa (4 temas) |
+| [flippelt.github.io/terminal-immersive-rpg/demo](https://flippelt.github.io/terminal-immersive-rpg/demo/) | demo público curado (sem WH40K), com badge `DEMO` no canto |
+
+`vite.config.js` define o `base` por modo:
 - `npm run dev` → `/` (localhost)
-- `npm run build` → `/terminal-immersive-rpg/` (Pages)
+- `npm run build` → `/terminal-immersive-rpg/`
+- `npm run build:demo` → `/terminal-immersive-rpg/demo/` (`dist-demo/`)
+
+Pra ajustar quais temas aparecem no demo, edite `DEMO_IDS` em
+[src/themes/index.js](src/themes/index.js).
 
 ## Como usar na mesa
 

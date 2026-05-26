@@ -134,6 +134,16 @@
   display: flex;
   gap: 12px;
   pointer-events: auto;
+  align-items: center;
+}
+
+.chrome__demo {
+  border: 1px solid var(--accent, #88ff88);
+  color: var(--accent, #88ff88);
+  padding: 1px 6px;
+  letter-spacing: 2px;
+  font-size: 0.85em;
+  opacity: 0.85;
 }
 
 .theme-switcher {
