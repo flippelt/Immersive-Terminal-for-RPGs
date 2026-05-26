@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import Terminal from './components/Terminal.jsx'
 import ThemeSwitcher from './components/ThemeSwitcher.jsx'
-import { THEMES, DEFAULT_THEME, THEME_BY_ID } from './themes/index.js'
+import { THEMES, DEFAULT_THEME, THEME_BY_ID, IS_DEMO } from './themes/index.js'
 
 const LS_KEY = 'tirpg.theme'
 
@@ -34,7 +34,10 @@ export default function App() {
     <div className="crt">
       <div className="chrome">
         <span>{theme.header}</span>
-        <span className="chrome__right">UPLINK · {new Date().getFullYear()}</span>
+        <span className="chrome__right">
+          {IS_DEMO && <span className="chrome__demo">DEMO</span>}
+          UPLINK · {new Date().getFullYear()}
+        </span>
       </div>
       <div className="crt__screen">
         <Terminal theme={theme} themes={THEMES} onSwitchTheme={setTheme} />

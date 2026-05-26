@@ -27,7 +27,16 @@ jobs:
 
       - run: npm ci
 
-      - run: npm run build
+      - name: Build main
+        run: npm run build
+
+      - name: Build demo (curated subset)
+        run: npm run build:demo
+
+      - name: Merge demo into dist/demo
+        run: |
+          mkdir -p dist/demo
+          cp -r dist-demo/. dist/demo/
 
       - uses: actions/configure-pages@v5
 
