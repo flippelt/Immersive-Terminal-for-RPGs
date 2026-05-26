@@ -8,7 +8,8 @@ conteúdo mudam por completo. O Mestre cria cenários editando só arquivos JSON
 
 Sistemas incluídos: **Alien** (MU/TH/UR), **Lancer** (COMP/CON), **Blade Runner**
 (Esper), **Warhammer 40K** (Cogitator e Dataslate Imperial), **Fallout** (RobCo
-Termlink) e **Cyberpunk RED** (NetWatch).
+Termlink), **Cyberpunk RED** (NetWatch) e **IBM 5151** (PC-DOS, fósforo verde —
+skin neutra/retrô pra cenários próprios).
 
 Stack: **React + Vite**, 100% estático, sem backend. Áudio sintetizado no
 navegador (sem assets), fontes self-hosted (sem Google Fonts).

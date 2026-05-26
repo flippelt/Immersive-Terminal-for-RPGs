@@ -1,0 +1,41 @@
+{
+  "id": "ibm",
+  "name": "IBM 5151 — Green Phosphor",
+  "header": "IBM PERSONAL COMPUTER // PC-DOS 3.30",
+  "prompt": "C:",
+  "user": "user",
+  "palette": {
+    "bg": "#001200",
+    "bgSoft": "#04220a",
+    "fg": "#2ce642",
+    "accent": "#7dff8e",
+    "muted": "#166b22",
+    "error": "#ffae00"
+  },
+  "font": "'3270 Nerd Font Mono'",
+  "fontSize": "18px",
+  "crt": { "glow": "9px", "typeSpeed": 11 },
+  "sounds": {
+    "whoosh": { "duration": 0.5, "freqStart": 180, "freqEnd": 1300, "tone": 0.5, "type": "triangle", "gain": 0.16 }
+  },
+  "locks": {
+    "crackDefault": 5000,
+    "decryptDefault": 1500,
+    "crackLabel": "BRUTE-FORCING",
+    "decryptLabel": "VERIFYING KEY"
+  },
+  "banner": "┌────────────────────────────────────────────┐\n│  IBM Personal Computer                      │\n│  PC-DOS  Version 3.30                        │\n│  (C) Copyright IBM Corp 1981, 1987           │\n└────────────────────────────────────────────┘",
+  "boot": [
+    { "text": "POST...", "type": "muted" },
+    { "text": "640K RAM  ........  OK", "type": "muted" },
+    { "text": "FIXED DISK 0  ....  OK", "type": "muted" },
+    { "text": "Starting PC-DOS...", "type": "ok" },
+    { "text": "" }
+  ],
+  "extraHelp": [
+    "  ver                   PC-DOS version",
+    "  mem                   memory map"
+  ],
+  "unknownHint": "Bad command or file name.",
+  "defaultScenario": "workstation"
+}
