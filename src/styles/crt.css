@@ -369,3 +369,72 @@
     animation: none;
   }
 }
+
+/* === Mobile / narrow screens === */
+@media (max-width: 640px) {
+  .crt {
+    /* Scale type down with the viewport, capped at the theme size. */
+    font-size: clamp(12px, 3.6vw, var(--font-size, 18px));
+  }
+
+  .crt__screen {
+    inset: 6px;
+    padding: 14px 12px 56px;
+    border-radius: 10px;
+    transform: none; /* drop the 3D tilt — avoids overflow quirks */
+  }
+
+  .crt__content {
+    overflow-x: auto; /* wide banners scroll instead of breaking layout */
+  }
+
+  .chrome {
+    padding: 5px 10px;
+    font-size: 0.58em;
+    gap: 8px;
+  }
+
+  .chrome > span:first-child {
+    max-width: 58%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .banner {
+    font-size: 0.62em;
+  }
+
+  .theme-switcher {
+    bottom: 6px;
+    gap: 4px;
+    flex-wrap: wrap;
+    justify-content: center;
+    max-width: calc(100% - 90px); /* leave room for the audio toggle */
+  }
+
+  .theme-switcher button {
+    padding: 2px 6px;
+  }
+
+  .audio-toggle {
+    bottom: 6px;
+    right: 8px;
+    padding: 2px 6px;
+    font-size: 0.6em;
+  }
+
+  .modal {
+    min-width: 0;
+    width: calc(100% - 32px);
+    max-width: none;
+  }
+}
+
+/* Prevent iOS Safari from zooming when the (invisible) input focuses.
+   16px is the threshold; the capture input has no visible glyphs so this
+   is purely about suppressing the zoom. */
+.prompt-line__capture,
+.modal__input {
+  font-size: max(16px, 1em);
+}
