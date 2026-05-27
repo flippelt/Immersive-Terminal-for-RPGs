@@ -257,8 +257,14 @@ export default function Terminal({
       }
       const dcNote = gmMode ? ` (DC ${dc})` : ''
       if (roll > dc) {
+        // Cracking it in time beats the trace: stop the tracer (with an
+        // optional GM-defined "evaded" line).
+        const tr = themeRef.current.tracer
+        const tracerWasOn = !!tr && tracerEndsAt != null
+        if (tracerWasOn) setTracerEndsAt(null)
         push([
           { text: `roll ${roll} — SUCCESS${dcNote}`, type: 'ok' },
+          ...(tracerWasOn && tr.evaded ? [{ text: tr.evaded, type: 'ok' }] : []),
           ...buildCrackLines(theme, path, node, unlock, theme.filesystem),
           { text: '', instant: true }
         ])
@@ -281,7 +287,7 @@ export default function Terminal({
       lines.push({ text: '', instant: true })
       push(lines)
     },
-    [modal, push, theme, unlock, gmMode, crackAttempts]
+    [modal, push, theme, unlock, gmMode, crackAttempts, tracerEndsAt]
   )
 
   const handleModalCancel = useCallback(() => {
