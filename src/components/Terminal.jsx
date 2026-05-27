@@ -18,6 +18,7 @@ import { runCommand, buildDecryptLines, buildCrackLines, buildCheckLines } from 
 import { complete } from '../engine/complete.js'
 import { effTracer, scanTier } from '../engine/tracer.js'
 import { pickWord } from '../engine/wordle.js'
+import { makeT } from '../i18n/ui.js'
 import { playBeep, playWhoosh } from '../audio/sfx.js'
 import { scenarioIdsFor } from '../themes/index.js'
 
@@ -140,6 +141,11 @@ export default function Terminal({
   themeRef.current = theme
   const langRef = useRef(lang)
   langRef.current = lang
+  // UI translator for built-in strings emitted from this component (decrypt
+  // outcomes, roll results, modal cancels). Kept in a ref so callbacks read
+  // the live language without re-subscribing. Command names never translate.
+  const tRef = useRef(makeT(lang))
+  tRef.current = makeT(lang)
 
   // Default-pool decrypt words are picked at runtime (so they follow the
   // active language) and cached per path so `gmsheet` and the game agree.
@@ -286,8 +292,8 @@ export default function Terminal({
     const tr = themeRef.current.tracer
     if (tr && node.tracer && tracerEndsAt != null) setTracerEndsAt(null)
     push([
-      { text: `>>> cipher solved — key recovered: ${node.password}`, type: 'ok' },
-      ...buildDecryptLines(themeRef.current, path, node, node.password, unlock, themeRef.current.filesystem),
+      { text: tRef.current('decrypt.solved', { key: node.password }), type: 'ok' },
+      ...buildDecryptLines(themeRef.current, path, node, node.password, unlock, themeRef.current.filesystem, tRef.current),
       { text: '', instant: true }
     ])
   }, [decryptGame, push, unlock, tracerEndsAt])
@@ -295,15 +301,15 @@ export default function Terminal({
   const handleDecryptLose = useCallback(() => {
     setDecryptGame(null)
     push([
-      { text: 'decryption failed — cipher re-scrambled.', type: 'err' },
-      { text: 'try `decrypt` again, or `unlock <file> <key>` if you have the password.', type: 'muted' },
+      { text: tRef.current('decrypt.failed'), type: 'err' },
+      { text: tRef.current('decrypt.failed.hint'), type: 'muted' },
       { text: '', instant: true }
     ])
   }, [push])
 
   const handleDecryptCancel = useCallback(() => {
     setDecryptGame(null)
-    push([{ text: 'decrypt: cancelled.', type: 'muted' }, { text: '', instant: true }])
+    push([{ text: tRef.current('decrypt.cancelled'), type: 'muted' }, { text: '', instant: true }])
   }, [push])
 
   // Clear the tracer when the player gets in cleanly via the inline
@@ -323,7 +329,7 @@ export default function Terminal({
   // one of the file's startAfter "grace" attempts (so re-probing a watched
   // file makes the eventual trace arm sooner).
   const flagRescan = useCallback((path, message) => {
-    setIceAlert(message || 'SUSPICIOUS ACTIVITY DETECTED')
+    setIceAlert(message || tRef.current('alert.suspicious'))
     const m = scanReductionsRef.current
     m.set(path, (m.get(path) ?? 0) + 1)
   }, [])
@@ -382,7 +388,7 @@ export default function Terminal({
       const { kind, path, node } = modal
       setModal(null)
       if (kind === 'decrypt') {
-        const lines = buildDecryptLines(theme, path, node, value, unlock, theme.filesystem)
+        const lines = buildDecryptLines(theme, path, node, value, unlock, theme.filesystem, tRef.current)
         // Getting in cleanly (correct key) on a watched file also evades the
         // tracer — you're in before the trace finishes.
         const tr = themeRef.current.tracer
@@ -397,7 +403,7 @@ export default function Terminal({
         // Scan roll: quality scales with the margin vs checkDC.
         const roll = parseInt(value, 10)
         if (!Number.isFinite(roll)) {
-          push([{ text: 'check: enter a number', type: 'err' }, { text: '', instant: true }])
+          push([{ text: tRef.current('check.enternum'), type: 'err' }, { text: '', instant: true }])
           return
         }
         const misleads = node.checkMisleadsOnFail ?? themeRef.current.checkMisleadsOnFail ?? false
@@ -405,8 +411,8 @@ export default function Terminal({
         setCheckResults((m) => new Map(m).set(path, tier))
         const locked = !!node.locked && !unlocked.has(path)
         push([
-          { text: `roll ${roll} — SCAN`, type: 'ok' },
-          ...buildCheckLines(theme, path, node, { tier, locked, gm: gmMode }),
+          { text: tRef.current('roll.scan', { roll }), type: 'ok' },
+          ...buildCheckLines(theme, path, node, { tier, locked, gm: gmMode, t: tRef.current }),
           { text: '', instant: true }
         ])
         return
@@ -416,7 +422,7 @@ export default function Terminal({
       const max = node.crackAttempts ?? 3
       const roll = parseInt(value, 10)
       if (!Number.isFinite(roll)) {
-        push([{ text: 'crack: enter a number', type: 'err' }, { text: '', instant: true }])
+        push([{ text: tRef.current('crack.enternum'), type: 'err' }, { text: '', instant: true }])
         return
       }
       const dcNote = gmMode ? ` (DC ${dc})` : ''
@@ -427,9 +433,9 @@ export default function Terminal({
         const tracerWasOn = !!tr && node.tracer && tracerEndsAt != null
         if (tracerWasOn) setTracerEndsAt(null)
         push([
-          { text: `roll ${roll} — SUCCESS${dcNote}`, type: 'ok' },
+          { text: tRef.current('roll.success', { roll, dc: dcNote }), type: 'ok' },
           ...(tracerWasOn && tr.evaded ? [{ text: tr.evaded, type: 'ok' }] : []),
-          ...buildCrackLines(theme, path, node, unlock, theme.filesystem),
+          ...buildCrackLines(theme, path, node, unlock, theme.filesystem, tRef.current),
           { text: '', instant: true }
         ])
         return
@@ -455,11 +461,11 @@ export default function Terminal({
         })
       }
       const remaining = max - used
-      const lines = [{ text: `roll ${roll} — FAILED${dcNote}`, type: 'err' }]
+      const lines = [{ text: tRef.current('roll.failed', { roll, dc: dcNote }), type: 'err' }]
       lines.push(
         remaining > 0
-          ? { text: `brute-force attempts left: ${remaining}`, type: 'muted' }
-          : { text: 'brute-force LOCKED OUT — password required (`decrypt`)', type: 'err' }
+          ? { text: tRef.current('crack.attemptsleft', { n: remaining }), type: 'muted' }
+          : { text: tRef.current('crack.lockedout2'), type: 'err' }
       )
       lines.push({ text: '', instant: true })
       push(lines)
@@ -471,7 +477,7 @@ export default function Terminal({
     const kind = modal?.kind ?? 'operation'
     setModal(null)
     push([
-      { text: `${kind}: cancelled.`, type: 'muted' },
+      { text: tRef.current('op.cancelled', { kind }), type: 'muted' },
       { text: '', instant: true }
     ])
   }, [modal, push])
@@ -567,19 +573,21 @@ export default function Terminal({
       {inputReady && !authed && theme.login && (
         <InputModal
           key={loginTries}
-          title={theme.login.title ?? 'AUTHENTICATION REQUIRED'}
-          label={theme.login.label ?? 'access code:'}
+          title={theme.login.title ?? tRef.current('login.title')}
+          label={theme.login.label ?? tRef.current('login.label')}
           inputType="password"
-          hint="enter to authenticate"
+          hint={tRef.current('login.hint')}
+          t={tRef.current}
           onSubmit={handleLogin}
           onCancel={() => {}}
         />
       )}
       {modal && (
         <InputModal
-          title={`${modal.kind === 'crack' ? 'CRACK' : modal.kind === 'check' ? 'SCAN' : 'DECRYPT'} // ${modal.path}`}
-          label={modal.kind === 'decrypt' ? 'enter key:' : 'enter your roll:'}
+          title={`${modal.kind === 'crack' ? tRef.current('modal.title.crack') : modal.kind === 'check' ? tRef.current('modal.title.scan') : tRef.current('modal.title.decrypt')} // ${modal.path}`}
+          label={modal.kind === 'decrypt' ? tRef.current('modal.label.key') : tRef.current('modal.label.roll')}
           inputType={modal.kind === 'decrypt' ? 'text' : 'number'}
+          t={tRef.current}
           onSubmit={handleModalSubmit}
           onCancel={handleModalCancel}
         />
@@ -589,12 +597,14 @@ export default function Terminal({
           key={progressLine.id}
           label={progressLine.label}
           duration={progressLine.duration}
+          t={tRef.current}
           onDone={advance}
         />
       )}
       {selfDestruct && (
         <SelfDestructModal
           config={selfDestruct}
+          t={tRef.current}
           onAbort={handleAbort}
           onDetonate={handleDetonate}
         />
@@ -606,12 +616,13 @@ export default function Terminal({
         </>
       )}
       {caught && <TraceCaught config={caught} onReboot={handleCaughtReboot} />}
-      {iceAlert && <IceAlert message={iceAlert} onClose={() => setIceAlert(null)} />}
+      {iceAlert && <IceAlert message={iceAlert} t={tRef.current} onClose={() => setIceAlert(null)} />}
       {decryptGame && (
         <DecryptGame
           target={decryptGame.target ?? decryptGame.node.decryptTarget}
           attempts={decryptGame.node.decryptAttempts ?? 6}
           label={decryptGame.node.decryptLabel}
+          t={tRef.current}
           onWin={handleDecryptWin}
           onLose={handleDecryptLose}
           onCancel={handleDecryptCancel}

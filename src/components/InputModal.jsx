@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { makeT } from '../i18n/ui.js'
 
 // Generic CRT dialog: a titled, labeled input. Used by both the decrypt
 // password prompt and the crack roll-check prompt.
@@ -6,10 +7,12 @@ export default function InputModal({
   title,
   label,
   inputType = 'text',
-  hint = 'enter to submit · esc to cancel',
+  hint,
+  t = makeT('en'),
   onSubmit,
   onCancel
 }) {
+  const hintText = hint ?? t('modal.input.hint')
   const [value, setValue] = useState('')
   const inputRef = useRef(null)
 
@@ -53,7 +56,7 @@ export default function InputModal({
             aria-label={label}
           />
         </div>
-        <div className="modal__footer">{hint}</div>
+        <div className="modal__footer">{hintText}</div>
       </div>
     </div>
   )

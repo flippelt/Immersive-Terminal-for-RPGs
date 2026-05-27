@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { makeT } from '../i18n/ui.js'
 
 const BAR_WIDTH = 28
 const SPINNER = ['|', '/', '-', '\\']
@@ -7,7 +8,8 @@ const SPINNER = ['|', '/', '-', '\\']
 // ms and calls onDone when it completes. Cinematic replacement for the
 // old inline bar. Coexists with corner popups; the password/roll dialog
 // has already closed by the time this shows.
-export default function ProgressModal({ label = 'WORKING', duration = 5000, onDone }) {
+export default function ProgressModal({ label, duration = 5000, t = makeT('en'), onDone }) {
+  const labelText = label ?? t('modal.progress.label')
   const [pct, setPct] = useState(0)
   const [spin, setSpin] = useState(0)
   const cbRef = useRef(onDone)
@@ -41,8 +43,8 @@ export default function ProgressModal({ label = 'WORKING', duration = 5000, onDo
 
   return (
     <div className="modal-overlay" role="presentation">
-      <div className="modal modal--progress" role="dialog" aria-label={label}>
-        <div className="modal__header">{label}</div>
+      <div className="modal modal--progress" role="dialog" aria-label={labelText}>
+        <div className="modal__header">{labelText}</div>
         <pre className="modal__bar">
           {spinner} [{bar}] {String(Math.floor(pct)).padStart(3, ' ')}%
         </pre>

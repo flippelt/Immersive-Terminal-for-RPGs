@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react'
 import { setMuted } from '../audio/sfx.js'
+import { makeT } from '../i18n/ui.js'
 
 const LS_KEY = 'tirpg.muted'
 
-export default function AudioToggle() {
+export default function AudioToggle({ t = makeT('en') }) {
   const [muted, setLocalMuted] = useState(
     () => localStorage.getItem(LS_KEY) === 'true'
   )
@@ -17,10 +18,10 @@ export default function AudioToggle() {
     <button
       className="audio-toggle"
       onClick={() => setLocalMuted((m) => !m)}
-      title={muted ? 'audio is off — click to enable' : 'audio is on — click to mute'}
+      title={muted ? t('audio.off.title') : t('audio.on.title')}
       aria-label={muted ? 'unmute audio' : 'mute audio'}
     >
-      {muted ? '── audio off' : '♪♪ audio on'}
+      {muted ? t('audio.off') : t('audio.on')}
     </button>
   )
 }
