@@ -196,13 +196,16 @@ export function composeCustomScenario(bundle) {
   return merged
 }
 
-// Demo build (vite build --mode demo) shows a curated subset.
+// The demo (vite build --mode demo, served on GitHub Pages) and the full
+// site (default build, served on Netlify) show DISJOINT theme sets: the
+// demo showcases this curated subset; the full site shows everything else.
+// So the demo scenarios never appear on the main deploy.
 const DEMO_IDS = ['alien', 'cprd']
 
 export const IS_DEMO = import.meta.env.MODE === 'demo'
 
 export const THEMES = IS_DEMO
   ? THEME_LIST.filter((t) => DEMO_IDS.includes(t.id))
-  : THEME_LIST
+  : THEME_LIST.filter((t) => !DEMO_IDS.includes(t.id))
 export const THEME_BY_ID = Object.fromEntries(THEMES.map((t) => [t.id, t]))
 export const DEFAULT_THEME = THEMES[0] ?? THEME_LIST[0]
