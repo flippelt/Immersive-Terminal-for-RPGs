@@ -25,7 +25,9 @@
       "enhance 224 to 176 ...... ok",
       "stop ....................",
       "track 45 right .......... ok",
-      "enhance ................. give me a hardcopy right there."
+      "enhance ................. give me a hardcopy right there.",
+      "",
+      "hardcopy saved: /plates/frame-47.md  (`cat plates/frame-47.md`)"
     ]
   }
 }

@@ -45,12 +45,21 @@ const help = (extra = []) => [
 ]
 
 // .md files render through the markdown layer; everything else (.log,
-// .dat, ...) prints raw, like a data dump.
-function renderFileContent(path, content) {
-  const text = content ?? ''
-  return path.endsWith('.md')
+// .dat, ...) prints raw, like a data dump. A file with an `image:`
+// front-matter key (a URL or data URI) renders that picture, CRT-filtered,
+// above its text — Esper photos, maps, mugshots.
+function renderFileContent(path, node) {
+  const text = node?.content ?? ''
+  const lines = path.endsWith('.md')
     ? renderMarkdown(text)
     : text.split('\n').map((t) => ({ text: t }))
+  if (node?.image) {
+    return [
+      { type: 'image', src: String(node.image), alt: node.imageAlt ?? path },
+      ...lines
+    ]
+  }
+  return lines
 }
 
 function resolveTarget(ctx, arg) {
@@ -150,7 +159,7 @@ const COMMANDS = {
             text: `★ GM preview // ${path} [LOCKED${meta.length ? ' ' + meta.join(' ') : ''}]`,
             type: 'muted'
           },
-          ...renderFileContent(path, node.content),
+          ...renderFileContent(path, node),
           { text: '★ end preview (file remains locked for players)', type: 'muted' }
         ]
       }
@@ -165,7 +174,7 @@ const COMMANDS = {
         { text: hint, type: 'muted' }
       ]
     }
-    return renderFileContent(path, node.content)
+    return renderFileContent(path, node)
   },
 
   scenario: (ctx) => {
