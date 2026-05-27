@@ -1,20 +1,26 @@
 // Wordle-style scoring for the `decrypt` minigame. Pure & unit-tested.
+import enWords from '../i18n/words.en.json'
+import ptWords from '../i18n/words.pt.json'
 
-// Default keyword pool when a game file gives no words of its own.
-export const DEFAULT_WORDS = [
-  'CIPHER', 'ACCESS', 'BREACH', 'DAEMON', 'PACKET', 'VECTOR',
-  'KERNEL', 'SOCKET', 'BINARY', 'GHOST', 'TRACE', 'VAULT'
-]
+// Default keyword pools by language (src/i18n/words.<lang>.json).
+const POOLS = { en: enWords.words, pt: ptWords.words }
+export const DEFAULT_WORDS = enWords.words
+
+// The default keyword pool for a language (falls back to English).
+export function wordsFor(lang) {
+  return POOLS[lang] ?? DEFAULT_WORDS
+}
 
 // Pick the target word for a game file: a fixed `decryptWord`, a random one
-// from comma-separated `decryptWords`, else a random default. Uppercased.
-export function pickWord(meta, rand = Math.random) {
+// from comma-separated `decryptWords`, else a random word from the active
+// language's default pool. Uppercased.
+export function pickWord(meta, rand = Math.random, lang = 'en') {
   const norm = (w) => String(w).trim().toUpperCase()
   if (meta?.decryptWord) return norm(meta.decryptWord)
   const list = meta?.decryptWords
     ? String(meta.decryptWords).split(',').map(norm).filter(Boolean)
-    : DEFAULT_WORDS
-  return list[Math.floor(rand() * list.length)] ?? DEFAULT_WORDS[0]
+    : wordsFor(lang)
+  return list[Math.floor(rand() * list.length)] ?? wordsFor(lang)[0]
 }
 
 // Score a guess against the target, Wordle-style, handling duplicate letters:
