@@ -6,6 +6,7 @@ import Screensaver from './components/Screensaver.jsx'
 import ScenarioModal from './components/ScenarioModal.jsx'
 import { setVolume as setAudioVolume, startHum } from './audio/sfx.js'
 import { decodeBundle, shareUrl } from './engine/share.js'
+import { makeT } from './i18n/ui.js'
 
 const IDLE_MS = 45000
 import {
@@ -68,6 +69,9 @@ export default function App() {
       // storage unavailable — language still applies for the session
     }
   }, [])
+  // UI translator for App-level chrome (load-error toasts) and the
+  // components App renders directly (scenario paste dialog, audio toggle).
+  const t = useMemo(() => makeT(lang), [lang])
 
   // A GM-loaded custom scenario (from a URL, pasted JSON, or a share link).
   // When set it takes over from the repo theme/scenario selection until
@@ -135,10 +139,10 @@ export default function App() {
         if (!res.ok) throw new Error(`HTTP ${res.status}`)
         applyBundle(await res.json())
       } catch (e) {
-        setLoadError(`scenario load failed: ${e.message}`)
+        setLoadError(t('load.failed', { msg: e.message }))
       }
     },
-    [applyBundle]
+    [applyBundle, t]
   )
 
   // Returns an error string for the paste dialog to show, or null on success.
@@ -149,10 +153,10 @@ export default function App() {
         setPasteOpen(false)
         return null
       } catch (e) {
-        return `invalid bundle: ${e.message}`
+        return t('load.invalid', { msg: e.message })
       }
     },
-    [applyBundle]
+    [applyBundle, t]
   )
 
   const openScenarioPaste = useCallback(() => setPasteOpen(true), [])
@@ -174,13 +178,13 @@ export default function App() {
       try {
         applyBundle(decodeBundle(token))
       } catch (e) {
-        setLoadError(`shared scenario link is invalid: ${e.message}`)
+        setLoadError(t('load.sharedinvalid', { msg: e.message }))
       }
       return
     }
     const url = params.get('scenarioUrl')
     if (url) loadScenarioUrl(url)
-  }, [loadScenarioUrl, applyBundle])
+  }, [loadScenarioUrl, applyBundle, t])
 
   const toggleGm = useCallback(() => setGmMode((m) => !m), [])
 
@@ -283,9 +287,10 @@ export default function App() {
         lang={lang}
         onSetLang={changeLang}
       />
-      <AudioToggle />
+      <AudioToggle t={t} />
       {pasteOpen && (
         <ScenarioModal
+          t={t}
           onSubmit={loadScenarioText}
           onCancel={() => setPasteOpen(false)}
         />

@@ -1,5 +1,6 @@
 import { normalizePath, getNode, listDir } from './filesystem.js'
 import { renderMarkdown } from './markdown.js'
+import { makeT } from '../i18n/ui.js'
 import {
   setVolume as audioSetVolume,
   setMuted as audioSetMuted,
@@ -16,35 +17,17 @@ import {
 //   { type: 'progress', duration, label, onComplete? }   animated bar
 //
 // ctx = {
-//   args, raw, theme, themes, fs, cwd, unlocked,
+//   args, raw, theme, themes, fs, cwd, unlocked, lang, t,
 //   setCwd, clear, switchTheme, reboot, unlock
 // }
+// ctx.t is the UI translator (makeT(lang)); built-in operator-facing text
+// goes through it so the terminal speaks the player's language. Command
+// names themselves never translate. Helpers shared with Terminal.jsx accept
+// `t` explicitly and default to English so unit tests stay language-stable.
 
-const help = (extra = []) => [
-  { text: 'COMMANDS', type: 'ok' },
-  { text: '  help                  show this list' },
-  { text: '  ls [path]             list directory' },
-  { text: '  cd <path>             change directory' },
-  { text: '  cat <file>            print file contents' },
-  { text: '  grep <term> [path]    search file contents' },
-  { text: '  find <name>           search filenames' },
-  { text: '  pwd                   working directory' },
-  { text: '  whoami                current operator' },
-  { text: '  date                  system clock' },
-  { text: '  clear                 wipe screen' },
-  { text: '  motd                  reprint banner' },
-  { text: '  theme [id]            switch system' },
-  { text: '  scenario [list|load]  switch campaign within a system' },
-  { text: '  loadscenario [url]    load a custom scenario (URL or paste JSON)' },
-  { text: '  sharescenario         copy a link that embeds the loaded scenario' },
-  { text: '  reboot                cold restart' },
-  { text: '  reset                 wipe this scenario’s progress' },
-  { text: '  check <file>          scan a file: lock, brute-force & surveillance' },
-  { text: '  crack <file>          brute-force a locked file' },
-  { text: '  decrypt <file>        recover the key via the cipher minigame' },
-  { text: '  unlock <file> <key>   unlock with a known password' },
-  { text: '  volume [0-100|mute]   audio level' },
-  { text: '  hum [on|off]          ambient CRT hum' },
+const help = (t, extra = []) => [
+  { text: t('help.title'), type: 'ok' },
+  ...t('help.lines').map((text) => ({ text })),
   ...extra.map((line) => ({ text: line, type: 'muted' }))
 ]
 
@@ -79,8 +62,8 @@ function isLocked(node, ctx, path) {
 }
 
 const COMMANDS = {
-  help: (ctx) => help(ctx.theme.extraHelp ?? []),
-  '?': (ctx) => help(ctx.theme.extraHelp ?? []),
+  help: (ctx) => help(ctx.t, ctx.theme.extraHelp ?? []),
+  '?': (ctx) => help(ctx.t, ctx.theme.extraHelp ?? []),
 
   clear: (ctx) => {
     ctx.clear()
@@ -89,12 +72,12 @@ const COMMANDS = {
 
   pwd: (ctx) => [{ text: ctx.cwd }],
 
-  whoami: (ctx) => [{ text: ctx.theme.user ?? 'operator' }],
+  whoami: (ctx) => [{ text: ctx.theme.user ?? ctx.t('operator') }],
 
   date: () => [{ text: new Date().toUTCString() }],
 
   motd: (ctx) =>
-    ctx.theme.motd?.map((t) => ({ text: t })) ?? [{ text: '(no motd)' }],
+    ctx.theme.motd?.map((t) => ({ text: t })) ?? [{ text: ctx.t('motd.none') }],
 
   reboot: (ctx) => {
     ctx.reboot()
@@ -111,24 +94,24 @@ const COMMANDS = {
     if (!url) {
       if (ctx.openScenarioPaste) {
         ctx.openScenarioPaste()
-        return [{ text: 'paste a scenario bundle (JSON) into the dialog.', type: 'muted' }]
+        return [{ text: ctx.t('load.paste'), type: 'muted' }]
       }
-      return [{ text: 'loadscenario: provide a URL or paste JSON', type: 'err' }]
+      return [{ text: ctx.t('load.usage'), type: 'err' }]
     }
     if (!/^https?:\/\//i.test(url)) {
-      return [{ text: 'loadscenario: URL must start with http(s)://', type: 'err' }]
+      return [{ text: ctx.t('load.badurl'), type: 'err' }]
     }
     ctx.loadScenarioUrl?.(url)
-    return [{ text: `fetching scenario from ${url} ...`, type: 'muted' }]
+    return [{ text: ctx.t('load.fetching', { url }), type: 'muted' }]
   },
 
   sharescenario: (ctx) => {
     const url = ctx.shareScenario?.()
     if (!url) {
-      return [{ text: 'sharescenario: load a custom scenario first (`loadscenario`).', type: 'err' }]
+      return [{ text: ctx.t('share.none'), type: 'err' }]
     }
     return [
-      { text: 'shareable link (copied to clipboard if allowed):', type: 'ok' },
+      { text: ctx.t('share.ok'), type: 'ok' },
       { text: url, type: 'muted' }
     ]
   },
@@ -136,8 +119,8 @@ const COMMANDS = {
   ls: (ctx) => {
     const target = ctx.args[0] ? normalizePath(ctx.cwd, ctx.args[0]) : ctx.cwd
     const entries = listDir(ctx.fs, target)
-    if (!entries) return [{ text: `ls: ${target}: not a directory`, type: 'err' }]
-    if (entries.length === 0) return [{ text: '(empty)', type: 'muted' }]
+    if (!entries) return [{ text: ctx.t('ls.notdir', { target }), type: 'err' }]
+    if (entries.length === 0) return [{ text: ctx.t('ls.empty'), type: 'muted' }]
     return entries.map((e) => {
       const child = getNode(ctx.fs, normalizePath(target, e.name))
       const locked = child?.locked && !ctx.unlocked?.has(normalizePath(target, e.name))
@@ -145,13 +128,13 @@ const COMMANDS = {
       if (e.type === 'dir') suffix = '/'
       else if (locked) {
         if (ctx.gmMode) {
-          const parts = ['LOCKED']
+          const parts = [ctx.t('tag.locked')]
           if (child.password) parts.push(`pwd:${child.password}`)
           if (child.crackDC != null) parts.push(`DC:${child.crackDC}`)
           if (child.crackable === false) parts.push('nocrack')
           suffix = ` [${parts.join(' ')}]`
         } else {
-          suffix = ' [LOCKED]'
+          suffix = ` [${ctx.t('tag.locked')}]`
         }
       }
       return {
@@ -165,9 +148,9 @@ const COMMANDS = {
     const arg = ctx.args[0] ?? '/'
     const target = normalizePath(ctx.cwd, arg)
     const node = getNode(ctx.fs, target)
-    if (!node) return [{ text: `cd: ${target}: no such directory`, type: 'err' }]
+    if (!node) return [{ text: ctx.t('cd.nodir', { target }), type: 'err' }]
     if (node.type !== 'dir')
-      return [{ text: `cd: ${target}: not a directory`, type: 'err' }]
+      return [{ text: ctx.t('cd.notdir', { target }), type: 'err' }]
     ctx.setCwd(target)
     return []
   },
@@ -179,15 +162,15 @@ const COMMANDS = {
   // second scan of the same file raises a (configurable) suspicious-activity
   // alert — it warns, it does NOT start the trace. GM mode sees the truth.
   check: (ctx) => {
-    if (!ctx.args[0]) return [{ text: 'check: missing operand', type: 'err' }]
+    if (!ctx.args[0]) return [{ text: ctx.t('check.missing'), type: 'err' }]
     const { path, node } = resolveTarget(ctx, ctx.args[0])
-    if (!node) return [{ text: `check: ${path}: no such file`, type: 'err' }]
+    if (!node) return [{ text: ctx.t('check.nofile', { path }), type: 'err' }]
     if (node.type !== 'file')
-      return [{ text: `check: ${path}: is a directory`, type: 'err' }]
+      return [{ text: ctx.t('check.isdir', { path }), type: 'err' }]
     const locked = isLocked(node, ctx, path)
 
     if (ctx.gmMode) {
-      return buildCheckLines(ctx.theme, path, node, { tier: 'precise', locked, gm: true })
+      return buildCheckLines(ctx.theme, path, node, { tier: 'precise', locked, gm: true, t: ctx.t })
     }
     if (locked && node.checkDC != null) {
       const prev = ctx.checkResults?.get(path)
@@ -198,22 +181,22 @@ const COMMANDS = {
         const alert = node.checkAlert ?? ctx.theme.tracer?.checkAlert
         if (alert) ctx.flagRescan?.(path, alert)
         return [
-          { text: `${path} — re-scan; using cached result.`, type: 'muted' },
-          ...buildCheckLines(ctx.theme, path, node, { tier: prev, locked })
+          { text: ctx.t('check.rescan', { path }), type: 'muted' },
+          ...buildCheckLines(ctx.theme, path, node, { tier: prev, locked, t: ctx.t })
         ]
       }
       ctx.openCheckPrompt?.(path, node)
-      return [{ text: `${path} — running scan. enter your roll.`, type: 'muted' }]
+      return [{ text: ctx.t('check.running', { path }), type: 'muted' }]
     }
-    return buildCheckLines(ctx.theme, path, node, { tier: 'precise', locked })
+    return buildCheckLines(ctx.theme, path, node, { tier: 'precise', locked, t: ctx.t })
   },
 
   cat: (ctx) => {
-    if (!ctx.args[0]) return [{ text: 'cat: missing operand', type: 'err' }]
+    if (!ctx.args[0]) return [{ text: ctx.t('cat.missing'), type: 'err' }]
     const { path, node } = resolveTarget(ctx, ctx.args[0])
-    if (!node) return [{ text: `cat: ${path}: no such file`, type: 'err' }]
+    if (!node) return [{ text: ctx.t('cat.nofile', { path }), type: 'err' }]
     if (node.type !== 'file')
-      return [{ text: `cat: ${path}: is a directory`, type: 'err' }]
+      return [{ text: ctx.t('cat.isdir', { path }), type: 'err' }]
     if (isLocked(node, ctx, path)) {
       // GM mode: reveal locked content inline with a clear marker.
       if (ctx.gmMode) {
@@ -223,21 +206,27 @@ const COMMANDS = {
         if (node.crackable === false) meta.push('nocrack')
         return [
           {
-            text: `★ GM preview // ${path} [LOCKED${meta.length ? ' ' + meta.join(' ') : ''}]`,
+            text: ctx.t('cat.gmpreview', {
+              path,
+              locked: ctx.t('tag.locked'),
+              meta: meta.length ? ' ' + meta.join(' ') : ''
+            }),
             type: 'muted'
           },
           ...renderFileContent(path, node),
-          { text: '★ end preview (file remains locked for players)', type: 'muted' }
+          { text: ctx.t('cat.gmend'), type: 'muted' }
         ]
       }
       // Build the suggestions from what the file actually supports.
       const ways = []
-      if (node.crackable !== false) ways.push('`crack <file>`')
-      if (node.decryptTarget) ways.push('`decrypt <file>`')
-      if (node.password) ways.push('`unlock <file> <key>`')
-      const hint = ways.length ? `try: ${ways.join(' or ')}` : 'no known way in.'
+      if (node.crackable !== false) ways.push(ctx.t('way.crack'))
+      if (node.decryptTarget) ways.push(ctx.t('way.decrypt'))
+      if (node.password) ways.push(ctx.t('way.unlock'))
+      const hint = ways.length
+        ? ctx.t('cat.hint.try', { ways: ways.join(ctx.t('way.or')) })
+        : ctx.t('cat.hint.none')
       return [
-        { text: `cat: ${path}: ACCESS DENIED`, type: 'err' },
+        { text: ctx.t('cat.denied', { path }), type: 'err' },
         { text: hint, type: 'muted' }
       ]
     }
@@ -249,35 +238,35 @@ const COMMANDS = {
     const ids = ctx.scenarioIds ?? []
     if (!action || action === 'status') {
       return [
-        { text: `current scenario: ${ctx.theme.scenarioId ?? '(none)'}`, type: 'ok' },
+        { text: ctx.t('scenario.current', { id: ctx.theme.scenarioId ?? ctx.t('scenario.none') }), type: 'ok' },
         ctx.theme.scenarioName
           ? { text: `  ${ctx.theme.scenarioName}`, type: 'muted' }
-          : { text: 'usage: scenario list | scenario load <id>', type: 'muted' }
+          : { text: ctx.t('scenario.usage'), type: 'muted' }
       ]
     }
     if (action === 'list') {
       if (ids.length === 0)
-        return [{ text: 'no scenarios registered for this system.', type: 'muted' }]
+        return [{ text: ctx.t('scenario.empty'), type: 'muted' }]
       return [
-        { text: `scenarios for ${ctx.theme.name}:`, type: 'ok' },
+        { text: ctx.t('scenario.listhead', { name: ctx.theme.name }), type: 'ok' },
         ...ids.map((id) => ({
-          text: `  ${id}${id === ctx.theme.scenarioId ? '  (current)' : ''}`,
+          text: `  ${id}${id === ctx.theme.scenarioId ? ctx.t('scenario.current.tag') : ''}`,
           type: id === ctx.theme.scenarioId ? 'ok' : 'normal'
         }))
       ]
     }
     if (action === 'load') {
       const id = ctx.args[1]
-      if (!id) return [{ text: 'scenario load: missing scenario id', type: 'err' }]
+      if (!id) return [{ text: ctx.t('scenario.load.missing'), type: 'err' }]
       if (!ids.includes(id))
         return [
-          { text: `scenario: unknown id "${id}"`, type: 'err' },
-          { text: `available: ${ids.join(', ')}`, type: 'muted' }
+          { text: ctx.t('scenario.unknownid', { id }), type: 'err' },
+          { text: ctx.t('scenario.available', { ids: ids.join(', ') }), type: 'muted' }
         ]
       ctx.switchScenario?.(id)
       return []
     }
-    return [{ text: `scenario: unknown action "${action}"`, type: 'err' }]
+    return [{ text: ctx.t('scenario.unknownaction', { action }), type: 'err' }]
   },
 
   volume: (ctx) => {
@@ -285,33 +274,35 @@ const COMMANDS = {
     if (!arg) {
       return [
         {
-          text: `audio: ${audioIsMuted() ? 'muted' : Math.round(audioGetVolume() * 100) + '%'}`
+          text: ctx.t('volume.status', {
+            state: audioIsMuted() ? ctx.t('volume.muted') : Math.round(audioGetVolume() * 100) + '%'
+          })
         },
-        { text: 'usage: volume <0-100> | volume mute | volume unmute', type: 'muted' }
+        { text: ctx.t('volume.usage'), type: 'muted' }
       ]
     }
     if (arg === 'mute') {
       audioSetMuted(true)
       localStorage.setItem('tirpg.muted', 'true')
-      return [{ text: 'audio muted.', type: 'muted' }]
+      return [{ text: ctx.t('volume.didmute'), type: 'muted' }]
     }
     if (arg === 'unmute') {
       audioSetMuted(false)
       localStorage.setItem('tirpg.muted', 'false')
-      return [{ text: 'audio unmuted.', type: 'ok' }]
+      return [{ text: ctx.t('volume.didunmute'), type: 'ok' }]
     }
     const n = parseInt(arg, 10)
     if (!Number.isFinite(n) || n < 0 || n > 100) {
-      return [{ text: 'volume: expected 0-100', type: 'err' }]
+      return [{ text: ctx.t('volume.range'), type: 'err' }]
     }
     audioSetVolume(n / 100)
     localStorage.setItem('tirpg.volume', String(n / 100))
-    return [{ text: `volume: ${n}%`, type: 'ok' }]
+    return [{ text: ctx.t('volume.set', { n }), type: 'ok' }]
   },
 
   grep: (ctx) => {
     const term = ctx.args[0]
-    if (!term) return [{ text: 'grep: usage: grep <term> [path]', type: 'err' }]
+    if (!term) return [{ text: ctx.t('grep.usage'), type: 'err' }]
     const scope = ctx.args[1] ? normalizePath(ctx.cwd, ctx.args[1]) : '/'
     const inScope = (p) => scope === '/' || p === scope || p.startsWith(scope + '/')
     const needle = term.toLowerCase()
@@ -331,15 +322,15 @@ const COMMANDS = {
       }
     }
     if (out.length === 0 && lockedSkipped === 0)
-      return [{ text: `grep: no matches for "${term}"`, type: 'muted' }]
+      return [{ text: ctx.t('grep.nomatch', { term }), type: 'muted' }]
     if (lockedSkipped > 0)
-      out.push({ text: `grep: ${lockedSkipped} match(es) inside locked file(s)`, type: 'muted' })
+      out.push({ text: ctx.t('grep.locked', { n: lockedSkipped }), type: 'muted' })
     return out
   },
 
   find: (ctx) => {
     const pat = ctx.args[0]
-    if (!pat) return [{ text: 'find: usage: find <name>', type: 'err' }]
+    if (!pat) return [{ text: ctx.t('find.usage'), type: 'err' }]
     const needle = pat.toLowerCase()
     const out = []
     for (const [p, node] of Object.entries(ctx.fs)) {
@@ -348,29 +339,29 @@ const COMMANDS = {
       if (name.toLowerCase().includes(needle)) {
         const locked = node.locked && !ctx.unlocked?.has(p)
         out.push({
-          text: node.type === 'dir' ? `${p}/` : locked ? `${p} [LOCKED]` : p,
+          text: node.type === 'dir' ? `${p}/` : locked ? `${p} [${ctx.t('tag.locked')}]` : p,
           type: node.type === 'dir' ? 'ok' : locked ? 'muted' : 'normal'
         })
       }
     }
     return out.length
       ? out.sort((a, b) => a.text.localeCompare(b.text))
-      : [{ text: `find: no files matching "${pat}"`, type: 'muted' }]
+      : [{ text: ctx.t('find.nomatch', { pat }), type: 'muted' }]
   },
 
   hum: (ctx) => {
     const arg = ctx.args[0]
     const turnOn = arg === 'on' || (!arg && !audioIsHumOn())
     if (arg && arg !== 'on' && arg !== 'off')
-      return [{ text: 'hum: usage: hum [on|off]', type: 'err' }]
+      return [{ text: ctx.t('hum.usage'), type: 'err' }]
     if (turnOn) {
       audioStartHum(ctx.theme.sounds?.hum)
       localStorage.setItem('tirpg.hum', 'on')
-      return [{ text: 'ambient hum: on', type: 'ok' }]
+      return [{ text: ctx.t('hum.on'), type: 'ok' }]
     }
     audioStopHum()
     localStorage.setItem('tirpg.hum', 'off')
-    return [{ text: 'ambient hum: off', type: 'muted' }]
+    return [{ text: ctx.t('hum.off'), type: 'muted' }]
   },
 
   // Dramatic self-destruct popup (countdown + OVERRIDE code). Configured
@@ -387,15 +378,15 @@ const COMMANDS = {
   // Hidden — GM prep dump of every locked file's secrets. GM mode only.
   gmsheet: (ctx) => {
     if (!ctx.gmMode)
-      return [{ text: 'gmsheet: GM mode required (Ctrl+Shift+G)', type: 'err' }]
+      return [{ text: ctx.t('gmsheet.norequire'), type: 'err' }]
     const locked = Object.entries(ctx.fs).filter(
       ([, n]) => n?.type === 'file' && n.locked
     )
     const out = [
-      { text: `★ GM SHEET // ${ctx.theme.scenarioName ?? ctx.theme.scenarioId ?? ctx.theme.name}`, type: 'ok' }
+      { text: ctx.t('gmsheet.head', { name: ctx.theme.scenarioName ?? ctx.theme.scenarioId ?? ctx.theme.name }), type: 'ok' }
     ]
     if (locked.length === 0) {
-      out.push({ text: '  (no locked files in this scenario)', type: 'muted' })
+      out.push({ text: ctx.t('gmsheet.empty'), type: 'muted' })
       return out
     }
     for (const [p, n] of locked.sort((a, b) => a[0].localeCompare(b[0]))) {
@@ -422,7 +413,7 @@ const COMMANDS = {
     const next = !ctx.gmMode
     return [
       {
-        text: next ? '★ GM mode ON — passwords revealed in ls/cat' : 'GM mode OFF',
+        text: next ? ctx.t('gm.on') : ctx.t('gm.off'),
         type: next ? 'ok' : 'muted'
       }
     ]
@@ -432,38 +423,36 @@ const COMMANDS = {
     const id = ctx.args[0]
     if (!id) {
       return [
-        { text: 'available systems:' },
+        { text: ctx.t('theme.head') },
         ...ctx.themes.map((t) => ({
           text: `  ${t.id.padEnd(10)} ${t.name}`,
           type: t.id === ctx.theme.id ? 'ok' : 'normal'
         })),
-        { text: 'usage: theme <id>', type: 'muted' }
+        { text: ctx.t('theme.usage'), type: 'muted' }
       ]
     }
     const ok = ctx.switchTheme(id)
-    if (!ok) return [{ text: `theme: unknown system "${id}"`, type: 'err' }]
+    if (!ok) return [{ text: ctx.t('theme.unknown', { id }), type: 'err' }]
     return []
   },
 
   crack: (ctx) => {
-    if (!ctx.args[0]) return [{ text: 'crack: missing operand', type: 'err' }]
+    if (!ctx.args[0]) return [{ text: ctx.t('crack.missing'), type: 'err' }]
     const { path, node } = resolveTarget(ctx, ctx.args[0])
-    if (!node) return [{ text: `crack: ${path}: no such file`, type: 'err' }]
+    if (!node) return [{ text: ctx.t('crack.nofile', { path }), type: 'err' }]
     if (node.type !== 'file')
-      return [{ text: `crack: ${path}: is a directory`, type: 'err' }]
+      return [{ text: ctx.t('crack.isdir', { path }), type: 'err' }]
     if (!node.locked || ctx.unlocked?.has(path))
-      return [{ text: `crack: ${path}: file is not encrypted`, type: 'muted' }]
+      return [{ text: ctx.t('crack.notenc', { path }), type: 'muted' }]
     if (node.crackable === false) {
-      const msg =
-        node.crackFailMessage ??
-        'crack: encryption hardened — password required.'
+      const msg = node.crackFailMessage ?? ctx.t('crack.hardened')
       const lines = [{ text: msg, type: 'err' }]
       // Brute-forcing a hardened, *watched* file trips a fast trace.
       if (node.tracer && ctx.theme.tracer) {
         const secs = node.tracerNocrackSeconds ?? ctx.theme.tracer.nocrackSeconds ?? 5
         ctx.tripTracer?.(secs)
         lines.push({
-          text: `>>> intrusion on hardened node logged — ${ctx.theme.tracer.label ?? 'TRACE'} active (${secs}s)`,
+          text: ctx.t('crack.intrusion', { label: ctx.theme.tracer.label ?? 'TRACE', secs }),
           type: 'err'
         })
       }
@@ -476,16 +465,16 @@ const COMMANDS = {
       const used = ctx.crackAttempts?.get(path) ?? 0
       if (used >= max) {
         return [
-          { text: `crack: ${path}: brute-force locked out`, type: 'err' },
-          { text: 'too many failed attempts — password required (`decrypt`)', type: 'muted' }
+          { text: ctx.t('crack.lockedout', { path }), type: 'err' },
+          { text: ctx.t('crack.lockedout.hint'), type: 'muted' }
         ]
       }
       ctx.openCrackPrompt?.(path, node)
       return [
-        { text: `${path} — brute-force protected. enter your roll.`, type: 'muted' }
+        { text: ctx.t('crack.protected', { path }), type: 'muted' }
       ]
     }
-    return buildCrackLines(ctx.theme, path, node, ctx.unlock, ctx.fs)
+    return buildCrackLines(ctx.theme, path, node, ctx.unlock, ctx.fs, ctx.t)
   },
 
   // `unlock <file> [key]` — apply a known password. Omit the key for the
@@ -500,23 +489,23 @@ const COMMANDS = {
     const [file] = ctx.args
     if (!file) {
       return [
-        { text: 'decrypt: usage: decrypt <file>', type: 'err' },
-        { text: '(solve the cipher minigame to recover the key)', type: 'muted' }
+        { text: ctx.t('decrypt.usage'), type: 'err' },
+        { text: ctx.t('decrypt.usage.hint'), type: 'muted' }
       ]
     }
     const { path, node } = resolveTarget(ctx, file)
-    if (!node) return [{ text: `decrypt: ${path}: no such file`, type: 'err' }]
+    if (!node) return [{ text: ctx.t('decrypt.nofile', { path }), type: 'err' }]
     if (node.type !== 'file')
-      return [{ text: `decrypt: ${path}: is a directory`, type: 'err' }]
+      return [{ text: ctx.t('decrypt.isdir', { path }), type: 'err' }]
     if (!node.locked || ctx.unlocked?.has(path))
-      return [{ text: `decrypt: ${path}: file is not encrypted`, type: 'muted' }]
+      return [{ text: ctx.t('decrypt.notenc', { path }), type: 'muted' }]
     if (node.decryptTarget) {
       ctx.openDecryptGame?.(path, node)
-      return [{ text: `${path} — running cipher analysis…`, type: 'muted' }]
+      return [{ text: ctx.t('decrypt.running', { path }), type: 'muted' }]
     }
     return [
-      { text: `decrypt: ${path}: encryption level too high — cipher cannot be broken from this terminal.`, type: 'err' },
-      { text: 'the key must be recovered elsewhere — then `unlock <file> <key>`.', type: 'muted' }
+      { text: ctx.t('decrypt.toohigh', { path }), type: 'err' },
+      { text: ctx.t('decrypt.toohigh.hint'), type: 'muted' }
     ]
   },
 
@@ -539,10 +528,10 @@ function runDialog(ctx) {
   if (!dialog) {
     const custom = ctx.theme.commands?.query
     if (custom) return makeCustom(custom)()
-    return [{ text: 'query: no interface available on this system.', type: 'muted' }]
+    return [{ text: ctx.t('dialog.none'), type: 'muted' }]
   }
   const q = ctx.args.join(' ').trim().toLowerCase()
-  if (!q) return toDialogLines(dialog.empty ?? 'SPECIFY QUERY.', 'muted')
+  if (!q) return toDialogLines(dialog.empty ?? ctx.t('dialog.empty'), 'muted')
 
   const hit = (dialog.responses ?? []).find((r) =>
     (Array.isArray(r.match) ? r.match : [r.match])
@@ -552,14 +541,14 @@ function runDialog(ctx) {
   const head = dialog.thinking ? toDialogLines(dialog.thinking, 'muted') : []
   const body = hit
     ? toDialogLines(hit.lines, hit.type ?? 'normal')
-    : toDialogLines(dialog.fallback ?? 'INSUFFICIENT DATA. REPHRASE QUERY.', 'err')
+    : toDialogLines(dialog.fallback ?? ctx.t('dialog.fallback'), 'err')
   return [...head, ...body]
 }
 
 // Unlock chains: when a file declares `reveals` (one path, or several
 // comma-separated), surface the keys of those files on unlock. Turns
 // isolated locks into a puzzle chain — crack A to learn B's key.
-function buildRevealLines(fs, node) {
+function buildRevealLines(fs, node, t = makeT('en')) {
   if (!node?.reveals) return []
   const paths = String(node.reveals)
     .split(',')
@@ -569,10 +558,10 @@ function buildRevealLines(fs, node) {
   for (const p of paths) {
     const target = getNode(fs, p)
     if (target?.password) {
-      out.push({ text: `>>> recovered access key for ${p}`, type: 'ok' })
+      out.push({ text: t('reveal.key', { path: p }), type: 'ok' })
       out.push({ text: `    ${target.password}`, type: 'ok' })
     } else {
-      out.push({ text: `>>> cross-reference found: ${p}`, type: 'muted' })
+      out.push({ text: t('reveal.xref', { path: p }), type: 'muted' })
     }
   }
   return out
@@ -593,46 +582,44 @@ function buildEventLines(theme, path) {
 //   fail      — inconclusive, no reliable data
 //   false     — a misleading reading (reports the OPPOSITE surveillance);
 //               only used when checkMisleadsOnFail is enabled
-export function buildCheckLines(theme, path, node, { tier = 'precise', locked = false, gm = false } = {}) {
-  const out = [{ text: `SECURITY SCAN // ${path}`, type: 'ok' }]
+export function buildCheckLines(theme, path, node, { tier = 'precise', locked = false, gm = false, t = makeT('en') } = {}) {
+  const out = [{ text: t('scan.title', { path }), type: 'ok' }]
   if (!locked) {
-    out.push({ text: '  state: OPEN — no protection detected', type: 'muted' })
+    out.push({ text: t('scan.open'), type: 'muted' })
     return out
   }
   if (tier === 'fail') {
-    out.push({ text: '  scan inconclusive — no reliable data.', type: 'muted' })
+    out.push({ text: t('scan.inconclusive'), type: 'muted' })
     return out
   }
   const watched = !!(node.tracer && theme.tracer)
   const label = theme.tracer?.label ?? 'TRACE'
-  out.push({ text: '  state: ENCRYPTED' })
+  out.push({ text: t('scan.encrypted') })
 
   if (tier === 'false') {
     // Deliberately wrong: invert the surveillance reading.
-    out.push({ text: '  brute-force: possible', type: 'muted' })
+    out.push({ text: t('scan.bf.possible'), type: 'muted' })
     out.push(
       watched
-        ? { text: '  surveillance: clear', type: 'muted' }
-        : { text: `  surveillance: MONITORED — ${label} on intrusion ⚠`, type: 'err' }
+        ? { text: t('scan.surv.clear'), type: 'muted' }
+        : { text: t('scan.surv.monitored', { label }), type: 'err' }
     )
-    out.push({ text: '  [low-confidence scan]', type: 'muted' })
+    out.push({ text: t('scan.lowconf'), type: 'muted' })
     return out
   }
 
   if (node.crackable === false) {
-    out.push({ text: '  brute-force: HARDENED — password required', type: 'muted' })
+    out.push({ text: t('scan.bf.hardened'), type: 'muted' })
   } else if (node.crackDC != null) {
     const dc = gm ? ` (DC ${node.crackDC})` : ''
-    out.push({ text: `  brute-force: possible — difficulty check${dc}`, type: 'muted' })
+    out.push({ text: t('scan.bf.check', { dc }), type: 'muted' })
   } else {
-    out.push({ text: '  brute-force: possible', type: 'muted' })
+    out.push({ text: t('scan.bf.possible'), type: 'muted' })
   }
 
   if (tier === 'ambiguous') {
     out.push({
-      text: watched
-        ? '  surveillance: signal noisy — possible monitoring?'
-        : '  surveillance: signal noisy — inconclusive',
+      text: watched ? t('scan.surv.noisy.maybe') : t('scan.surv.noisy.none'),
       type: 'muted'
     })
     return out
@@ -641,87 +628,88 @@ export function buildCheckLines(theme, path, node, { tier = 'precise', locked = 
   // precise
   if (watched) {
     const secs = node.tracerSeconds ?? theme.tracer.seconds ?? 30
-    out.push({ text: `  surveillance: MONITORED — ${label} (${secs}s window) on intrusion ⚠`, type: 'err' })
+    out.push({ text: t('scan.surv.window', { label, secs }), type: 'err' })
     if (gm) {
       const penalty = node.tracerPenalty ?? theme.tracer.penalty ?? 7
       const startAfter = node.tracerStartAfter ?? theme.tracer.startAfter ?? 0
-      out.push({ text: `  ★ tracer: -${penalty}s/fail · arms after ${startAfter} fail(s)`, type: 'muted' })
+      out.push({ text: t('scan.gm.tracer', { penalty, startAfter }), type: 'muted' })
     }
   } else {
-    out.push({ text: '  surveillance: clear', type: 'muted' })
+    out.push({ text: t('scan.surv.clear'), type: 'muted' })
   }
-  if (gm && node.password) out.push({ text: `  ★ pwd:${node.password}`, type: 'muted' })
+  if (gm && node.password) out.push({ text: t('scan.gm.pwd', { password: node.password }), type: 'muted' })
   return out
 }
 
 // Shared password-unlock flow for `unlock` (and `decrypt` fallback).
 function passwordUnlock(ctx, cmd) {
+  const t = ctx.t
   const [file, ...rest] = ctx.args
   const key = rest.join(' ')
   if (!file) {
     return [
-      { text: `${cmd}: usage: ${cmd} <file> [key]`, type: 'err' },
-      { text: '(omit key to be prompted by a secure dialog)', type: 'muted' }
+      { text: t('unlock.usage', { cmd }), type: 'err' },
+      { text: t('unlock.usage.hint'), type: 'muted' }
     ]
   }
   const { path, node } = resolveTarget(ctx, file)
-  if (!node) return [{ text: `${cmd}: ${path}: no such file`, type: 'err' }]
+  if (!node) return [{ text: t('unlock.nofile', { cmd, path }), type: 'err' }]
   if (node.type !== 'file')
-    return [{ text: `${cmd}: ${path}: is a directory`, type: 'err' }]
+    return [{ text: t('unlock.isdir', { cmd, path }), type: 'err' }]
   if (!node.locked || ctx.unlocked?.has(path))
-    return [{ text: `${cmd}: ${path}: file is not encrypted`, type: 'muted' }]
+    return [{ text: t('unlock.notenc', { cmd, path }), type: 'muted' }]
   if (!node.password)
     return [
-      { text: `${cmd}: ${path}: no password-based encryption.`, type: 'err' },
-      { text: 'try `crack` instead.', type: 'muted' }
+      { text: t('unlock.nopwd', { cmd, path }), type: 'err' },
+      { text: t('unlock.nopwd.hint'), type: 'muted' }
     ]
   // Cinematic path: no key on the command line -> open the modal.
   if (!key) {
     ctx.openPasswordPrompt?.(path, node)
-    return [{ text: `${path} — encrypted. authentication required.`, type: 'muted' }]
+    return [{ text: t('unlock.authreq', { path }), type: 'muted' }]
   }
   // Inline path (script/power-user): key already provided.
   if (key === node.password && node.tracer) ctx.evadeTracer?.(node)
-  return buildDecryptLines(ctx.theme, path, node, key, ctx.unlock, ctx.fs)
+  return buildDecryptLines(ctx.theme, path, node, key, ctx.unlock, ctx.fs, t)
 }
 
 // The brute-force success sequence. Used by the plain crack flow and by
 // the difficulty-check flow (after the roll passes, in Terminal).
-export function buildCrackLines(theme, path, node, unlock, fs) {
+export function buildCrackLines(theme, path, node, unlock, fs, t = makeT('en')) {
   const duration = node.crackTime ?? theme.locks?.crackDefault ?? 5000
   const label = node.lockLabel ?? theme.locks?.crackLabel ?? 'BRUTE-FORCING'
-  const success = node.crackSuccessMessage ?? `ACCESS GRANTED — ${path}`
+  const success = node.crackSuccessMessage ?? t('crack.success', { path })
   return [
-    { text: `initiating attack on ${path}...`, type: 'muted' },
+    { text: t('crack.initiate', { path }), type: 'muted' },
     { type: 'progress', duration, label, onComplete: () => unlock(path) },
     { text: success, type: 'ok' },
-    { text: `you can now run \`cat ${path}\`.`, type: 'muted' },
-    ...buildRevealLines(fs, node),
+    { text: t('crack.cathint', { path }), type: 'muted' },
+    ...buildRevealLines(fs, node, t),
     ...buildEventLines(theme, path)
   ]
 }
 
 // Shared between the inline (commands.js) and modal (Terminal.jsx) flows.
-export function buildDecryptLines(theme, path, node, key, unlock, fs) {
+export function buildDecryptLines(theme, path, node, key, unlock, fs, t = makeT('en')) {
   if (key !== node.password) {
     return [
-      { text: 'decrypt: key rejected.', type: 'err' },
-      { text: 'system flags this attempt.', type: 'muted' }
+      { text: t('decrypt.rejected'), type: 'err' },
+      { text: t('decrypt.flagged'), type: 'muted' }
     ]
   }
   const duration = node.decryptTime ?? theme.locks?.decryptDefault ?? 1500
   const label =
     node.decryptLabel ?? theme.locks?.decryptLabel ?? 'DECRYPTING'
   return [
-    { text: 'key accepted. applying...', type: 'muted' },
+    { text: t('decrypt.keyok'), type: 'muted' },
     {
       type: 'progress',
       duration,
       label,
       onComplete: () => unlock(path)
     },
-    { text: `${path} decrypted.`, type: 'ok' },
-    ...buildRevealLines(fs, node),
+    { text: t('decrypt.done', { path }), type: 'ok' },
+    ...buildRevealLines(fs, node, t),
     ...buildEventLines(theme, path)
   ]
 }
@@ -729,6 +717,7 @@ export function buildDecryptLines(theme, path, node, key, unlock, fs) {
 export function runCommand(input, ctx) {
   const trimmed = input.trim()
   if (!trimmed) return []
+  const t = ctx.t ?? makeT(ctx.lang)
   const [typed, ...args] = trimmed.split(/\s+/)
   // Themed command names: a theme/scenario may alias its own verb onto a
   // built-in (e.g. `auspex` -> `check`, `audit` -> `check`). A static
@@ -737,13 +726,13 @@ export function runCommand(input, ctx) {
   const name = !customs[typed] && ctx.theme.aliases?.[typed] ? ctx.theme.aliases[typed] : typed
   const handler = COMMANDS[name] ?? makeCustom(customs[name])
   if (!handler) {
-    const hint = ctx.theme.unknownHint ?? 'type `help` for available commands.'
+    const hint = ctx.theme.unknownHint ?? t('cmd.hint')
     return [
-      { text: `command not found: ${name}`, type: 'err' },
+      { text: t('cmd.notfound', { name }), type: 'err' },
       { text: hint, type: 'muted' }
     ]
   }
-  return handler({ ...ctx, args, raw: trimmed })
+  return handler({ ...ctx, args, raw: trimmed, t })
 }
 
 function makeCustom(spec) {

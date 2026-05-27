@@ -1,9 +1,10 @@
 import { useEffect, useRef, useState } from 'react'
 import { playBeep } from '../audio/sfx.js'
+import { makeT } from '../i18n/ui.js'
 
 // Big centered self-destruct popup: a ticking countdown with an OVERRIDE
 // code area. The correct (GM-defined) code aborts; reaching 0 detonates.
-export default function SelfDestructModal({ config, onAbort, onDetonate }) {
+export default function SelfDestructModal({ config, onAbort, onDetonate, t = makeT('en') }) {
   const from = Math.max(1, config.from ?? 10)
   const interval = Math.max(200, config.interval ?? 800)
   const override = config.override
@@ -55,14 +56,14 @@ export default function SelfDestructModal({ config, onAbort, onDetonate }) {
     <div className="modal-overlay modal-overlay--alarm" role="presentation">
       <div className="modal modal--destruct" role="dialog" aria-label="self destruct">
         <div className="modal__header modal__header--alarm">
-          {config.armed ?? 'SELF-DESTRUCT SEQUENCE ARMED'}
+          {config.armed ?? t('modal.destruct.armed')}
         </div>
         <div className="destruct__count">
-          {config.label ?? 'DETONATION IN'} {n}
+          {config.label ?? t('modal.destruct.label')} {n}
         </div>
         {override && (
           <div className="destruct__override">
-            <span className="modal__label">OVERRIDE CODE:</span>
+            <span className="modal__label">{t('modal.destruct.code')}</span>
             <input
               ref={inputRef}
               type="password"
@@ -79,10 +80,10 @@ export default function SelfDestructModal({ config, onAbort, onDetonate }) {
         )}
         <div className={`modal__footer${rejected ? ' modal__footer--reject' : ''}`}>
           {rejected
-            ? '✕ OVERRIDE REJECTED'
+            ? t('modal.destruct.rejected')
             : override
-              ? 'enter the override code to abort'
-              : 'no override available'}
+              ? t('modal.destruct.override')
+              : t('modal.destruct.nooverride')}
         </div>
       </div>
     </div>

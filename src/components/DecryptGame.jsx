@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react'
 import { scoreGuess, isWin } from '../engine/wordle.js'
+import { makeT } from '../i18n/ui.js'
 
 // `decrypt` minigame: a Wordle-style keyword hunt. Type letters, Enter to
 // submit a full-length guess, Esc to cancel. Win/lose fire the callbacks.
-export default function DecryptGame({ target, attempts = 6, label, onWin, onLose, onCancel }) {
+export default function DecryptGame({ target, attempts = 6, label, t = makeT('en'), onWin, onLose, onCancel }) {
   const word = String(target).toUpperCase()
   const len = word.length
   const [rows, setRows] = useState([]) // [{ letters:[], score:[] }]
@@ -53,7 +54,7 @@ export default function DecryptGame({ target, attempts = 6, label, onWin, onLose
         aria-label="cipher minigame"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="modal__header">{label ?? 'CIPHER ANALYSIS'} {'//'} {len} CHARS</div>
+        <div className="modal__header">{label ?? t('modal.decrypt.header')} {'//'} {len} {t('modal.decrypt.chars')}</div>
         <div className="wordle">
           {Array.from({ length: attempts }).map((_, r) => {
             const row = rows[r]
@@ -77,7 +78,7 @@ export default function DecryptGame({ target, attempts = 6, label, onWin, onLose
           })}
         </div>
         <div className="modal__footer">
-          {remaining} attempt(s) left · type · enter to submit · esc to cancel
+          {t('modal.decrypt.footer', { n: remaining })}
         </div>
       </div>
     </div>

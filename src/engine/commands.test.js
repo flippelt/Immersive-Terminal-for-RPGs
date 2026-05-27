@@ -405,3 +405,23 @@ describe('cd', () => {
     expect(ctx.setCwd).toHaveBeenCalledWith('/d')
   })
 })
+
+describe('i18n (lang in ctx)', () => {
+  it('keeps command names but localizes built-in text (pt)', () => {
+    const out = runCommand('cat', makeCtx({ lang: 'pt' }))
+    // "cat:" stays (command name), the message is Portuguese
+    expect(out[0].text).toBe('cat: operando ausente')
+  })
+  it('localizes the locked-file denial (pt)', () => {
+    const out = runCommand('cat secret.dat', makeCtx({ lang: 'pt' }))
+    expect(out[0].text).toContain('ACESSO NEGADO')
+  })
+  it('localizes the help title (pt)', () => {
+    const out = runCommand('help', makeCtx({ lang: 'pt' }))
+    expect(out[0].text).toBe('COMANDOS')
+  })
+  it('defaults to English when no lang is given', () => {
+    const out = runCommand('cat', makeCtx())
+    expect(out[0].text).toBe('cat: missing operand')
+  })
+})

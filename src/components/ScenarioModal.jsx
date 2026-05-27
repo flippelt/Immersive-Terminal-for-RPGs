@@ -1,9 +1,10 @@
 import { useEffect, useRef, useState } from 'react'
+import { makeT } from '../i18n/ui.js'
 
 // GM dialog to paste a custom scenario bundle (JSON) and load it without
 // editing the repo. `onSubmit(text)` returns an error string to show
 // inline (keeping the dialog open) or null/undefined on success.
-export default function ScenarioModal({ onSubmit, onCancel }) {
+export default function ScenarioModal({ onSubmit, onCancel, t = makeT('en') }) {
   const [value, setValue] = useState('')
   const [error, setError] = useState(null)
   const ref = useRef(null)
@@ -37,9 +38,9 @@ export default function ScenarioModal({ onSubmit, onCancel }) {
         aria-label="Load custom scenario"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="modal__header">LOAD CUSTOM SCENARIO</div>
+        <div className="modal__header">{t('modal.scenario.title')}</div>
         <div className="modal__body">
-          <span className="modal__label">paste scenario bundle (JSON):</span>
+          <span className="modal__label">{t('modal.scenario.label')}</span>
           <textarea
             ref={ref}
             className="modal__input modal__textarea"
@@ -56,7 +57,7 @@ export default function ScenarioModal({ onSubmit, onCancel }) {
           />
           {error && <span className="modal__footer--reject">{error}</span>}
         </div>
-        <div className="modal__footer">ctrl+enter to load · esc to cancel</div>
+        <div className="modal__footer">{t('modal.scenario.footer')}</div>
       </div>
     </div>
   )
