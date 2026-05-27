@@ -51,6 +51,15 @@ describe('cat', () => {
     const out = runCommand('cat secret.dat', makeCtx({ unlocked: new Set(['/secret.dat']) }))
     expect(out[0].type).not.toBe('err')
   })
+  it('emits an image line for a file with an image front-matter', () => {
+    const imgFs = {
+      '/': { type: 'dir', children: ['photo.md'] },
+      '/photo.md': { type: 'file', content: '# caption', image: 'data:image/png;base64,AAAA', imageAlt: 'a photo' }
+    }
+    const out = runCommand('cat photo.md', makeCtx({ fs: imgFs }))
+    expect(out[0]).toMatchObject({ type: 'image', src: 'data:image/png;base64,AAAA', alt: 'a photo' })
+    expect(out.some((l) => l.text?.includes('CAPTION'))).toBe(true)
+  })
 })
 
 describe('ls', () => {

@@ -41,7 +41,10 @@ const toLine = (l) => ({
   // countdown fields
   from: l.from,
   interval: l.interval,
-  alarm: l.alarm
+  alarm: l.alarm,
+  // image fields
+  src: l.src,
+  alt: l.alt
 })
 
 export default function Terminal({
