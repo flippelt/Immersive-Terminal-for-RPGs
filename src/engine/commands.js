@@ -39,6 +39,7 @@ const help = (extra = []) => [
   { text: '  sharescenario         copy a link that embeds the loaded scenario' },
   { text: '  reboot                cold restart' },
   { text: '  reset                 wipe this scenario’s progress' },
+  { text: '  check <file>          scan a file: lock, brute-force & surveillance' },
   { text: '  crack <file>          brute-force a locked file' },
   { text: '  decrypt <file> <key>  unlock with password' },
   { text: '  volume [0-100|mute]   audio level' },
@@ -168,6 +169,42 @@ const COMMANDS = {
       return [{ text: `cd: ${target}: not a directory`, type: 'err' }]
     ctx.setCwd(target)
     return []
+  },
+
+  // Recon: read a file's security posture without touching it — whether it
+  // is encrypted, brute-forceable, and (crucially) whether it is *watched*
+  // (arms the tracer on intrusion). Passive: never trips anything.
+  check: (ctx) => {
+    if (!ctx.args[0]) return [{ text: 'check: missing operand', type: 'err' }]
+    const { path, node } = resolveTarget(ctx, ctx.args[0])
+    if (!node) return [{ text: `check: ${path}: no such file`, type: 'err' }]
+    if (node.type !== 'file')
+      return [{ text: `check: ${path}: is a directory`, type: 'err' }]
+
+    const out = [{ text: `SECURITY SCAN // ${path}`, type: 'ok' }]
+    if (!isLocked(node, ctx, path)) {
+      out.push({ text: '  state: OPEN — no protection detected', type: 'muted' })
+      return out
+    }
+    out.push({ text: '  state: ENCRYPTED' })
+    if (node.crackable === false) {
+      out.push({ text: '  brute-force: HARDENED — password required', type: 'muted' })
+    } else if (node.crackDC != null) {
+      const dc = ctx.gmMode ? ` (DC ${node.crackDC})` : ''
+      out.push({ text: `  brute-force: possible — difficulty check${dc}`, type: 'muted' })
+    } else {
+      out.push({ text: '  brute-force: possible', type: 'muted' })
+    }
+    if (node.tracer && ctx.theme.tracer) {
+      const label = ctx.theme.tracer.label ?? 'TRACE'
+      out.push({ text: `  surveillance: MONITORED — ${label} on intrusion ⚠`, type: 'err' })
+    } else {
+      out.push({ text: '  surveillance: clear', type: 'muted' })
+    }
+    if (ctx.gmMode && node.password) {
+      out.push({ text: `  ★ pwd:${node.password}`, type: 'muted' })
+    }
+    return out
   },
 
   cat: (ctx) => {
@@ -412,7 +449,17 @@ const COMMANDS = {
       const msg =
         node.crackFailMessage ??
         'crack: encryption hardened — password required.'
-      return [{ text: msg, type: 'err' }]
+      const lines = [{ text: msg, type: 'err' }]
+      // Brute-forcing a hardened, *watched* file trips a fast trace.
+      if (node.tracer && ctx.theme.tracer) {
+        const secs = ctx.theme.tracer.nocrackSeconds ?? 5
+        ctx.tripTracer?.(secs)
+        lines.push({
+          text: `>>> intrusion on hardened node logged — ${ctx.theme.tracer.label ?? 'TRACE'} active (${secs}s)`,
+          type: 'err'
+        })
+      }
+      return lines
     }
     // Difficulty check: GM set a crackDC. Player rolls and enters the
     // result in a dialog; the modal handler in Terminal does the compare.
@@ -574,8 +621,12 @@ export function buildDecryptLines(theme, path, node, key, unlock, fs) {
 export function runCommand(input, ctx) {
   const trimmed = input.trim()
   if (!trimmed) return []
-  const [name, ...args] = trimmed.split(/\s+/)
+  const [typed, ...args] = trimmed.split(/\s+/)
+  // Themed command names: a theme/scenario may alias its own verb onto a
+  // built-in (e.g. `auspex` -> `check`, `audit` -> `check`). A static
+  // custom command of the same name still wins over the alias.
   const customs = ctx.theme.commands ?? {}
+  const name = !customs[typed] && ctx.theme.aliases?.[typed] ? ctx.theme.aliases[typed] : typed
   const handler = COMMANDS[name] ?? makeCustom(customs[name])
   if (!handler) {
     const hint = ctx.theme.unknownHint ?? 'type `help` for available commands.'

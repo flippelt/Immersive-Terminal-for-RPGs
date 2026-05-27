@@ -5,6 +5,7 @@ import InputModal from './InputModal.jsx'
 import ProgressModal from './ProgressModal.jsx'
 import SelfDestructModal from './SelfDestructModal.jsx'
 import Tracer from './Tracer.jsx'
+import TraceCaught from './TraceCaught.jsx'
 
 const toLines = (val, type) =>
   (Array.isArray(val) ? val : [val])
@@ -70,6 +71,7 @@ export default function Terminal({
   const [loginTries, setLoginTries] = useState(0)
   const [selfDestruct, setSelfDestruct] = useState(null)
   const [tracerEndsAt, setTracerEndsAt] = useState(null)
+  const [caught, setCaught] = useState(null)
   const scrollRef = useRef(null)
 
   // Keep a live ref to history so `advance` always reads the latest array
@@ -87,6 +89,7 @@ export default function Terminal({
     setCrackAttempts(new Map())
     setSelfDestruct(null)
     setTracerEndsAt(null)
+    setCaught(null)
     const needsLogin = !!theme.login
     setAuthed(!needsLogin)
     setLoginTries(0)
@@ -220,13 +223,30 @@ export default function Terminal({
     setModal({ kind: 'decrypt', path, node })
   }, [])
 
+  // Tracer hit zero. If the theme configures a `caught` climax (Cyberpunk),
+  // run it; the sequence reboots the console when it ends.
+  const handleTraceComplete = useCallback(() => {
+    const c = themeRef.current.tracer?.caught
+    if (c) {
+      setTracerEndsAt(null)
+      setCaught(c)
+    }
+  }, [])
+
+  const handleCaughtReboot = useCallback(() => {
+    setCaught(null)
+    reboot()
+  }, [reboot])
+
   const openCrackPrompt = useCallback(
     (path, node) => {
       setModal({ kind: 'crack', path, node })
-      // Cyberpunk-style tracer: starts the first time a guarded file is
-      // cracked. Time + penalty come from theme.tracer (GM-configurable).
+      // Cyberpunk-style tracer. Only files that opt in (`tracer: true`)
+      // arm it. Arm at command time only when the GM set no grace
+      // (startAfter 0 = the default, current behavior); a higher startAfter
+      // delays arming until that many failed attempts (handled below).
       const tr = themeRef.current.tracer
-      if (tr) {
+      if (tr && node.tracer && (tr.startAfter ?? 0) <= 0) {
         setTracerEndsAt((prev) =>
           prev != null ? prev : Date.now() + (tr.seconds ?? 30) * 1000
         )
@@ -234,6 +254,15 @@ export default function Terminal({
     },
     []
   )
+
+  // Trip the tracer to a short, fixed countdown — used when a player brute-
+  // forces a hardened (nocrack) watched file. Only ever makes it worse.
+  const tripTracer = useCallback((seconds) => {
+    setTracerEndsAt((prev) => {
+      const t = Date.now() + (seconds ?? 5) * 1000
+      return prev == null ? t : Math.min(prev, t)
+    })
+  }, [])
 
   const handleModalSubmit = useCallback(
     (value) => {
@@ -260,7 +289,7 @@ export default function Terminal({
         // Cracking it in time beats the trace: stop the tracer (with an
         // optional GM-defined "evaded" line).
         const tr = themeRef.current.tracer
-        const tracerWasOn = !!tr && tracerEndsAt != null
+        const tracerWasOn = !!tr && node.tracer && tracerEndsAt != null
         if (tracerWasOn) setTracerEndsAt(null)
         push([
           { text: `roll ${roll} — SUCCESS${dcNote}`, type: 'ok' },
@@ -272,10 +301,21 @@ export default function Terminal({
       }
       const used = (crackAttempts.get(path) ?? 0) + 1
       setCrackAttempts((m) => new Map(m).set(path, used))
-      // Each failed crack drags the tracer earlier (GM-configurable penalty).
+      // Tracer — only for files that opt in (`tracer: true`):
+      //  • if not yet active, arm it once failed attempts reach the GM's
+      //    grace `startAfter` (>= 1; startAfter 0 already armed at command);
+      //  • if active, each failed attempt drags it earlier by `penalty`.
       const tr = themeRef.current.tracer
-      if (tr) {
-        setTracerEndsAt((t) => (t != null ? t - (tr.penalty ?? 7) * 1000 : t))
+      if (tr && node.tracer) {
+        const startAfter = tr.startAfter ?? 0
+        setTracerEndsAt((prev) => {
+          if (prev == null) {
+            return startAfter >= 1 && used >= startAfter
+              ? Date.now() + (tr.seconds ?? 30) * 1000
+              : prev
+          }
+          return prev - (tr.penalty ?? 7) * 1000
+        })
       }
       const remaining = max - used
       const lines = [{ text: `roll ${roll} — FAILED${dcNote}`, type: 'err' }]
@@ -321,6 +361,7 @@ export default function Terminal({
         openPasswordPrompt,
         openCrackPrompt,
         openSelfDestruct,
+        tripTracer,
         crackAttempts,
         gmMode,
         toggleGm: onToggleGm,
@@ -333,7 +374,7 @@ export default function Terminal({
       if (out.length) push(out)
       push([{ text: '', instant: true }])
     },
-    [theme, themes, cwd, push, clear, reboot, switchTheme, unlocked, unlock, resetProgress, openPasswordPrompt, openCrackPrompt, openSelfDestruct, crackAttempts, gmMode, onToggleGm, onSwitchScenario, onLoadScenarioUrl, onOpenScenarioPaste, onShareScenario]
+    [theme, themes, cwd, push, clear, reboot, switchTheme, unlocked, unlock, resetProgress, openPasswordPrompt, openCrackPrompt, openSelfDestruct, tripTracer, crackAttempts, gmMode, onToggleGm, onSwitchScenario, onLoadScenarioUrl, onOpenScenarioPaste, onShareScenario]
   )
 
   const inputReady = animIdx >= history.length
@@ -414,9 +455,10 @@ export default function Terminal({
           onDetonate={handleDetonate}
         />
       )}
-      {tracerEndsAt != null && theme.tracer && (
-        <Tracer endsAt={tracerEndsAt} config={theme.tracer} />
+      {tracerEndsAt != null && theme.tracer && !caught && (
+        <Tracer endsAt={tracerEndsAt} config={theme.tracer} onComplete={handleTraceComplete} />
       )}
+      {caught && <TraceCaught config={caught} onReboot={handleCaughtReboot} />}
     </>
   )
 }

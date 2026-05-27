@@ -128,6 +128,7 @@ function mergeScenario(theme, scenario) {
     tracer: scenario.tracer ?? theme.tracer ?? null,
     dialog: scenario.dialog ?? theme.dialog ?? null,
     events: scenario.events ?? {},
+    aliases: { ...theme.aliases, ...scenario.aliases },
     locks: { ...theme.locks, ...scenario.locks },
     commands: { ...theme.commands, ...scenario.commands },
     filesystem: scenario.filesystem ?? {}

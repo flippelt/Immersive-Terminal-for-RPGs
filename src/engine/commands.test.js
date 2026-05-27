@@ -238,6 +238,54 @@ describe('sharescenario', () => {
   })
 })
 
+describe('check', () => {
+  it('reports an open file as unprotected', () => {
+    const out = runCommand('check note.txt', makeCtx())
+    expect(out.some((l) => l.text.includes('OPEN'))).toBe(true)
+  })
+  it('reports surveillance for a watched locked file', () => {
+    const watched = {
+      '/': { type: 'dir', children: ['w.dat'] },
+      '/w.dat': { type: 'file', locked: true, password: 'X', crackable: true, crackDC: 10, tracer: true }
+    }
+    const out = runCommand(
+      'check w.dat',
+      makeCtx({ fs: watched, theme: { commands: {}, locks: {}, tracer: { label: 'ICE TRACE' } } })
+    )
+    expect(out.some((l) => l.text.includes('MONITORED'))).toBe(true)
+  })
+  it('reports surveillance clear when the file is not watched', () => {
+    const out = runCommand('check secret.dat', makeCtx())
+    expect(out.some((l) => l.text.includes('surveillance: clear'))).toBe(true)
+  })
+})
+
+describe('crack on a hardened watched file', () => {
+  it('trips the tracer fast and refuses', () => {
+    const hardened = {
+      '/': { type: 'dir', children: ['h.dat'] },
+      '/h.dat': { type: 'file', locked: true, password: 'X', crackable: false, tracer: true }
+    }
+    const tripTracer = vi.fn()
+    const out = runCommand(
+      'crack h.dat',
+      makeCtx({ fs: hardened, tripTracer, theme: { commands: {}, locks: {}, tracer: { nocrackSeconds: 5, label: 'ICE TRACE' } } })
+    )
+    expect(tripTracer).toHaveBeenCalledWith(5)
+    expect(out[0].type).toBe('err')
+  })
+})
+
+describe('command aliases', () => {
+  it('resolves a themed alias to a built-in', () => {
+    const out = runCommand(
+      'scan note.txt',
+      makeCtx({ theme: { commands: {}, locks: {}, aliases: { scan: 'check' } } })
+    )
+    expect(out[0].text).toContain('SECURITY SCAN')
+  })
+})
+
 describe('cd', () => {
   it('rejects a non-directory', () => {
     const out = runCommand('cd note.txt', makeCtx())
