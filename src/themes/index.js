@@ -87,9 +87,19 @@ const fileModules = import.meta.glob('./scenarios/*/*/files/**/*', {
   query: '?raw',
   import: 'default'
 })
+// Optional translated file trees, parallel to files/: e.g.
+// scenarios/<theme>/<id>/files.pt/<same/rel/path>. Body-only — lock metadata
+// always comes from the base file, so translators just retell the lore.
+const transFileModules = import.meta.glob('./scenarios/*/*/files.*/**/*', {
+  eager: true,
+  query: '?raw',
+  import: 'default'
+})
 
 const SCENARIOS = {} // SCENARIOS[themeId][scenarioId] = composed scenario
 const FILE_BUCKETS = {} // key `${theme}/${scenario}` -> [{ path, content, meta }]
+// key `${theme}/${scenario}` -> { [lang]: { '/rel': translatedBody } }
+const TRANS_BUCKETS = {}
 
 for (const [key, raw] of Object.entries(fileModules)) {
   const m = key.match(/\.\/scenarios\/([^/]+)\/([^/]+)\/files\/(.+)$/)
@@ -100,21 +110,88 @@ for (const [key, raw] of Object.entries(fileModules)) {
   bucket.push({ path: '/' + rel, content, meta })
 }
 
+for (const [key, raw] of Object.entries(transFileModules)) {
+  const m = key.match(/\.\/scenarios\/([^/]+)\/([^/]+)\/files\.([a-z]{2})\/(.+)$/)
+  if (!m) continue
+  const [, themeId, scenarioId, lang, rel] = m
+  const { content } = parseFrontMatter(raw) // ignore any meta — base owns it
+  const byLang = (TRANS_BUCKETS[`${themeId}/${scenarioId}`] ??= {})
+  ;(byLang[lang] ??= {})['/' + rel] = content
+}
+
 for (const [key, mod] of Object.entries(metaModules)) {
   const m = key.match(/\.\/scenarios\/([^/]+)\/([^/]+)\/scenario\.json$/)
   if (!m) continue
   const [, themeId, scenarioId] = m
   const data = mod.default ?? mod
   const files = FILE_BUCKETS[`${themeId}/${scenarioId}`] ?? []
+  const fileI18n = TRANS_BUCKETS[`${themeId}/${scenarioId}`]
   ;(SCENARIOS[themeId] ??= {})[scenarioId] = {
     id: scenarioId,
     ...data,
-    filesystem: buildFilesystem(files)
+    filesystem: buildFilesystem(files),
+    // Directory-based translations, kept aside so localizeScenario can apply
+    // them alongside any inline i18n.<lang>.files map.
+    ...(fileI18n ? { _fileI18n: fileI18n } : {})
   }
 }
 
 export function scenarioIdsFor(themeId) {
   return Object.keys(SCENARIOS[themeId] ?? {})
+}
+
+// --- per-language content (Fase 3) --------------------------------------
+// A theme/scenario/bundle may carry an `i18n` block:
+//   "i18n": { "pt": { "motd": [...], "dialog": {...}, "files": { "/x.md": "..." } } }
+// The base fields are the default language (English). When a non-default
+// `lang` is active, each field in i18n[lang] overrides the base field:
+// plain objects (locks, dialog, selfDestruct, login) shallow-merge so a
+// translator can override just the text keys; everything else replaces
+// wholesale. `files` is special — it maps a filesystem path to a translated
+// body (front-matter / lock metadata stay language-agnostic on the base).
+const isPlainObject = (v) =>
+  v != null && typeof v === 'object' && !Array.isArray(v)
+
+function applyI18n(obj, lang) {
+  const tr = obj?.i18n?.[lang]
+  // Always drop the i18n block from the composed result, even with no match.
+  if (!obj?.i18n) return obj
+  const out = { ...obj }
+  delete out.i18n
+  if (!tr) return out
+  for (const [k, v] of Object.entries(tr)) {
+    if (k === 'files') continue // handled against the built filesystem
+    out[k] = isPlainObject(out[k]) && isPlainObject(v) ? { ...out[k], ...v } : v
+  }
+  return out
+}
+
+// Return a filesystem with translated file bodies. Nodes are cloned so the
+// shared (English) filesystem is never mutated; metadata is preserved.
+function translateFilesystem(fs, fileOverrides) {
+  if (!isPlainObject(fileOverrides)) return fs
+  const next = { ...fs }
+  for (const [path, content] of Object.entries(fileOverrides)) {
+    const p = path.startsWith('/') ? path : '/' + path
+    if (next[p]?.type === 'file') next[p] = { ...next[p], content: String(content) }
+  }
+  return next
+}
+
+// Apply i18n to a scenario, including translating file bodies. File overrides
+// come from a parallel files.<lang>/ tree (_fileI18n) and/or an inline
+// i18n.<lang>.files map; the inline map wins on a conflicting path.
+function localizeScenario(scenario, lang) {
+  const fileOverrides = {
+    ...(scenario?._fileI18n?.[lang] ?? {}),
+    ...(scenario?.i18n?.[lang]?.files ?? {})
+  }
+  const out = applyI18n(scenario, lang)
+  delete out._fileI18n
+  if (Object.keys(fileOverrides).length) {
+    out.filesystem = translateFilesystem(scenario.filesystem, fileOverrides)
+  }
+  return out
 }
 
 // Merge a theme skin with a scenario's content. Scenario fields override
@@ -142,12 +219,13 @@ function mergeScenario(theme, scenario) {
   }
 }
 
-export function composeTheme(themeId, scenarioId) {
-  const theme = THEME_REGISTRY[themeId]
-  if (!theme) return null
+export function composeTheme(themeId, scenarioId, lang = 'en') {
+  const base = THEME_REGISTRY[themeId]
+  if (!base) return null
+  const theme = applyI18n(base, lang)
   const available = SCENARIOS[themeId] ?? {}
-  const sid = available[scenarioId] ? scenarioId : theme.defaultScenario
-  const scenario = available[sid] ?? {}
+  const sid = available[scenarioId] ? scenarioId : base.defaultScenario
+  const scenario = localizeScenario(available[sid] ?? {}, lang)
   return mergeScenario(theme, { ...scenario, id: scenario.id ?? sid ?? null })
 }
 
@@ -161,7 +239,7 @@ const SKIN_KEYS = [
 // content loaded from a URL or pasted JSON, no repo edit required. The
 // bundle mirrors a scenario.json plus a `files` map (path -> raw text,
 // front-matter and all) and an optional base `theme` id to skin it.
-export function composeCustomScenario(bundle) {
+export function composeCustomScenario(bundle, lang = 'en') {
   if (!bundle || typeof bundle !== 'object' || Array.isArray(bundle)) {
     throw new Error('scenario bundle must be a JSON object')
   }
@@ -171,7 +249,7 @@ export function composeCustomScenario(bundle) {
       : THEME_REGISTRY.ibm
         ? 'ibm'
         : THEME_LIST[0].id
-  const theme = THEME_REGISTRY[baseId]
+  const theme = applyI18n(THEME_REGISTRY[baseId], lang)
 
   const filesObj = bundle.files ?? {}
   if (typeof filesObj !== 'object' || Array.isArray(filesObj)) {
@@ -183,14 +261,16 @@ export function composeCustomScenario(bundle) {
     return { path: p, content, meta }
   })
 
-  const scenario = {
-    ...bundle,
-    id: bundle.id ?? 'custom',
-    filesystem: buildFilesystem(files)
-  }
+  // Localize after building the filesystem (bundle i18n may translate
+  // file bodies and shell fields, exactly like a repo scenario).
+  const scenario = localizeScenario(
+    { ...bundle, id: bundle.id ?? 'custom', filesystem: buildFilesystem(files) },
+    lang
+  )
   const merged = mergeScenario(theme, scenario)
+  const skin = applyI18n(bundle, lang)
   for (const k of SKIN_KEYS) {
-    if (bundle[k] != null) merged[k] = bundle[k]
+    if (skin[k] != null) merged[k] = skin[k]
   }
   merged.custom = true
   return merged
