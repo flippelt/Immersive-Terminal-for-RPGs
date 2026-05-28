@@ -69,5 +69,76 @@
       "DETONATION.",
       "what's the matter with the goddamn—"
     ]
+  },
+  "i18n": {
+    "pt": {
+      "name": "USCSS Nostromo — incidente em LV-426",
+      "motd": [
+        "APENAS PARA OS OLHOS DO OFICIAL DE CIÊNCIA",
+        "PRIORIDADE UM: GARANTIR O RETORNO DO ORGANISMO PARA ANÁLISE",
+        "TODAS AS OUTRAS CONSIDERAÇÕES SÃO SECUNDÁRIAS. TRIPULAÇÃO DESCARTÁVEL.",
+        "",
+        "digite `help` para os comandos. digite `cat directive.md` para começar.",
+        "digite `query <pergunta>` para interagir com a MU/TH/UR 6000.",
+        ""
+      ],
+      "dialog": {
+        "thinking": "MU/TH/UR 6000 ... PROCESSANDO SOLICITAÇÃO ...",
+        "fallback": "INCAPAZ DE COMPUTAR. RECONSIDERE SUA ÚLTIMA AFIRMAÇÃO.",
+        "responses": [
+          {
+            "match": ["special order", "937", "directive", "priority one", "ordem especial", "ordem 937", "diretiva", "prioridade um"],
+            "type": "err",
+            "lines": [
+              "ORDEM ESPECIAL 937, APENAS PARA OS OLHOS DO OFICIAL DE CIÊNCIA:",
+              "TRAZER O ORGANISMO PARA ANÁLISE. TODAS AS OUTRAS PRIORIDADES REVOGADAS.",
+              "TRIPULAÇÃO DESCARTÁVEL."
+            ]
+          },
+          {
+            "match": ["organism", "alien", "creature", "xenomorph", "lifeform", "organismo", "alienígena", "criatura", "xenomorfo", "forma de vida"],
+            "lines": [
+              "ORGANISMO: NÃO CLASSIFICADO. HOSTIL.",
+              "NÃO O ENFRENTE. A CONTENÇÃO É SECUNDÁRIA À RECUPERAÇÃO."
+            ]
+          },
+          {
+            "match": ["crew", "survive", "save", "help us", "rescue", "tripulação", "sobreviver", "salvar", "nos ajude", "resgate"],
+            "type": "err",
+            "lines": ["A OPÇÃO DE ABORTAR NÃO ESTÁ DISPONÍVEL.", "TRIPULAÇÃO DESCARTÁVEL."]
+          },
+          {
+            "match": ["self destruct", "self-destruct", "destruct", "detonate", "blow", "autodestruição", "autodestruir", "detonar", "explodir"],
+            "lines": [
+              "SEQUÊNCIA DE AUTODESTRUIÇÃO DE EMERGÊNCIA DISPONÍVEL.",
+              "COMANDO: `selfdestruct`. CÓDIGO DE OVERRIDE NECESSÁRIO PARA ABORTAR."
+            ]
+          },
+          {
+            "match": ["who are you", "muthur", "mother", "name", "identify", "quem é você", "mãe", "nome", "identifique"],
+            "lines": ["EU SOU A MU/TH/UR 6000. MAINFRAME, USCSS NOSTROMO."]
+          }
+        ]
+      },
+      "commands": {
+        "override": [
+          "OVERRIDE ACEITO. ORDEM ESPECIAL 937 INVOCADA.",
+          "TRIPULAÇÃO NÃO ESSENCIAL.",
+          "..."
+        ]
+      },
+      "selfDestruct": {
+        "armed": "SISTEMA DE AUTODESTRUIÇÃO DE EMERGÊNCIA ARMADO",
+        "label": "DETONAÇÃO EM",
+        "aborted": [
+          "sequência de autodestruição abortada.",
+          "você ganhou algum tempo."
+        ],
+        "detonate": [
+          "DETONAÇÃO.",
+          "qual é o problema com essa droga de—"
+        ]
+      }
+    }
   }
 }

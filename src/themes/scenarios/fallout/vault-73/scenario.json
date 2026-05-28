@@ -28,5 +28,38 @@
       "available: `holotape orientation`, `holotape final_message`",
       "(or use `cat holotapes/<name>.md`)"
     ]
+  },
+  "i18n": {
+    "pt": {
+      "name": "Vault 73 — experimento de isolamento",
+      "motd": [
+        "Vault-Tec Industries — acesso de supervisor concedido",
+        "designação da vault: 73",
+        "residentes registrados: 102",
+        "",
+        "abra: `cat overseer.log`, `ls residents`, `ls protocol`",
+        ""
+      ],
+      "commands": {
+        "pipboy": [
+          "STATUS DO PIP-BOY 3000",
+          "  HP        ▓▓▓▓▓▓▓▓░░  82/100",
+          "  AP        ▓▓▓▓▓▓░░░░  64/100",
+          "  RADS      ▓▓░░░░░░░░  18 RAD",
+          "  PESO      142 / 200 lbs",
+          "  CAPS      $ 437"
+        ],
+        "rads": [
+          "Leitura de radiação: 18 RAD",
+          "Fonte de fundo: traços de cobalto-60 nas ventilações de superfície.",
+          "Recomendação: nenhuma descontaminação imediata necessária."
+        ],
+        "holotape": [
+          "HOLOTAPE NÃO ENCONTRADA.",
+          "disponíveis: `holotape orientation`, `holotape final_message`",
+          "(ou use `cat holotapes/<name>.md`)"
+        ]
+      }
+    }
   }
 }

@@ -1,0 +1,7 @@
+CAP   Dallas      [FALECIDO]
+XO    Kane        [FALECIDO]
+NAV   Lambert     [FALECIDA]
+ENG   Parker      [FALECIDO]
+ENG   Brett       [FALECIDO]
+CIÊ   Ash         [SINTÉTICO // TERMINADO]
+SUB   Ripley      [STATUS: SOBREVIVENTE]

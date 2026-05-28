@@ -76,7 +76,6 @@ export default function App() {
   // A GM-loaded custom scenario (from a URL, pasted JSON, or a share link).
   // When set it takes over from the repo theme/scenario selection until
   // cleared. The raw bundle is kept so it can be re-encoded into a link.
-  const [customTheme, setCustomTheme] = useState(null)
   const [customBundle, setCustomBundle] = useState(null)
   const [pasteOpen, setPasteOpen] = useState(false)
   const [loadError, setLoadError] = useState(null)
@@ -101,13 +100,20 @@ export default function App() {
     })
   }, [])
 
-  const theme = useMemo(
-    () => customTheme ?? composeTheme(sel.themeId, sel.scenarioId),
-    [customTheme, sel]
-  )
+  // Composed live so a language switch re-localizes both repo scenarios and
+  // a loaded custom bundle. A bad custom bundle falls back to the repo theme.
+  const theme = useMemo(() => {
+    if (customBundle) {
+      try {
+        return composeCustomScenario(customBundle, lang)
+      } catch {
+        return composeTheme(sel.themeId, sel.scenarioId, lang)
+      }
+    }
+    return composeTheme(sel.themeId, sel.scenarioId, lang)
+  }, [customBundle, sel, lang])
 
   const dropCustom = useCallback(() => {
-    setCustomTheme(null)
     setCustomBundle(null)
   }, [])
 
@@ -126,9 +132,10 @@ export default function App() {
   // Custom-scenario loading (URL, pasted JSON, or share link). Composing
   // throws on a malformed bundle; callers surface the message.
   const applyBundle = useCallback((bundle) => {
-    const composed = composeCustomScenario(bundle)
+    // Validate by composing once (throws on a malformed bundle); the live
+    // `theme` memo recomposes it per active language.
+    composeCustomScenario(bundle)
     setLoadError(null)
-    setCustomTheme(composed)
     setCustomBundle(bundle)
   }, [])
 

@@ -35,5 +35,40 @@
       "...command, this is Iron Wall actual. line holds. send promethium.",
       "...for Cadia. out."
     ]
+  },
+  "i18n": {
+    "pt": {
+      "name": "412º Cadiano — Vorlanis Secundus",
+      "tracer": {
+        "label": "RASTREIO AUSPEX",
+        "active": "RASTREIO DE INLOAD — AUSPEX INQUISITORIAL",
+        "complete": "LOCALIZAÇÃO CARREGADA — =][= NOTIFICADO",
+        "evaded": "rastreio bloqueado com scrapcode."
+      },
+      "motd": [
+        "++ ADEPTUS ADMINISTRATUM — DATASLATE DE CAMPO ++",
+        "teatro: Vorlanis Secundus  //  regimento: 412º Cadiano",
+        "clearance: ADEPTO  //  pensamento do dia: a obediência é sua própria recompensa",
+        "",
+        "abra: `cat briefing.md`, `ls munitorum`, `ls orders`",
+        ""
+      ],
+      "commands": {
+        "aquila": [
+          "++ JURAMENTO DE LEALDADE ++",
+          "Eu sou o martelo. Eu sou a ponta da Sua lança.",
+          "Eu sou a manopla ao redor do Seu punho.",
+          "Eu sou a desgraça da raça dos daemons.",
+          "Eu sou a Sua vontade cumprida.",
+          "++ ave Imperator ++"
+        ],
+        "vox": [
+          "++ ABRINDO CANAL DE VOX... ++",
+          "[ruído]",
+          "...comando, aqui é Muralha de Ferro. a linha se mantém. enviem prometium.",
+          "...por Cadia. câmbio."
+        ]
+      }
+    }
   }
 }
