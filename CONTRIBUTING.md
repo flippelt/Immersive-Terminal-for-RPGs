@@ -38,6 +38,56 @@ da campanha (textos, arquivos, comandos). O schema completo está na seção
 
 Use os temas existentes em `src/themes/` como modelo.
 
+## Traduções (i18n)
+
+A interface e as mensagens internas já vêm em **inglês** (padrão) e
+**português** (veja `src/i18n/`). Os **comandos nunca mudam de idioma** — só os
+textos. O idioma sai do botão no canto inferior esquerdo.
+
+Para traduzir o **conteúdo de um cenário** (nome, motd, diálogos, comandos
+customizados, `tracer`, `login`, `events`), adicione um bloco `i18n` ao
+`scenario.json`:
+
+```json
+{
+  "name": "Case 4127-A",
+  "motd": ["..."],
+  "i18n": {
+    "pt": {
+      "name": "Caso 4127-A",
+      "motd": ["..."],
+      "dialog": { "fallback": "DADOS INSUFICIENTES." }
+    }
+  }
+}
+```
+
+Regras do `i18n.<lang>`:
+
+- cada campo **substitui** o do idioma base (inglês); objetos simples
+  (`dialog`, `tracer`, `login`, `locks`, `selfDestruct`) sofrem *merge* raso, então
+  você pode traduzir só as chaves de texto e o resto vem do base;
+- **não** traduza nomes de comando nem caminhos de arquivo.
+
+Para traduzir os **corpos dos arquivos**, crie uma árvore paralela
+`files.<lang>/` espelhando `files/` — apenas o corpo, **sem** front-matter (a
+senha e os demais metadados continuam vindo do arquivo base):
+
+```
+scenarios/<tema>/<cenário>/
+  files/orders.md       # original (com front-matter, se trancado)
+  files.pt/orders.md    # só o corpo traduzido
+```
+
+(Alternativa: um mapa `i18n.<lang>.files` no `scenario.json`, com
+`"/caminho": "corpo traduzido"`.)
+
+Para **temas**, o mesmo bloco `i18n` traduz `extraHelp`, `unknownHint`, etc.
+
+> Limitação: strings de front-matter **por arquivo** (`lockLabel`,
+> `crackFailMessage`, `crackSuccessMessage`) ainda não são localizadas — use os
+> rótulos de `locks` no tema, que são traduzíveis.
+
 ## Antes de abrir o PR
 
 Rode e garanta que tudo passa:

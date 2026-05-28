@@ -39,6 +39,55 @@ campaign content (text, files, commands). The full schema is in the
 
 Use the existing themes in `src/themes/` as a template.
 
+## Translations (i18n)
+
+The UI and built-in messages ship in **English** (default) and **Portuguese**
+(see `src/i18n/`). **Commands never change language** — only the text does. The
+language is picked from the bottom-left control.
+
+To translate a **scenario's content** (name, motd, dialog, custom commands,
+`tracer`, `login`, `events`), add an `i18n` block to `scenario.json`:
+
+```json
+{
+  "name": "Case 4127-A",
+  "motd": ["..."],
+  "i18n": {
+    "pt": {
+      "name": "Caso 4127-A",
+      "motd": ["..."],
+      "dialog": { "fallback": "DADOS INSUFICIENTES." }
+    }
+  }
+}
+```
+
+`i18n.<lang>` rules:
+
+- each field **replaces** the base (English) one; plain objects (`dialog`,
+  `tracer`, `login`, `locks`, `selfDestruct`) shallow-merge, so you can
+  translate just the text keys and the rest comes from the base;
+- **don't** translate command names or file paths.
+
+To translate **file bodies**, add a parallel `files.<lang>/` tree mirroring
+`files/` — body only, **no** front-matter (the password and other metadata stay
+on the base file):
+
+```
+scenarios/<theme>/<scenario>/
+  files/orders.md       # original (with front-matter if locked)
+  files.pt/orders.md    # translated body only
+```
+
+(Alternative: an `i18n.<lang>.files` map in `scenario.json`, with
+`"/path": "translated body"`.)
+
+For **themes**, the same `i18n` block translates `extraHelp`, `unknownHint`, etc.
+
+> Limitation: **per-file** front-matter strings (`lockLabel`,
+> `crackFailMessage`, `crackSuccessMessage`) aren't localized yet — use the
+> theme's `locks` labels, which are translatable.
+
 ## Before opening the PR
 
 Run and make sure everything passes:
