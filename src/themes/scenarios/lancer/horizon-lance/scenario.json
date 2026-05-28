@@ -25,5 +25,35 @@
       "[static]",
       "...this is Union Operator 9. go ahead, lance."
     ]
+  },
+  "i18n": {
+    "pt": {
+      "name": "Lança Iskandar — perturbação herciniana",
+      "motd": [
+        "// Aviso Administrativo da Union //",
+        "Toda atividade Lancer é registrada para o Terceiro Comitê.",
+        "Liberado para interface. Tente: `cat orders.md`, `ls mech`",
+        ""
+      ],
+      "commands": {
+        "status": [
+          "STATUS DO MECH — classe ENKIDU // integridade do casco 87%",
+          "  CALOR      ▓▓▓░░░░░░░  3 / 10",
+          "  ESTRUTURA  ████░       4 / 4",
+          "  ESTRESSE   ████░       4 / 4",
+          "  CORE       PRONTO  [ pressione `core` para acionar ]"
+        ],
+        "core": [
+          "ENERGIA DO CORE ACIONADA.",
+          "AUTORIZADO. RECOMENDA-SE CAUTELA.",
+          "Piloto, você sabe o que fazer."
+        ],
+        "hail": [
+          "ABRINDO CANAL OMNINET...",
+          "[estática]",
+          "...aqui é a Operadora 9 da Union. pode falar, lança."
+        ]
+      }
+    }
   }
 }
