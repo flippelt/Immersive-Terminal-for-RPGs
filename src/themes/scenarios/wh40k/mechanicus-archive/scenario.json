@@ -32,5 +32,37 @@
       "++ unction applied. machine spirit appeased. ++",
       "++ may it serve a thousand more years. ++"
     ]
+  },
+  "i18n": {
+    "pt": {
+      "name": "Arquivo do Magos — fragmentos STC",
+      "tracer": {
+        "label": "ESPÍRITO-MÁQUINA",
+        "active": "SANÇÃO DO COGITADOR AUMENTANDO",
+        "complete": "HERETEK SINALIZADO — SANÇÃO ENVIADA",
+        "evaded": "ritos de ocultação aceitos. o espírito-máquina cede."
+      },
+      "motd": [
+        "++ CREDO OMNISSIAH ++",
+        "a carne é fraca. a máquina é eterna.",
+        "conhecimento é poder — guarde-o bem.",
+        "",
+        "magos, suas consultas: `cat creed.md`, `ls archives`",
+        ""
+      ],
+      "commands": {
+        "litany": [
+          "++ LITANIA DA IGNIÇÃO ++",
+          "desde o momento em que compreendi a fraqueza da minha carne,",
+          "ela me repugnou. ansiei pela força e certeza do aço.",
+          "aspirei à pureza da máquina abençoada.",
+          "++ louvado seja o omnissiah ++"
+        ],
+        "bless": [
+          "++ unção aplicada. espírito-máquina apaziguado. ++",
+          "++ que ele sirva por mais mil anos. ++"
+        ]
+      }
+    }
   }
 }
