@@ -85,6 +85,7 @@ export default function Terminal({
   const [checkResults, setCheckResults] = useState(() => new Map())
   const [iceAlert, setIceAlert] = useState(null)
   const [decryptGame, setDecryptGame] = useState(null) // { path, node }
+  const [decryptProgress, setDecryptProgress] = useState(null) // { path, node, label, duration }
   const [decryptSuccess, setDecryptSuccess] = useState(null) // { path, node, key }
   const [fileViewer, setFileViewer] = useState(null) // { path, node }
   const [detonating, setDetonating] = useState(null) // selfDestruct config
@@ -112,6 +113,9 @@ export default function Terminal({
     setCheckResults(new Map())
     setIceAlert(null)
     setDecryptGame(null)
+    setDecryptProgress(null)
+    setDecryptSuccess(null)
+    setFileViewer(null)
     setDetonating(null)
     scanReductionsRef.current = new Map()
     decryptTargetsRef.current = new Map()
@@ -306,16 +310,19 @@ export default function Terminal({
     unlock(path)
     const duration = node.decryptTime ?? themeRef.current.locks?.decryptDefault ?? 1500
     const label = node.decryptLabel ?? themeRef.current.locks?.decryptLabel ?? 'DECRYPTING'
-    push([
-      {
-        type: 'progress',
-        duration,
-        label,
-        onComplete: () => setDecryptSuccess({ path, node, key: node.password })
-      },
-      { text: '', instant: true }
-    ])
-  }, [decryptGame, unlock, tracerEndsAt, push])
+    // Dedicated progress modal (not a queued line) so it always shows,
+    // independent of the output animation cursor. Its onDone runs the
+    // ACCESS GRANTED cinematic.
+    setDecryptProgress({ path, node, duration, label })
+  }, [decryptGame, unlock, tracerEndsAt])
+
+  // Decrypt progress bar finished -> start the ACCESS GRANTED cinematic.
+  const handleDecryptProgressDone = useCallback(() => {
+    setDecryptProgress((dp) => {
+      if (dp) setDecryptSuccess({ path: dp.path, node: dp.node, key: dp.node.password })
+      return null
+    })
+  }, [])
 
   // Cinematic finished: post the terminal record + any reveal-chain / event
   // tail, then open the freshly-decrypted file in the viewer popup.
@@ -602,7 +609,7 @@ export default function Terminal({
             />
           )
         })}
-        {inputReady && !modal && !decryptGame && !decryptSuccess && !fileViewer && authed && (
+        {inputReady && !modal && !decryptGame && !decryptProgress && !decryptSuccess && !fileViewer && authed && (
           <Prompt
             sigil={theme.prompt ?? '$'}
             cwd={cwd}
@@ -669,6 +676,15 @@ export default function Terminal({
           onWin={handleDecryptWin}
           onLose={handleDecryptLose}
           onCancel={handleDecryptCancel}
+        />
+      )}
+      {decryptProgress && (
+        <ProgressModal
+          key="decrypt-progress"
+          label={decryptProgress.label}
+          duration={decryptProgress.duration}
+          t={tRef.current}
+          onDone={handleDecryptProgressDone}
         />
       )}
       {decryptSuccess && (
