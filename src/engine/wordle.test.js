@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { scoreGuess, isWin, pickWord, DEFAULT_WORDS } from './wordle.js'
+import { scoreGuess, isWin, pickWord, DEFAULT_WORDS, wordsFor } from './wordle.js'
 
 describe('scoreGuess', () => {
   it('marks all hits for the exact word', () => {
@@ -37,5 +37,24 @@ describe('pickWord', () => {
   })
   it('falls back to the default pool', () => {
     expect(DEFAULT_WORDS).toContain(pickWord({}, () => 0))
+  })
+})
+
+describe('default word pools', () => {
+  // The minigame keyboard only accepts A-Z, and the grid sizes itself to the
+  // word length — so words may vary in length but must be plain ASCII capitals
+  // (no accents, or they'd be unwinnable).
+  it('every default-pool word (en + pt) is ASCII A-Z only', () => {
+    for (const lang of ['en', 'pt']) {
+      for (const w of wordsFor(lang)) {
+        expect(w, `${lang}: "${w}"`).toMatch(/^[A-Z]+$/)
+      }
+    }
+  })
+  it('keeps at least 25 six-letter words per language (lengths still vary)', () => {
+    for (const lang of ['en', 'pt']) {
+      const sixes = wordsFor(lang).filter((w) => w.length === 6)
+      expect(sixes.length, `${lang} six-letter count`).toBeGreaterThanOrEqual(25)
+    }
   })
 })
