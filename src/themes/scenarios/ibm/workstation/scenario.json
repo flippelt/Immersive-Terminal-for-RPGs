@@ -33,5 +33,37 @@
       "    652288 bytes available to DOS",
       "    largest executable program size: 631 KB"
     ]
+  },
+  "i18n": {
+    "pt": {
+      "name": "Estação de trabalho do Dr. Halden",
+      "tracer": {
+        "label": "AUDITORIA SYS",
+        "active": "AUDITORIA DO SISTEMA EM ANDAMENTO",
+        "complete": "INVASÃO REGISTRADA — OPERADOR NOTIFICADO",
+        "evaded": "trilha de auditoria limpa."
+      },
+      "login": {
+        "title": "HALDEN CYBERNETICS // APENAS USUÁRIOS AUTORIZADOS",
+        "label": "senha (sobrenome do dono):",
+        "granted": "Bem-vindo de volta, Dr. Halden.",
+        "denied": "ACESSO NEGADO. tentativa registrada."
+      },
+      "motd": [
+        "PC-DOS 3.30  —  (C) IBM Corp 1981, 1987",
+        "último usuário: HALDEN, E.  //  último login: [data corrompida]",
+        "",
+        "digite `help` para os comandos. comece com `cat readme.md`.",
+        ""
+      ],
+      "commands": {
+        "ver": ["IBM Personal Computer DOS", "Versão 3.30"],
+        "mem": [
+          "    655360 bytes de memória convencional total",
+          "    652288 bytes disponíveis para o DOS",
+          "    maior programa executável: 631 KB"
+        ]
+      }
+    }
   }
 }

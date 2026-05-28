@@ -40,5 +40,45 @@
       "",
       "hardcopy saved: /plates/frame-47.md  (`cat plates/frame-47.md`)"
     ]
+  },
+  "i18n": {
+    "pt": {
+      "name": "Caso 4127-A — fuga Nexus-6",
+      "tracer": {
+        "label": "RASTREIO TYRELL",
+        "active": "UPLINK TYRELL — RASTREANDO ORIGEM",
+        "complete": "ORIGEM SINALIZADA — BLADE RUNNER ENVIADO",
+        "evaded": "uplink cortado. você é um fantasma de novo."
+      },
+      "motd": [
+        "ANALISADOR DE FOTOS ESPER",
+        "carregue e amplie imagens. emita ordens de aposentadoria.",
+        "você é um blade runner. você sabe o que fazer.",
+        "",
+        "tente: `cat case.md`, `ls subjects`, `vk leon`",
+        ""
+      ],
+      "commands": {
+        "vk": [
+          "VOIGHT-KAMPFF // BASELINE INICIADO",
+          "É seu aniversário. Alguém lhe dá uma carteira de couro de bezerro.",
+          "  dilatação da pupila ...... ANOMALIA",
+          "  resposta capilar ......... ANOMALIA",
+          "  resposta de rubor ........ nula",
+          "",
+          "classificação do sujeito: REPLICANTE.",
+          "executar ordem de aposentadoria? [s/N]"
+        ],
+        "enhance": [
+          "mover à direita ......... ok",
+          "ampliar 224 para 176 .... ok",
+          "parar ...................",
+          "mover 45 à direita ...... ok",
+          "ampliar ................. me dê uma cópia bem aí.",
+          "",
+          "cópia salva: /plates/frame-47.md  (`cat plates/frame-47.md`)"
+        ]
+      }
+    }
   }
 }
