@@ -28,7 +28,7 @@
   },
   "i18n": {
     "pt": {
-      "name": "Lança Iskandar — perturbação herciniana",
+      "name": "Lancer Iskandar — perturbação herciniana",
       "motd": [
         "// Aviso Administrativo da Union //",
         "Toda atividade Lancer é registrada para o Terceiro Comitê.",
@@ -51,7 +51,7 @@
         "hail": [
           "ABRINDO CANAL OMNINET...",
           "[estática]",
-          "...aqui é a Operadora 9 da Union. pode falar, lança."
+          "...aqui é a Operadora 9 da Union. pode falar, lancer."
         ]
       }
     }
