@@ -171,6 +171,11 @@ export default function Terminal({
 
   const themeRef = useRef(theme)
   themeRef.current = theme
+  // Live mirror of `caught` so deferred callbacks (e.g. the crack failure
+  // popup's onClose, which fires after the React render that set caught)
+  // can see the freshest value without rebuilding their closures.
+  const caughtRef = useRef(caught)
+  caughtRef.current = caught
   const langRef = useRef(lang)
   langRef.current = lang
   // UI translator for built-in strings emitted from this component (decrypt
@@ -588,10 +593,18 @@ export default function Terminal({
             { text: hintMsg, type: remaining > 0 ? 'muted' : 'err' },
             { text: '', instant: true }
           ])
+          // Auto-reopen the crack prompt while the player still has
+          // attempts AND the trace hasn't caught them — keeps the rhythm
+          // tight (one popup per roll) instead of forcing them to retype
+          // `crack <file>` between rolls. Esc on the new prompt still
+          // cancels the flow entirely (handleModalCancel).
+          if (remaining > 0 && !caughtRef.current) {
+            openCrackPrompt(path, node)
+          }
         }
       })
     },
-    [modal, push, theme, unlock, gmMode, crackAttempts, tracerEndsAt, unlocked, openFileViewer, showFailure, showFailureFromDirective]
+    [modal, push, theme, unlock, gmMode, crackAttempts, tracerEndsAt, unlocked, openFileViewer, openCrackPrompt, showFailure, showFailureFromDirective]
   )
 
   const handleModalCancel = useCallback(() => {
