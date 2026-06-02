@@ -46,7 +46,7 @@ jobs:
             '<a style="color:#7CFC00" href="./demo/">→ open the demo</a>' \
             > site/index.html
 
-      - uses: actions/configure-pages@v5
+      - uses: actions/configure-pages@v6
 
       - uses: actions/upload-pages-artifact@v3
         with:
