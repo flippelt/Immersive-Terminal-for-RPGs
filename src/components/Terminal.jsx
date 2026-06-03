@@ -541,7 +541,9 @@ export default function Terminal({
         return
       }
       const dcNote = gmMode ? ` (DC ${dc})` : ''
-      if (roll > dc) {
+      // Pass on roll ≥ DC. A roll that matches the DC clears the check —
+      // hitting the target number exactly should never be a failure.
+      if (roll >= dc) {
         // Cracking it in time beats the trace: stop the tracer (with an
         // optional GM-defined "evaded" line). Also open the cat popup so
         // the player can read the file they just cracked.
