@@ -2,7 +2,7 @@
 
 **English** · [Português](README.md)
 
-### → [**LIVE DEMO**](https://flippelt.github.io/Immersive-Terminal-for-RPGs/demo/) ←
+### → [**LIVE DEMO**](https://flippelt.github.io/Immersive-Terminal-for-RPGs/) ←
 
 A website that simulates a retro console terminal (*cool-retro-term* style) to
 use as a prop at the tabletop. Switch "system" and the look, the text, and the
@@ -52,18 +52,16 @@ npm run dev      # http://localhost:5173
 Production build:
 
 ```bash
-npm run build        # full version → dist/
-npm run build:demo   # curated demo version → dist-demo/
+npm run build        # full app → dist/
 npm run lint         # ESLint
 npm test             # Vitest (engine: parser, filesystem, autocomplete, locks)
 ```
 
 ### Deploy
 
-Every push to `main` publishes to **GitHub Pages** via
-[`.github/workflows/deploy.yml`](.github/workflows/deploy.yml) (Vite's `base` is
-set per mode). To serve at the domain root via **Netlify**,
-[`netlify.toml`](netlify.toml) is preconfigured — connect the repo and deploy.
+Every push to `main` publishes the full app to **GitHub Pages** at the repo
+root via [`.github/workflows/deploy.yml`](.github/workflows/deploy.yml) — that's
+the official public page (the demo, with every system and feature).
 
 ---
 
