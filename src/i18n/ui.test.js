@@ -1,8 +1,9 @@
 import { describe, it, expect } from 'vitest'
 import { makeT, SUPPORTED_LANGS } from './ui.js'
-import en from './ui.en.json'
-import pt from './ui.pt.json'
 
+// Behavioral checks of the (re-exported) engine translator. Dictionary parity
+// (orphan keys, help-token equality) lives in rpgterm-engine, which owns the
+// dictionaries now.
 describe('makeT', () => {
   it('returns English by default', () => {
     const t = makeT()
@@ -46,23 +47,5 @@ describe('makeT', () => {
   it('exposes the supported languages', () => {
     expect(SUPPORTED_LANGS).toContain('en')
     expect(SUPPORTED_LANGS).toContain('pt')
-  })
-})
-
-describe('dictionary parity', () => {
-  // Command names must never be translated: the help table keeps identical
-  // command tokens in both languages (only the descriptions differ).
-  it('keeps the same command tokens in the pt help table', () => {
-    const token = (line) => line.trim().split(/\s+/)[0]
-    const enTokens = en['help.lines'].map(token)
-    const ptTokens = pt['help.lines'].map(token)
-    expect(ptTokens).toEqual(enTokens)
-  })
-
-  it('every pt key exists in en (no orphan translations)', () => {
-    for (const key of Object.keys(pt)) {
-      if (key === 'lang') continue
-      expect(en, `en is missing key "${key}"`).toHaveProperty([key])
-    }
   })
 })
