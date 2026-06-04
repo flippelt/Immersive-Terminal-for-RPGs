@@ -12,7 +12,8 @@
   },
   "dependencies": {
     "react": "^19.2.6",
-    "react-dom": "^19.2.6"
+    "react-dom": "^19.2.6",
+    "rpgterm-engine": "github:flippelt/rpgterm-engine"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.4",

@@ -18,12 +18,29 @@ const toLines = (val, type) =>
   (Array.isArray(val) ? val : [val])
     .filter((v) => v != null)
     .map((v) => (typeof v === 'string' ? { text: v, type } : v))
-import { runCommand, buildDecryptLines, buildCrackLines, buildCheckLines, buildUnlockExtras } from '../engine/commands.js'
-import { complete } from '../engine/complete.js'
-import { effTracer, scanTier } from '../engine/tracer.js'
-import { pickWord } from '../engine/wordle.js'
+import {
+  runCommand,
+  buildDecryptLines,
+  buildCrackLines,
+  buildCheckLines,
+  buildUnlockExtras,
+  complete,
+  effTracer,
+  scanTier,
+  pickWord
+} from 'rpgterm-engine'
 import { makeT } from '../i18n/ui.js'
-import { playBeep, playWhoosh } from '../audio/sfx.js'
+import {
+  playBeep,
+  playWhoosh,
+  setVolume,
+  setMuted,
+  getVolume,
+  isMuted,
+  startHum,
+  stopHum,
+  isHumOn
+} from '../audio/sfx.js'
 import { scenarioIdsFor } from '../themes/index.js'
 
 let LINE_ID = 0
@@ -656,7 +673,18 @@ export default function Terminal({
         loadScenarioUrl: onLoadScenarioUrl,
         openScenarioPaste: onOpenScenarioPaste,
         shareScenario: onShareScenario,
-        openFileViewer
+        openFileViewer,
+        // The engine's command interpreter is host-agnostic: it drives audio
+        // and persistence through these injected adapters (volume/hum). Without
+        // them it no-ops — see commands.js in rpgterm-engine.
+        audio: { setVolume, setMuted, getVolume, isMuted, startHum, stopHum, isHumOn },
+        persist: (k, v) => {
+          try {
+            localStorage.setItem(k, v)
+          } catch {
+            // storage unavailable — setting still applies for the session
+          }
+        }
       })
       // Directive lines drive popups instead of printing inline:
       //   fileview  → cat-style file popup

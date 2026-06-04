@@ -6,7 +6,7 @@ import fallout from './fallout.json'
 import cyberpunk from './cyberpunk.json'
 import dataslate from './dataslate.json'
 import ibm from './ibm.json'
-import { pickWord } from '../engine/wordle.js'
+import { pickWord } from 'rpgterm-engine'
 
 // A THEME is a skin (palette, font, banner, sounds, boot, locks defaults).
 // A SCENARIO is a campaign that plugs into a theme. Its layout on disk:

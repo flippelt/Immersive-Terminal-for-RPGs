@@ -1,5 +1,5 @@
 import OutputLine from './OutputLine.jsx'
-import { renderFileContent } from '../engine/commands.js'
+import { renderFileContent } from 'rpgterm-engine'
 import { makeT } from '../i18n/ui.js'
 import FloatingWindow from './FloatingWindow.jsx'
 
