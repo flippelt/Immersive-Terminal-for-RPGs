@@ -192,6 +192,29 @@ export default function App() {
     if (url) loadScenarioUrl(url)
   }, [loadScenarioUrl, applyBundle, t])
 
+  // Live-preview channel: when embedded in an iframe (the scenario-forge
+  // editor), a parent frame can push a scenario via postMessage instead of the
+  // URL — no length limit, so big campaigns preview fine. We ping "ready" on
+  // mount so the parent knows when to send, and apply any pushed bundle. Same
+  // public capability as ?scenario64=, just over postMessage.
+  useEffect(() => {
+    const onMessage = (e) => {
+      const data = e.data
+      if (data && data.type === 'rpgterm:load' && data.bundle) {
+        try {
+          applyBundle(data.bundle)
+        } catch (err) {
+          setLoadError(t('load.invalid', { msg: err.message }))
+        }
+      }
+    }
+    window.addEventListener('message', onMessage)
+    if (window.parent && window.parent !== window) {
+      window.parent.postMessage({ type: 'rpgterm:ready' }, '*')
+    }
+    return () => window.removeEventListener('message', onMessage)
+  }, [applyBundle, t])
+
   const toggleGm = useCallback(() => setGmMode((m) => !m), [])
 
   // Idle screensaver: appears after IDLE_MS without activity; any activity
