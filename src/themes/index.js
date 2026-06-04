@@ -276,15 +276,8 @@ export function composeCustomScenario(bundle, lang = 'en') {
   return merged
 }
 
-// The demo build (vite build --mode demo, served on GitHub Pages) shows a
-// curated subset; the full site (default build, served on Netlify) shows
-// every theme.
-const DEMO_IDS = ['alien', 'cprd']
-
-export const IS_DEMO = import.meta.env.MODE === 'demo'
-
-export const THEMES = IS_DEMO
-  ? THEME_LIST.filter((t) => DEMO_IDS.includes(t.id))
-  : THEME_LIST
+// Every theme is always available. The hosted GitHub Pages build is the
+// official public demo — it simply shows everything.
+export const THEMES = THEME_LIST
 export const THEME_BY_ID = Object.fromEntries(THEMES.map((t) => [t.id, t]))
 export const DEFAULT_THEME = THEMES[0] ?? THEME_LIST[0]

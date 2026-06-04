@@ -2,7 +2,7 @@
 
 [English](README.en.md) · **Português**
 
-### → [**LIVE DEMO**](https://flippelt.github.io/Immersive-Terminal-for-RPGs/demo/) ←
+### → [**LIVE DEMO**](https://flippelt.github.io/Immersive-Terminal-for-RPGs/) ←
 
 Um site que simula um terminal de console retrô (estilo *cool-retro-term*) para
 usar como prop em mesas de RPG. Troque de "sistema" e o visual, os textos e o
@@ -52,8 +52,7 @@ npm run dev      # http://localhost:5173
 Build de produção:
 
 ```bash
-npm run build        # versão completa → dist/
-npm run build:demo   # versão demo curada → dist-demo/
+npm run build        # app completo → dist/
 npm run lint         # ESLint
 npm test             # Vitest (engine: parser, filesystem, autocomplete, locks)
 ```
@@ -61,9 +60,8 @@ npm test             # Vitest (engine: parser, filesystem, autocomplete, locks)
 ### Deploy
 
 A cada push em `main`, [`.github/workflows/deploy.yml`](.github/workflows/deploy.yml)
-publica no **GitHub Pages** (o `base` do Vite é ajustado por modo). Pra servir na
-raiz do domínio via **Netlify**, [`netlify.toml`](netlify.toml) já está pronto —
-conecte o repo e dê deploy.
+publica o app completo no **GitHub Pages**, na raiz do repositório — essa é a
+página pública oficial (a demo, com todos os sistemas e funções).
 
 ---
 

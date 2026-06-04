@@ -13,7 +13,6 @@ import {
   THEMES,
   DEFAULT_THEME,
   THEME_BY_ID,
-  IS_DEMO,
   composeTheme,
   composeCustomScenario
 } from './themes/index.js'
@@ -238,8 +237,7 @@ export default function App() {
   useEffect(() => {
     applyThemeCssVars(theme)
     localStorage.setItem(LS_KEY, theme.id)
-    const prefix = IS_DEMO ? '[DEMO] ' : ''
-    document.title = `${prefix}${theme.header ?? theme.name ?? 'Terminal // RPG'}`
+    document.title = theme.header ?? theme.name ?? 'Terminal // RPG'
   }, [theme])
 
   useEffect(() => {
@@ -265,7 +263,6 @@ export default function App() {
         <span className="chrome__right">
           {gmMode && <span className="chrome__gm">★ GM</span>}
           {theme.custom && <span className="chrome__demo">CUSTOM</span>}
-          {IS_DEMO && <span className="chrome__demo">DEMO</span>}
           UPLINK · {new Date().getFullYear()}
         </span>
       </div>
