@@ -1,12 +1,7 @@
-import alien from './alien.json'
-import lancer from './lancer.json'
-import bladerunner from './bladerunner.json'
-import wh40k from './wh40k.json'
-import fallout from './fallout.json'
-import cyberpunk from './cyberpunk.json'
-import dataslate from './dataslate.json'
-import ibm from './ibm.json'
-import { pickWord } from 'rpgterm-engine'
+// Theme skins (the 8 system looks) come from the shared engine — single source,
+// so the editor's preview and the terminal can't drift. This module keeps only
+// the repo-scenario loader (import.meta.glob) + composeTheme.
+import { THEMES as THEME_LIST, THEME_REGISTRY, pickWord } from 'rpgterm-engine'
 
 // A THEME is a skin (palette, font, banner, sounds, boot, locks defaults).
 // A SCENARIO is a campaign that plugs into a theme. Its layout on disk:
@@ -18,8 +13,7 @@ import { pickWord } from 'rpgterm-engine'
 // A locked file carries front-matter (a --- block) with its metadata;
 // a plain file is just its text. Directories are inferred from the tree.
 
-const THEME_LIST = [alien, lancer, bladerunner, wh40k, fallout, cyberpunk, dataslate, ibm]
-const THEME_REGISTRY = Object.fromEntries(THEME_LIST.map((t) => [t.id, t]))
+// THEME_LIST / THEME_REGISTRY are imported from rpgterm-engine above.
 
 // --- front-matter --------------------------------------------------------
 // Leading `---\n ... \n---` block of flat `key: value` lines. Unquoted
