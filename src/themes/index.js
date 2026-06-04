@@ -276,8 +276,7 @@ export function composeCustomScenario(bundle, lang = 'en') {
   return merged
 }
 
-// Every theme is always available. The hosted GitHub Pages build is the
-// official public demo — it simply shows everything.
+// Every theme is always available — no curated demo subset.
 export const THEMES = THEME_LIST
 export const THEME_BY_ID = Object.fromEntries(THEMES.map((t) => [t.id, t]))
 export const DEFAULT_THEME = THEMES[0] ?? THEME_LIST[0]
