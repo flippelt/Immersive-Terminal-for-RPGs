@@ -5,7 +5,7 @@ import AudioToggle from './components/AudioToggle.jsx'
 import Screensaver from './components/Screensaver.jsx'
 import ScenarioModal from './components/ScenarioModal.jsx'
 import { setVolume as setAudioVolume, startHum } from './audio/sfx.js'
-import { decodeBundle, shareUrl } from './engine/share.js'
+import { decodeBundle, shareUrl } from 'rpgterm-engine'
 import { makeT } from './i18n/ui.js'
 
 const IDLE_MS = 45000

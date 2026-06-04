@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { makeT } from '../i18n/ui.js'
-import { rollLuck } from '../engine/wordle.js'
+import { rollLuck } from 'rpgterm-engine'
 
 const RESULT_HOLD_MS = 1700
 

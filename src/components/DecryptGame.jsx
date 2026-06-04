@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { isWin, pickRevealPositions, scoreGuess } from '../engine/wordle.js'
+import { isWin, pickRevealPositions, scoreGuess } from 'rpgterm-engine'
 import { makeT } from '../i18n/ui.js'
 import WordleLuckPopup from './WordleLuckPopup.jsx'
 
