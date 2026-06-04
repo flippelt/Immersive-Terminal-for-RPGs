@@ -670,48 +670,6 @@
 }
 
 /* === File viewer (cinematic `cat`) === */
-.modal--file {
-  width: min(720px, 92vw);
-  display: flex;
-  flex-direction: column;
-  max-height: 80%;
-}
-.file__header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-}
-.file__name {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-.file__close {
-  flex-shrink: 0;
-  background: transparent;
-  border: 1px solid var(--muted, #1a661a);
-  color: var(--fg);
-  font: inherit;
-  line-height: 1;
-  padding: 2px 9px;
-  cursor: pointer;
-  text-shadow: inherit;
-}
-.file__close:hover,
-.file__close:focus-visible {
-  border-color: var(--fg);
-  background: color-mix(in srgb, var(--fg) 14%, transparent);
-  outline: none;
-}
-.file__body {
-  overflow-y: auto;
-  max-height: 60vh;
-  margin-bottom: 14px;
-  padding-right: 8px;
-  line-height: 1.5;
-}
-
 /* === Decrypt success cinematic (ACCESS GRANTED -> key auto-type) === */
 .decrypt-success {
   flex-direction: column;
@@ -1182,7 +1140,11 @@
    the popup is open; the player can keep typing commands behind it. Movable
    by the header, resizable from the bottom-right corner. On mobile we drop
    into a fixed centered modal (drag + resize don't fit a phone screen). */
-.help-popup {
+/* === Floating window (shared chrome for HelpPopup + FileViewer) ===
+   Desktop: free-floating, draggable by the header, resizable from the
+   bottom-right corner, and non-modal so the player can keep typing at the
+   prompt behind it. Mobile: centered modal with a backdrop. */
+.floating-window {
   position: absolute;
   z-index: 11;
   display: flex;
@@ -1198,7 +1160,7 @@
   min-height: 220px;
   animation: modal-in 0.18s ease-out;
 }
-.help-popup__header {
+.floating-window__header {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -1213,13 +1175,13 @@
   user-select: none;
   touch-action: none;
 }
-.help-popup__header:active { cursor: grabbing; }
-.help-popup__title {
+.floating-window__header:active { cursor: grabbing; }
+.floating-window__title {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-.help-popup__close {
+.floating-window__close {
   flex-shrink: 0;
   background: transparent;
   border: 1px solid var(--muted, #1a661a);
@@ -1230,30 +1192,73 @@
   cursor: pointer;
   text-shadow: inherit;
 }
-.help-popup__close:hover,
-.help-popup__close:focus-visible {
+.floating-window__close:hover,
+.floating-window__close:focus-visible {
   border-color: var(--fg);
   background: color-mix(in srgb, var(--fg) 14%, transparent);
   outline: none;
 }
-.help-popup__body {
+.floating-window__body {
   overflow-y: auto;
   flex: 1;
   padding: 12px 16px;
-  font-size: 0.92em;
   line-height: 1.45;
   /* Match the terminal's own scrollbar: thin track, theme-muted thumb.
-     The colors come from the active theme's CSS variables, so the help
-     popup's scrollbar stays in lockstep with the surrounding CRT chrome. */
+     The colors come from the active theme's CSS variables, so the window's
+     scrollbar stays in lockstep with the surrounding CRT chrome. */
   scrollbar-width: thin;
   scrollbar-color: var(--muted) transparent;
 }
-.help-popup__body::-webkit-scrollbar { width: 6px; }
-.help-popup__body::-webkit-scrollbar-thumb {
+.floating-window__body::-webkit-scrollbar { width: 6px; }
+.floating-window__body::-webkit-scrollbar-thumb {
   background: var(--muted);
   border-radius: 3px;
 }
-.help-popup__body::-webkit-scrollbar-track { background: transparent; }
+.floating-window__body::-webkit-scrollbar-track { background: transparent; }
+.floating-window__footer {
+  padding: 8px 14px;
+  border-top: 1px solid color-mix(in srgb, var(--fg) 20%, transparent);
+  font-size: 0.74em;
+  color: var(--muted, #1a661a);
+  letter-spacing: 1px;
+}
+.floating-window__resize {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: 18px;
+  height: 18px;
+  cursor: nwse-resize;
+  background:
+    linear-gradient(135deg, transparent 0 8px, var(--muted, #1a661a) 8px 10px, transparent 10px 14px, var(--muted, #1a661a) 14px 16px, transparent 16px);
+  opacity: 0.6;
+  touch-action: none;
+}
+.floating-window__resize:hover { opacity: 1; }
+
+/* Mobile: become a centered modal with backdrop; no drag, no resize. */
+.floating-window__backdrop {
+  position: absolute;
+  inset: 0;
+  z-index: 11;
+  background: color-mix(in srgb, var(--bg, #000) 70%, transparent);
+  animation: overlay-in 0.15s ease-out;
+}
+.floating-window--mobile {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: calc(100% - 24px);
+  max-height: 80%;
+  min-width: 0;
+  min-height: 0;
+}
+.floating-window--mobile .floating-window__header { cursor: default; }
+.floating-window--mobile .floating-window__resize { display: none; }
+
+/* Help cheat-sheet content (rendered inside the floating window's body) */
+.floating-window--help .floating-window__body { font-size: 0.92em; }
 .help-popup__row {
   display: flex;
   flex-wrap: wrap;
@@ -1287,47 +1292,9 @@
   color: var(--muted, #1a661a);
   padding: 2px 0;
 }
-.help-popup__footer {
-  padding: 8px 14px;
-  border-top: 1px solid color-mix(in srgb, var(--fg) 20%, transparent);
-  font-size: 0.74em;
-  color: var(--muted, #1a661a);
-  letter-spacing: 1px;
-}
-.help-popup__resize {
-  position: absolute;
-  right: 0;
-  bottom: 0;
-  width: 18px;
-  height: 18px;
-  cursor: nwse-resize;
-  background:
-    linear-gradient(135deg, transparent 0 8px, var(--muted, #1a661a) 8px 10px, transparent 10px 14px, var(--muted, #1a661a) 14px 16px, transparent 16px);
-  opacity: 0.6;
-  touch-action: none;
-}
-.help-popup__resize:hover { opacity: 1; }
 
-/* Mobile: become a centered modal with backdrop; no drag, no resize. */
-.help-popup--mobile-backdrop {
-  position: absolute;
-  inset: 0;
-  z-index: 11;
-  background: color-mix(in srgb, var(--bg, #000) 70%, transparent);
-  animation: overlay-in 0.15s ease-out;
-}
-.help-popup--mobile {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: calc(100% - 24px);
-  max-height: 80%;
-  min-width: 0;
-  min-height: 0;
-}
-.help-popup--mobile .help-popup__header { cursor: default; }
-.help-popup--mobile .help-popup__resize { display: none; }
+/* File reader content: a touch more line-height for prose/markdown. */
+.floating-window--file .floating-window__body { line-height: 1.5; }
 
 /* === Failure popup (crack / unlock / decrypt error ack) === */
 /* Modal: blocks input until acknowledged. While open, deferred side-effects
