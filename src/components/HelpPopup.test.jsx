@@ -65,7 +65,7 @@ describe('HelpPopup', () => {
     const { container } = render(
       <HelpPopup theme={baseTheme()} t={makeT('en')} onClose={onClose} />
     )
-    const close = container.querySelector('.help-popup__close')
+    const close = container.querySelector('.floating-window__close')
     fireEvent.click(close)
     expect(onClose).toHaveBeenCalledTimes(1)
     fireEvent.keyDown(window, { key: 'Escape' })
@@ -81,7 +81,7 @@ describe('HelpPopup', () => {
     const { container } = render(
       <HelpPopup theme={baseTheme()} t={makeT('en')} onClose={onClose} />
     )
-    const close = container.querySelector('.help-popup__close')
+    const close = container.querySelector('.floating-window__close')
     fireEvent.pointerDown(close, { button: 0, pointerId: 1 })
     fireEvent.pointerUp(close, { button: 0, pointerId: 1 })
     fireEvent.click(close)
