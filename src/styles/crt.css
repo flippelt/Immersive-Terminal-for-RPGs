@@ -670,48 +670,6 @@
 }
 
 /* === File viewer (cinematic `cat`) === */
-.modal--file {
-  width: min(720px, 92vw);
-  display: flex;
-  flex-direction: column;
-  max-height: 80%;
-}
-.file__header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-}
-.file__name {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-.file__close {
-  flex-shrink: 0;
-  background: transparent;
-  border: 1px solid var(--muted, #1a661a);
-  color: var(--fg);
-  font: inherit;
-  line-height: 1;
-  padding: 2px 9px;
-  cursor: pointer;
-  text-shadow: inherit;
-}
-.file__close:hover,
-.file__close:focus-visible {
-  border-color: var(--fg);
-  background: color-mix(in srgb, var(--fg) 14%, transparent);
-  outline: none;
-}
-.file__body {
-  overflow-y: auto;
-  max-height: 60vh;
-  margin-bottom: 14px;
-  padding-right: 8px;
-  line-height: 1.5;
-}
-
 /* === Decrypt success cinematic (ACCESS GRANTED -> key auto-type) === */
 .decrypt-success {
   flex-direction: column;
