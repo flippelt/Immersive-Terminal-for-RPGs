@@ -81,6 +81,11 @@ Quick recap: navigate with `ls`/`cd`/`cat`, open locked files with `crack`/
 mode** with `Ctrl+Shift+G`. Load a campaign straight from the URL:
 `.../?theme=cprd&scenario=heimdall`.
 
+> 🛠 **Visual editor:** rather not hand-edit JSON? **[scenario-forge](https://github.com/flippelt/scenario-forge)**
+> (a Win/Mac/Linux desktop app) builds scenarios from forms — file tree, flags
+> (crack/tracer/lock), dialog (`query`/`ask`), events — and previews them **live in
+> this terminal**, exporting the versionable folder, the JSON bundle, or a link.
+
 ---
 
 ## Contributing
