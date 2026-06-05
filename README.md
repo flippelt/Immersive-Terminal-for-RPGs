@@ -81,6 +81,12 @@ Resumo rápido: navegue com `ls`/`cd`/`cat`, abra arquivos trancados com `crack`
 **Modo Mestre** com `Ctrl+Shift+G`. Carregue uma campanha direto pela URL:
 `.../?theme=cprd&scenario=heimdall`.
 
+> 🛠 **Editor visual:** prefere não editar JSON na mão? O
+> **[scenario-forge](https://github.com/flippelt/scenario-forge)** (app desktop Win/Mac/Linux)
+> monta o cenário por formulário — árvore de arquivos, flags (crack/tracer/lock),
+> diálogo (`query`/`ask`), eventos — e testa **neste terminal ao vivo**, exportando a
+> pasta versionável, o bundle JSON ou um link.
+
 ---
 
 ## Contribuindo
