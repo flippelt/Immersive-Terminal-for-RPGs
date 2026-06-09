@@ -13,7 +13,7 @@
   "dependencies": {
     "react": "^19.2.6",
     "react-dom": "^19.2.6",
-    "rpgterm-engine": "^0.1.1"
+    "rpgterm-engine": "^0.1.2"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.4",
