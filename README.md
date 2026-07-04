@@ -1,5 +1,7 @@
 # Terminal Imersivo para RPG
 
+[![Last commit](https://img.shields.io/github/last-commit/flippelt/Immersive-Terminal-for-RPGs)](https://github.com/flippelt/Immersive-Terminal-for-RPGs/commits)
+
 [English](README.en.md) · **Português**
 
 ### → [**LIVE DEMO**](https://flippelt.github.io/Immersive-Terminal-for-RPGs/) ←
