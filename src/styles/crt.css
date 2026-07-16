@@ -1296,6 +1296,20 @@
 /* File reader content: a touch more line-height for prose/markdown. */
 .floating-window--file .floating-window__body { line-height: 1.5; }
 
+/* Companion picture window (desktop): opens beside the file reader, layered
+   over its frame. The image centers in the body and tracks the window as the
+   player resizes it. */
+.floating-window--image .floating-window__body {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px;
+}
+.floating-window--image .crt-img__wrap {
+  margin: 0;
+  max-width: 100%;
+}
+
 /* === Failure popup (crack / unlock / decrypt error ack) === */
 /* Modal: blocks input until acknowledged. While open, deferred side-effects
    (tracer time penalty, history line push) wait — only on close do they run.
