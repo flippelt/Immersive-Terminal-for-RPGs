@@ -49,29 +49,29 @@ export default function ThemeSwitcher({
         <div className="theme-switcher__menu">
           <p className="switcher__label">{t('switcher.system')}</p>
           <div className="switcher__row">
-          {visible.map((t) => {
-            const isOff = disabled?.has(t.id)
+          {visible.map((th) => {
+            const isOff = disabled?.has(th.id)
             return (
               <span
-                key={t.id}
+                key={th.id}
                 className={`switcher-chip${isOff ? ' switcher-chip--off' : ''}`}
               >
                 <button
-                  className={t.id === current ? 'active' : ''}
+                  className={th.id === current ? 'active' : ''}
                   onClick={() => {
-                    onSelect(t)
+                    onSelect(th)
                     setOpen(false)
                   }}
-                  title={t.name}
+                  title={th.name}
                 >
-                  {t.id}
+                  {th.id}
                 </button>
                 {gmMode && (
                   <button
                     className="switcher-chip__toggle"
-                    onClick={() => onToggleDisabled(t.id)}
+                    onClick={() => onToggleDisabled(th.id)}
                     title={isOff ? t('switcher.gm.enable') : t('switcher.gm.disable')}
-                    aria-label={isOff ? `enable ${t.id}` : `disable ${t.id}`}
+                    aria-label={isOff ? `enable ${th.id}` : `disable ${th.id}`}
                   >
                     {isOff ? '+' : '×'}
                   </button>
