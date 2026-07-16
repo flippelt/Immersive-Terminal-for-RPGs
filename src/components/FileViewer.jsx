@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import OutputLine from './OutputLine.jsx'
 import { renderFileContent } from 'rpgterm-engine'
 import { makeT } from '../i18n/ui.js'
@@ -17,10 +17,16 @@ import { useIsMobile } from '../hooks/useIsMobile.js'
 // in the reader as usual and the picture opens in a companion window beside
 // it, cascaded over the reader's frame but clear of the text column. Both are
 // draggable; the companion's × dismisses just the picture, Esc closes
-// everything. On mobile the picture stays inline inside the single modal.
+// everything. Closing the reader closes the picture too — both windows are
+// children of this component, so unmounting it (Terminal sets fileViewer to
+// null) tears down the pair together. On mobile the picture stays inline
+// inside the single modal.
 
 const MAIN_SIZE = { w: 640, h: 480 }
 const IMG_SIZE = { w: 420, h: 460 }
+// Let the reader land first, then bring the picture in a beat later so the
+// two windows don't pop in on the same frame. Kept short on purpose.
+const IMAGE_DELAY_MS = 150
 
 // Overlap the reader's border by a frame's worth, and cascade down a touch,
 // so the pair reads as one workspace without the picture covering prose.
@@ -38,11 +44,19 @@ function companionPos() {
 export default function FileViewer({ path, node, t = makeT('en'), onClose }) {
   const isMobile = useIsMobile()
   const lines = renderFileContent(path, node)
-  // Terminal mounts a fresh FileViewer per open, so this resets naturally.
-  const [imageOpen, setImageOpen] = useState(true)
+  // Starts closed and opens after a short delay (see effect below). Terminal
+  // mounts a fresh FileViewer per open, so this resets naturally.
+  const [imageOpen, setImageOpen] = useState(false)
 
   const imageLine = isMobile ? null : lines.find((l) => l.type === 'image')
+  const imageSrc = imageLine?.src ?? null
   const textLines = imageLine ? lines.filter((l) => l.type !== 'image') : lines
+
+  useEffect(() => {
+    if (!imageSrc) return undefined
+    const id = setTimeout(() => setImageOpen(true), IMAGE_DELAY_MS)
+    return () => clearTimeout(id)
+  }, [imageSrc])
 
   return (
     <>

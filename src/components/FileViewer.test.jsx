@@ -38,26 +38,41 @@ const imageNode = {
 }
 
 describe('FileViewer with image front-matter (desktop)', () => {
-  it('opens the picture in a companion window beside the reader', () => {
+  it('shows the reader first, then opens the picture a beat later', async () => {
     render(<FileViewer path="/intel.dat" node={imageNode} onClose={() => {}} />)
-    const dialogs = screen.getAllByRole('dialog')
-    expect(dialogs.length).toBe(2)
-    // Picture lives in the companion, not inline in the reader.
-    const reader = dialogs.find((d) => !d.className.includes('floating-window--image'))
-    expect(reader.querySelector('.crt-img')).toBeNull()
-    const companion = screen.getByRole('dialog', { name: 'a recon picture' })
-    expect(companion.querySelector('.crt-img')?.getAttribute('src')).toBe('/art/pic.png')
+    // The reader is up immediately; the picture is delayed.
+    expect(screen.getAllByRole('dialog').length).toBe(1)
     expect(screen.getByText('dossier body')).toBeTruthy()
+    expect(screen.queryByRole('dialog', { name: 'a recon picture' })).toBeNull()
+    // ...and arrives shortly after.
+    const companion = await screen.findByRole('dialog', { name: 'a recon picture' })
+    expect(screen.getAllByRole('dialog').length).toBe(2)
+    // Picture lives in the companion, not inline in the reader.
+    const reader = screen
+      .getAllByRole('dialog')
+      .find((d) => !d.className.includes('floating-window--image'))
+    expect(reader.querySelector('.crt-img')).toBeNull()
+    expect(companion.querySelector('.crt-img')?.getAttribute('src')).toBe('/art/pic.png')
   })
 
-  it('companion × dismisses only the picture', () => {
+  it('companion × dismisses only the picture', async () => {
     const onClose = vi.fn()
     render(<FileViewer path="/intel.dat" node={imageNode} onClose={onClose} />)
-    const companion = screen.getByRole('dialog', { name: 'a recon picture' })
+    const companion = await screen.findByRole('dialog', { name: 'a recon picture' })
     fireEvent.click(within(companion).getByLabelText('close'))
     expect(onClose).not.toHaveBeenCalled()
     expect(screen.getAllByRole('dialog').length).toBe(1)
     expect(screen.getByText('dossier body')).toBeTruthy()
+  })
+
+  it('closing the reader tears down the picture with it', async () => {
+    const { unmount } = render(
+      <FileViewer path="/intel.dat" node={imageNode} onClose={() => {}} />
+    )
+    await screen.findByRole('dialog', { name: 'a recon picture' })
+    // Terminal drops the FileViewer on close, which unmounts both windows.
+    unmount()
+    expect(screen.queryAllByRole('dialog').length).toBe(0)
   })
 })
 
