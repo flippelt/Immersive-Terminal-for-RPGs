@@ -28,6 +28,7 @@ export default function FloatingWindow({
   initialSize = { w: 480, h: 420 },
   minSize = { w: 320, h: 200 },
   anchor = 'top-right', // 'top-right' | 'center'
+  initialPos = null, // explicit {x, y} beats `anchor` (desktop only)
   ariaLabel
 }) {
   const isMobile = useIsMobile()
@@ -44,7 +45,12 @@ export default function FloatingWindow({
     if (isMobile || pos) return
     const vw = typeof window !== 'undefined' ? window.innerWidth : 1280
     const vh = typeof window !== 'undefined' ? window.innerHeight : 800
-    if (anchor === 'center') {
+    if (initialPos) {
+      setPos({
+        x: clamp(initialPos.x, 8, vw - 120),
+        y: clamp(initialPos.y, 8, vh - 80)
+      })
+    } else if (anchor === 'center') {
       setPos({
         x: Math.max(20, Math.round((vw - initialSize.w) / 2)),
         y: Math.max(20, Math.round((vh - initialSize.h) / 2))
@@ -57,7 +63,7 @@ export default function FloatingWindow({
         y: Math.max(40, Math.floor(vh * 0.1))
       })
     }
-  }, [isMobile, pos, anchor, initialSize.w, initialSize.h])
+  }, [isMobile, pos, anchor, initialPos, initialSize.w, initialSize.h])
 
   const onHeaderPointerDown = useCallback(
     (e) => {
