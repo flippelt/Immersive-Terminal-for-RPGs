@@ -38,8 +38,22 @@ jobs:
       - name: Build
         run: npm run build
 
-      - name: Audit (high/critical only)
-        # Fails CI only if a high or critical vulnerability exists.
-        # Moderate findings in dev-only deps (esbuild dev server) are tracked
-        # via Dependabot.
+      - name: Audit (high/critical em deps de produção)
+        # Falha o CI só com high/critical no que vai pro bundle publicado.
+        #
+        # `--omit=dev` foi necessário porque a cadeia de lint do eslint 9
+        # (minimatch 3 -> brace-expansion 1.x) carrega GHSA-mh99-v99m-4gvg
+        # (DoS por OOM, range <=5.0.7) que NÃO tem release corrigido na linha
+        # 1.x. Sem isso o gate fica vermelho na própria main e bloqueia todo
+        # PR do repo, inclusive os de segurança. A saída seria eslint 10, mas
+        # eslint-plugin-react (7.37.5, a última) só declara peer até eslint
+        # ^9.7. Forçar brace-expansion 5 via override quebra o lint inteiro
+        # ("expand is not a function" — o export mudou de forma), testado.
+        #
+        # Revisitar quando eslint-plugin-react suportar eslint 10.
+        run: npm audit --audit-level=high --omit=dev
+
+      - name: Audit completo (informativo, inclui dev)
+        # Não bloqueia: serve pra manter visibilidade das deps de dev.
+        continue-on-error: true
         run: npm audit --audit-level=high
