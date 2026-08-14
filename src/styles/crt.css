@@ -443,7 +443,83 @@
 }
 
 .modal--progress {
-  min-width: 420px;
+  min-width: min(440px, 92vw);
+}
+
+.progress {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.progress__meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 1px;
+}
+
+.progress__spin {
+  color: var(--accent, #88ff88);
+  min-width: 1.2ch;
+}
+
+.progress__pct {
+  color: var(--fg);
+}
+
+.progress__track {
+  position: relative;
+  height: 14px;
+  border: 1px solid color-mix(in srgb, var(--fg) 45%, transparent);
+  background: color-mix(in srgb, var(--muted, #1a661a) 22%, transparent);
+  box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.55);
+  overflow: hidden;
+}
+
+.progress__track::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    to bottom,
+    transparent 0,
+    transparent 1px,
+    rgba(0, 0, 0, 0.28) 2px,
+    rgba(0, 0, 0, 0.28) 2px
+  );
+}
+
+.progress__fill {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 0;
+  background: var(--accent, #88ff88);
+  box-shadow:
+    0 0 10px var(--accent, #88ff88),
+    0 0 calc(18px * var(--bloom, 1)) var(--accent, #88ff88);
+}
+
+.progress__fill::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 10px;
+  height: 100%;
+  background: color-mix(in srgb, #fff 55%, var(--accent, #88ff88));
+  box-shadow: 0 0 8px var(--accent, #88ff88);
+}
+
+.progress__foot {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.72em;
+  letter-spacing: 2px;
+  color: var(--muted, #1a661a);
+  text-transform: uppercase;
 }
 
 /* === Decrypt minigame (Wordle-style) === */
@@ -841,10 +917,6 @@
   color: var(--accent, #88ff88);
   font-variant-numeric: tabular-nums;
 }
-/* Filled + empty cells share the █ glyph (constant width); the empty run is
-   just dimmed, so the bar never drifts as it fills. */
-.modal__bar-fill { color: var(--accent, #88ff88); }
-.modal__bar-track { color: var(--muted, #1a661a); opacity: 0.4; }
 
 @keyframes overlay-in {
   from { opacity: 0; }
@@ -1444,6 +1516,12 @@
   .tracer__bar span {
     transition: none;
   }
+  .progress__fill {
+    box-shadow: none;
+  }
+  .progress__fill::after {
+    display: none;
+  }
 }
 
 /* === Mobile / narrow screens === */
@@ -1513,11 +1591,6 @@
      fixed-cell rendering still exceeds the viewport. */
   .modal--progress {
     min-width: 0;
-  }
-  .modal__bar {
-    max-width: 100%;
-    overflow-x: auto;
-    white-space: pre;
   }
 }
 
