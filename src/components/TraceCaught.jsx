@@ -1,41 +1,25 @@
 import { useEffect, useRef, useState } from 'react'
 import { playGlitch, playPowerOff } from '../audio/sfx.js'
 
-// ICE daemon — hex frame, slit eyes, broken grin. Color comes from CSS.
-function IceFace() {
+// Lock-on reticle — not a face. Same ICE palette as the FOUND YOU line.
+function IceLock() {
   return (
     <svg className="caught__smiley caught__face" viewBox="0 0 120 120" aria-hidden="true">
-      <polygon
-        points="60,6 108,34 108,86 60,114 12,86 12,34"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="4"
-      />
-      <polygon
-        points="60,18 96,40 96,80 60,102 24,80 24,40"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="1.5"
-        opacity="0.45"
-      />
-      <rect x="34" y="50" width="18" height="5" fill="currentColor" />
-      <rect x="68" y="50" width="18" height="5" fill="currentColor" />
-      <path
-        d="M32 78 L48 90 L60 76 L72 90 L88 78"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="4"
-        strokeLinejoin="miter"
-        strokeLinecap="square"
-      />
+      <circle cx="60" cy="60" r="28" fill="none" stroke="currentColor" strokeWidth="1.5" opacity="0.55" />
+      <circle cx="60" cy="60" r="4" fill="currentColor" />
+      <path d="M60 8 V28 M60 92 V112 M8 60 H28 M92 60 H112" stroke="currentColor" strokeWidth="2" />
+      <path d="M18 18 H38 V38" fill="none" stroke="currentColor" strokeWidth="3" />
+      <path d="M102 18 H82 V38" fill="none" stroke="currentColor" strokeWidth="3" />
+      <path d="M18 102 H38 V82" fill="none" stroke="currentColor" strokeWidth="3" />
+      <path d="M102 102 H82 V82" fill="none" stroke="currentColor" strokeWidth="3" />
     </svg>
   )
 }
 
 // The "you ran out of time" climax (config-driven; currently only Cyberpunk
 // ships a `tracer.caught`). A burst of FOUND YOU popups scatters across the
-// screen, then a black takeover types the final line letter-by-letter, an
-// ICE face lands, holds, the monitor "powers off", and the console reboots.
+// screen, then a black takeover types the final line letter-by-letter, a
+// lock-on reticle lands, holds, the monitor "powers off", and the console reboots.
 export default function TraceCaught({ config = {}, onReboot }) {
   const popupMsgs = config.popups ?? ['FOUND YOU!']
   const popupCount = config.popupCount ?? 14
@@ -160,7 +144,7 @@ export default function TraceCaught({ config = {}, onReboot }) {
             (config.smiley ? (
               <span className="caught__smiley">{config.smiley}</span>
             ) : (
-              <IceFace />
+              <IceLock />
             ))}
         </div>
       )}
