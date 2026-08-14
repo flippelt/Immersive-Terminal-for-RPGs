@@ -4,22 +4,38 @@ import { playGlitch, playPowerOff } from '../audio/sfx.js'
 const COLS = 18
 const ROWS = 12
 
-// Self-destruct detonation: red voxels flood the screen (monitor sectors
-// failing), hold ~0.5s, then the monitor powers off (CRT collapse) and the
-// console reboots. The overlay is opaque the whole time, so nothing of the
-// old screen shows through before the reboot (same pattern as the tracer
+// Self-destruct detonation: sectors fail, the last MU/TH/UR line types
+// out, the monitor collapses, and the console reboots. Opaque overlay so
+// nothing of the old screen shows through (same pattern as the tracer
 // "caught" climax).
 export default function Detonation({ config = {}, onReboot }) {
   const [off, setOff] = useState(false)
+  const [typed, setTyped] = useState('')
+  const [showRest, setShowRest] = useState(false)
   const delays = useMemo(
     () => Array.from({ length: COLS * ROWS }, () => Math.random() * 0.45),
     []
   )
   const lines = (Array.isArray(config.detonate) ? config.detonate : [config.detonate]).filter(Boolean)
+  const headline = String(lines[0] ?? 'DETONATION.')
+  const rest = lines.slice(1)
 
-  // Flood + hold, then power-off (honors reduced motion by skipping it).
   useEffect(() => {
     playGlitch()
+    let n = 0
+    const id = setInterval(() => {
+      n += 1
+      setTyped(headline.slice(0, n))
+      if (n >= headline.length) {
+        clearInterval(id)
+        setTimeout(() => setShowRest(true), 280)
+      }
+    }, 90)
+    return () => clearInterval(id)
+  }, [headline])
+
+  useEffect(() => {
+    if (!showRest) return
     const reduce = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
     const t = setTimeout(() => {
       if (reduce) onReboot?.()
@@ -27,10 +43,10 @@ export default function Detonation({ config = {}, onReboot }) {
         playPowerOff()
         setOff(true)
       }
-    }, 950)
+    }, 1600)
     return () => clearTimeout(t)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  }, [showRest])
 
   useEffect(() => {
     if (!off) return
@@ -46,11 +62,15 @@ export default function Detonation({ config = {}, onReboot }) {
           <span key={i} className="detonation__cell" style={{ animationDelay: `${d}s` }} />
         ))}
       </div>
-      {lines.length > 0 && (
+      <div className="detonation__scan" aria-hidden="true" />
+      {!off && (
         <div className="detonation__msg">
-          {lines.map((t, i) => (
-            <div key={i}>{t}</div>
-          ))}
+          {config.tag && <span className="detonation__tag">{config.tag}</span>}
+          <span className="detonation__text">{typed}</span>
+          {showRest &&
+            rest.map((line, i) => (
+              <div key={i} className="detonation__sub">{line}</div>
+            ))}
         </div>
       )}
       {off && <div className="caught__off" />}

@@ -1,24 +1,20 @@
 import { useEffect, useRef, useState } from 'react'
 import { playGlitch, playPowerOff } from '../audio/sfx.js'
 
-// A drawn, deliberately unsettling grin — used when the GM doesn't override
-// `smiley` with text. Inherits color (red) and the throb animation.
-function MenaceFace() {
+// Evil smiley — circle, furrowed brows, wide grin. Same ICE palette as the type.
+function EvilSmile() {
   return (
     <svg className="caught__smiley caught__face" viewBox="0 0 120 120" aria-hidden="true">
-      <circle cx="60" cy="60" r="52" fill="none" stroke="currentColor" strokeWidth="5" />
-      {/* angry brows + hollow eyes */}
-      <path d="M28 42 L52 52" stroke="currentColor" strokeWidth="6" strokeLinecap="round" />
-      <path d="M92 42 L68 52" stroke="currentColor" strokeWidth="6" strokeLinecap="round" />
-      <circle cx="44" cy="56" r="6" fill="currentColor" />
-      <circle cx="76" cy="56" r="6" fill="currentColor" />
-      {/* wide jagged grin with teeth */}
+      <circle cx="60" cy="60" r="50" fill="none" stroke="currentColor" strokeWidth="5" />
+      <path d="M28 36 L48 48" stroke="currentColor" strokeWidth="6" strokeLinecap="round" />
+      <path d="M92 36 L72 48" stroke="currentColor" strokeWidth="6" strokeLinecap="round" />
+      <circle cx="42" cy="56" r="5" fill="currentColor" />
+      <circle cx="78" cy="56" r="5" fill="currentColor" />
       <path
-        d="M28 74 L40 90 L50 76 L60 92 L70 76 L80 90 L92 74"
+        d="M26 70 Q60 112 94 70"
         fill="none"
         stroke="currentColor"
-        strokeWidth="5"
-        strokeLinejoin="round"
+        strokeWidth="6"
         strokeLinecap="round"
       />
     </svg>
@@ -28,8 +24,7 @@ function MenaceFace() {
 // The "you ran out of time" climax (config-driven; currently only Cyberpunk
 // ships a `tracer.caught`). A burst of FOUND YOU popups scatters across the
 // screen, then a black takeover types the final line letter-by-letter, a
-// menacing face lands, holds, the monitor "powers off", and the console
-// reboots.
+// evil smiley lands, holds, the monitor "powers off", and the console reboots.
 export default function TraceCaught({ config = {}, onReboot }) {
   const popupMsgs = config.popups ?? ['FOUND YOU!']
   const popupCount = config.popupCount ?? 14
@@ -66,7 +61,9 @@ export default function TraceCaught({ config = {}, onReboot }) {
           text,
           top: 6 + Math.random() * 76,
           left: 4 + Math.random() * 72,
-          rot: -10 + Math.random() * 20
+          rot: -12 + Math.random() * 24,
+          scale: 0.82 + Math.random() * 0.55,
+          invert: i % 4 === 0
         }
       ])
       i += 1
@@ -131,20 +128,28 @@ export default function TraceCaught({ config = {}, onReboot }) {
         popups.map((p) => (
           <div
             key={p.id}
-            className="caught__popup"
-            style={{ top: `${p.top}%`, left: `${p.left}%`, transform: `rotate(${p.rot}deg)` }}
+            className={`caught__popup${p.invert ? ' caught__popup--invert' : ''}`}
+            style={{
+              top: `${p.top}%`,
+              left: `${p.left}%`,
+              transform: `rotate(${p.rot}deg) scale(${p.scale})`
+            }}
           >
             {p.text}
           </div>
         ))}
       {phase === 'final' && !off && (
         <div className="caught__final">
-          <span className="caught__text">{typed}</span>
+          <div className="caught__scan" aria-hidden="true" />
+          <span className="caught__tag">ICE TRACE COMPLETE</span>
+          <span className="caught__text" data-text={typed}>
+            {typed}
+          </span>
           {showSmiley &&
             (config.smiley ? (
               <span className="caught__smiley">{config.smiley}</span>
             ) : (
-              <MenaceFace />
+              <EvilSmile />
             ))}
         </div>
       )}

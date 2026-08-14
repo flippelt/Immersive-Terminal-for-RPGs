@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { makeT } from '../i18n/ui.js'
 
-const BAR_WIDTH = 28
 const SPINNER = ['|', '/', '-', '\\']
 
 // Centered popup that runs a progress bar (crack/decrypt) for `duration`
@@ -21,11 +20,14 @@ export default function ProgressModal({ label, duration = 5000, t = makeT('en'),
     let raf
     const spinIv = setInterval(() => setSpin((s) => (s + 1) % SPINNER.length), 90)
     const tick = () => {
-      const p = Math.min(100, ((performance.now() - start) / dur) * 100)
+      const linear = Math.min(1, (performance.now() - start) / dur)
+      // Ease-out so the last stretch feels like a lock yielding.
+      const p = (1 - (1 - linear) ** 2) * 100
       setPct(p)
-      if (p < 100) {
+      if (linear < 1) {
         raf = requestAnimationFrame(tick)
       } else {
+        setPct(100)
         clearInterval(spinIv)
         cbRef.current?.()
       }
@@ -37,20 +39,34 @@ export default function ProgressModal({ label, duration = 5000, t = makeT('en'),
     }
   }, [duration])
 
-  const filled = Math.floor((pct / 100) * BAR_WIDTH)
-  // Use the SAME glyph for filled and empty cells (the empty run is just
-  // dimmed) so the track keeps a constant width as it fills. Mixing two
-  // glyphs (█ vs ░) drifts the closing bracket in fonts where the shade
-  // glyph has a different advance width — that was the IBM misalignment.
-  const fill = '█'.repeat(filled)
-  const track = '█'.repeat(BAR_WIDTH - filled)
-  const spinner = pct < 100 ? SPINNER[spin] : '✓'
+  const done = pct >= 100
+  const spinner = done ? '✓' : SPINNER[spin]
+  const hex = Math.floor((pct / 100) * 0xffff).toString(16).toUpperCase().padStart(4, '0')
 
   return (
     <div className="modal-overlay" role="presentation">
       <div className="modal modal--progress" role="dialog" aria-label={labelText}>
         <div className="modal__header">{labelText}</div>
-        <pre className="modal__bar">{spinner} [<span className="modal__bar-fill">{fill}</span><span className="modal__bar-track">{track}</span>] {String(Math.floor(pct)).padStart(3, ' ')}%</pre>
+        <div className="progress">
+          <div className="progress__meta">
+            <span className="progress__spin" aria-hidden="true">{spinner}</span>
+            <span className="progress__pct">{String(Math.floor(pct)).padStart(3, ' ')}%</span>
+          </div>
+          <div
+            className="progress__track"
+            role="progressbar"
+            aria-valuemin={0}
+            aria-valuemax={100}
+            aria-valuenow={Math.floor(pct)}
+            aria-label={labelText}
+          >
+            <div className="progress__fill" style={{ width: `${pct}%` }} />
+          </div>
+          <div className="progress__foot" aria-hidden="true">
+            <span>0x{hex}</span>
+            <span>{done ? 'OK' : 'BUSY'}</span>
+          </div>
+        </div>
       </div>
     </div>
   )

@@ -39,9 +39,10 @@ export default function ThemeSwitcher({
     }
   }, [open])
 
+  const currentTheme = themes.find((th) => th.id === current)
   const visible = gmMode
     ? themes
-    : themes.filter((t) => !disabled?.has(t.id) || t.id === current)
+    : themes.filter((th) => !disabled?.has(th.id) || th.id === current)
 
   return (
     <div className="theme-switcher" ref={ref}>
@@ -64,7 +65,15 @@ export default function ThemeSwitcher({
                   }}
                   title={th.name}
                 >
-                  {th.id}
+                  <span
+                    className="switcher-chip__swatch"
+                    style={{
+                      background: th.palette?.fg ?? 'currentColor',
+                      boxShadow: `0 0 6px ${th.palette?.fg ?? 'currentColor'}`
+                    }}
+                    aria-hidden="true"
+                  />
+                  {th.shortName ?? th.id}
                 </button>
                 {gmMode && (
                   <button
@@ -102,7 +111,16 @@ export default function ThemeSwitcher({
         aria-expanded={open}
         title="systems & language"
       >
-        {open ? '▾' : '▴'} {current} · {(lang ?? 'en').toUpperCase()}
+        {open ? '▾' : '▴'}
+        <span
+          className="switcher-chip__swatch"
+          style={{
+            background: currentTheme?.palette?.fg ?? 'currentColor',
+            boxShadow: `0 0 6px ${currentTheme?.palette?.fg ?? 'currentColor'}`
+          }}
+          aria-hidden="true"
+        />
+        {currentTheme?.shortName ?? current} · {(lang ?? 'en').toUpperCase()}
       </button>
     </div>
   )

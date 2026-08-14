@@ -22,6 +22,7 @@ const LS_KEY = 'tirpg.theme'
 function applyThemeCssVars(theme) {
   const root = document.documentElement
   const p = theme.palette ?? {}
+  const crt = theme.crt ?? {}
   root.style.setProperty('--bg', p.bg ?? '#000')
   root.style.setProperty('--bg-soft', p.bgSoft ?? p.bg ?? '#001a00')
   root.style.setProperty('--fg', p.fg ?? '#33ff33')
@@ -30,7 +31,14 @@ function applyThemeCssVars(theme) {
   root.style.setProperty('--error', p.error ?? '#ff4444')
   root.style.setProperty('--font', theme.font ?? "'3270 Nerd Font Mono'")
   root.style.setProperty('--font-size', theme.fontSize ?? '20px')
-  root.style.setProperty('--glow', theme.crt?.glow ?? '6px')
+  root.style.setProperty('--glow', crt.glow ?? '6px')
+  root.style.setProperty('--scanline-opacity', String(crt.scanlines ?? 0.28))
+  root.style.setProperty('--flicker', String(crt.flicker ?? 1))
+  root.style.setProperty('--curve', `${crt.curve ?? 0.6}deg`)
+  root.style.setProperty('--bloom', String(crt.bloom ?? 1))
+  root.style.setProperty('--led', crt.led ?? p.fg ?? '#33ff33')
+  const themeColor = document.querySelector('meta[name="theme-color"]')
+  if (themeColor) themeColor.setAttribute('content', p.bg ?? '#000')
 }
 
 function initialSelection() {
@@ -286,7 +294,6 @@ export default function App() {
         <span className="chrome__right">
           {gmMode && <span className="chrome__gm">★ GM</span>}
           {theme.custom && <span className="chrome__demo">CUSTOM</span>}
-          UPLINK · {new Date().getFullYear()}
         </span>
       </div>
       <div className="crt__screen">

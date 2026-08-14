@@ -60,6 +60,7 @@
     "interval": 800,
     "override": "OVERRIDE-937",
     "armed": "EMERGENCY DESTRUCT SYSTEM ARMED",
+    "tag": "SPECIAL ORDER 937",
     "label": "DETONATION IN",
     "aborted": [
       "destruct sequence aborted.",
@@ -129,6 +130,7 @@
       },
       "selfDestruct": {
         "armed": "SISTEMA DE AUTODESTRUIÇÃO DE EMERGÊNCIA ARMADO",
+        "tag": "ORDEM ESPECIAL 937",
         "label": "DETONAÇÃO EM",
         "aborted": [
           "sequência de autodestruição abortada.",

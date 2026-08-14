@@ -21,6 +21,10 @@ export default function AudioToggle({ t = makeT('en') }) {
       title={muted ? t('audio.off.title') : t('audio.on.title')}
       aria-label={muted ? 'unmute audio' : 'mute audio'}
     >
+      <span
+        className={`audio-toggle__led${muted ? '' : ' audio-toggle__led--on'}`}
+        aria-hidden="true"
+      />
       {muted ? t('audio.off') : t('audio.on')}
     </button>
   )
