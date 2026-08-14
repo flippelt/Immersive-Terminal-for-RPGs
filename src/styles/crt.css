@@ -867,32 +867,49 @@
   margin-left: 8px;
 }
 
-/* === Self-destruct popup === */
+/* === Self-destruct popup (Nostromo emergency amber) === */
 .modal-overlay--alarm {
-  background: color-mix(in srgb, var(--error, #ff4444) 14%, rgba(0, 0, 0, 0.78));
+  --destruct: #ffb000;
+  --destruct-hot: #ff3b1a;
+  background: color-mix(in srgb, var(--destruct-hot) 12%, rgba(0, 0, 0, 0.82));
 }
 
 .modal--destruct {
-  min-width: min(560px, 90vw);
-  border-color: var(--error, #ff4444);
+  min-width: min(640px, 92vw);
+  border-color: var(--destruct);
   box-shadow:
-    0 0 36px color-mix(in srgb, var(--error, #ff4444) 45%, transparent),
-    inset 0 0 80px color-mix(in srgb, var(--error, #ff4444) 8%, transparent);
+    0 0 40px color-mix(in srgb, var(--destruct) 40%, transparent),
+    inset 0 0 80px color-mix(in srgb, var(--destruct-hot) 8%, transparent);
 }
 
 .modal__header--alarm {
-  color: var(--error, #ff4444);
-  animation: alarm-pulse 0.6s steps(2, end) infinite;
+  color: var(--destruct);
+  letter-spacing: 0.28em;
+  text-align: center;
+  animation: alarm-pulse 0.8s steps(2, end) infinite;
+}
+
+.destruct__label {
+  text-align: center;
+  letter-spacing: 0.42em;
+  font-size: 0.78em;
+  color: var(--destruct);
+  margin-top: 8px;
 }
 
 .destruct__count {
-  font-size: 2.4em;
+  font-size: clamp(4.2rem, 18vw, 10rem);
   font-weight: bold;
-  letter-spacing: 3px;
-  color: var(--error, #ff4444);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.12em;
+  color: #fff;
   text-align: center;
-  margin: 14px 0 18px;
-  text-shadow: 0 0 12px currentColor;
+  margin: 8px 0 18px;
+  line-height: 0.9;
+  text-shadow:
+    -3px 0 var(--destruct-hot),
+    3px 0 var(--destruct),
+    0 0 28px var(--destruct);
 }
 
 .destruct__override {
@@ -1155,12 +1172,14 @@
   100% { transform: scale(0, 0); opacity: 0; }
 }
 
-/* === Self-destruct detonation (red voxels flooding the screen) === */
+/* === Self-destruct detonation === */
 .detonation {
+  --destruct: #ffb000;
+  --destruct-hot: #ff3b1a;
   position: fixed;
   inset: 0;
   z-index: 100;
-  background: #000;
+  background: #080200;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1171,25 +1190,64 @@
   display: grid;
   grid-template-columns: repeat(18, 1fr);
   grid-template-rows: repeat(12, 1fr);
+  opacity: 0.35;
 }
 .detonation__cell {
-  background: var(--error, #ff3b3b);
+  background: var(--destruct-hot);
   opacity: 0;
   animation: voxel-fail 0.16s steps(1, end) forwards;
 }
 @keyframes voxel-fail {
   to { opacity: 1; }
 }
+.detonation__scan {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    repeating-linear-gradient(
+      to bottom,
+      transparent 0,
+      transparent 2px,
+      rgba(0, 0, 0, 0.35) 3px,
+      rgba(0, 0, 0, 0.35) 3px
+    );
+  mix-blend-mode: multiply;
+}
 .detonation__msg {
   position: relative;
   z-index: 1;
-  color: #fff;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: clamp(10px, 2.4vh, 28px);
+  color: var(--destruct);
   font-family: var(--font), monospace;
   font-weight: bold;
-  font-size: clamp(1.4rem, 5vw, 3rem);
-  letter-spacing: 2px;
   text-align: center;
-  text-shadow: 0 0 14px #000, 0 0 6px #000;
+}
+.detonation__tag {
+  font-size: clamp(0.7rem, 1.6vw, 0.95rem);
+  letter-spacing: 0.45em;
+  color: var(--destruct);
+  text-shadow: 0 0 10px var(--destruct);
+}
+.detonation__text {
+  font-size: clamp(2.2rem, 11vw, 6.4rem);
+  letter-spacing: 0.14em;
+  line-height: 1;
+  color: #fff;
+  text-shadow:
+    -3px 0 var(--destruct-hot),
+    3px 0 var(--destruct),
+    0 0 28px var(--destruct);
+}
+.detonation__sub {
+  font-size: clamp(0.95rem, 2.4vw, 1.5rem);
+  font-weight: normal;
+  letter-spacing: 0.08em;
+  color: color-mix(in srgb, var(--destruct) 70%, #fff);
+  text-shadow: 0 0 8px #000;
 }
 
 /* === ICE alert window (e.g. repeated scan) — warns, doesn't trace === */

@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { playBeep } from '../audio/sfx.js'
 import { makeT } from '../i18n/ui.js'
 
-// Big centered self-destruct popup: a ticking countdown with an OVERRIDE
+// Big MU/TH/UR emergency display: a ticking countdown with an OVERRIDE
 // code area. The correct (GM-defined) code aborts; reaching 0 detonates.
 export default function SelfDestructModal({ config, onAbort, onDetonate, t = makeT('en') }) {
   const from = Math.max(1, config.from ?? 10)
@@ -52,15 +52,16 @@ export default function SelfDestructModal({ config, onAbort, onDetonate, t = mak
     }
   }
 
+  const digits = String(n).padStart(2, '0')
+
   return (
     <div className="modal-overlay modal-overlay--alarm" role="presentation">
       <div className="modal modal--destruct" role="dialog" aria-label="self destruct">
         <div className="modal__header modal__header--alarm">
           {config.armed ?? t('modal.destruct.armed')}
         </div>
-        <div className="destruct__count">
-          {config.label ?? t('modal.destruct.label')} {n}
-        </div>
+        <div className="destruct__label">{config.label ?? t('modal.destruct.label')}</div>
+        <div className="destruct__count" aria-live="polite">{digits}</div>
         {override && (
           <div className="destruct__override">
             <span className="modal__label">{t('modal.destruct.code')}</span>

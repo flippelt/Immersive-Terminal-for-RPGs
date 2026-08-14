@@ -305,7 +305,10 @@ export default function Terminal({
     setSelfDestruct(null)
     // Hand off to the voxel detonation overlay, which floods the screen and
     // reboots the console (so the detonate lines aren't shown behind it).
-    setDetonating({ detonate: c.detonate ?? 'DETONATION.' })
+    setDetonating({
+      detonate: c.detonate ?? 'DETONATION.',
+      tag: c.tag
+    })
   }, [selfDestruct])
 
   const handleDetonationReboot = useCallback(() => {
