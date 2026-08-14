@@ -2,8 +2,17 @@
 
 [English](CONTRIBUTING.en.md) · **Português**
 
-Obrigado pelo interesse! A contribuição mais bem-vinda é **adicionar um novo
-tema** (skin) e/ou **cenário** (campanha). Este guia foca nisso.
+Obrigado pelo interesse! A contribuição mais bem-vinda neste repositório é um
+**cenário** (campanha demo). Skins de sistema (temas) vivem no pacote
+[`rpgterm-engine`](https://github.com/flippelt/rpgterm-engine), não aqui.
+
+O contrato de um cenário — `scenario.json`, front-matter, `events`, `tracer`,
+`login` — está no JSON Schema do engine:
+
+- [`scenario.schema.json`](https://github.com/flippelt/rpgterm-engine/blob/main/src/schema/scenario.schema.json)
+- [`frontmatter.schema.json`](https://github.com/flippelt/rpgterm-engine/blob/main/src/schema/frontmatter.schema.json)
+
+A referência narrativa está na [Wiki](https://github.com/flippelt/Immersive-Terminal-for-RPGs/wiki).
 
 ## Antes de começar
 
@@ -17,31 +26,38 @@ npm install
 npm run dev        # http://localhost:5173
 ```
 
-## Adicionando um tema novo
+## Adicionando um cenário
 
-Um **tema** é a skin (cores, fonte, banner, sons). Um **cenário** é o conteúdo
-da campanha (textos, arquivos, comandos). O schema completo está na seção
-[*Criando conteúdo*](README.md#criando-conteúdo) do README.
+Um **tema** é a skin (cores, fonte, banner, sons) — 8 já vêm do engine
+(`alien`, `lancer`, `br`, `wh40k`, `fallout`, `cprd`, `dataslate`, `ibm`).
+Um **cenário** é o conteúdo da campanha e fica neste repo.
 
-1. **Skin** — crie `src/themes/<id>.json` com `palette`, `font`, `crt`,
-   `banner`, `boot`, `locks`, `defaultScenario`, etc.
-2. **Cenário** — crie a pasta `src/themes/scenarios/<id>/<cenário>/`:
-   - `scenario.json` — `motd`, `commands`, e opcionalmente `login` / `events`.
+1. Crie a pasta `src/themes/scenarios/<tema>/<cenário>/`:
+   - `scenario.json` — `motd`, `commands`, e opcionalmente `login` / `events` / `tracer` / `dialog`.
    - `files/` — os arquivos do terminal como **arquivos reais**:
      - `.md` → renderizado como markdown (cinematográfico)
      - `.log` / `.dat` / outros → texto cru
      - arquivos trancados levam um bloco `---` de front-matter no topo
        (`locked`, `password`, `crackDC`, `reveals`, …)
-3. **Registre** o tema importando-o em
-   [`src/themes/index.js`](src/themes/index.js) e adicionando-o à `THEME_LIST`.
-4. **Não** adicione ao `DEMO_IDS` — a curadoria do demo é da manutenção.
+2. O loader (`import.meta.glob` em `src/themes/index.js`) registra o cenário
+   sozinho. Não edite a lista de temas.
+3. Cenários daqui são **fixtures do schema** (demos curtos). Campanhas de mesa
+   reais vão no fork privado, não neste motor.
 
-Use os temas existentes em `src/themes/` como modelo.
+O IBM workstation (`ibm/workstation`) é o spec-by-example: login, tracer,
+crack com DC, decrypt Wordle e arquivo endurecido.
+
+## Adicionando uma skin nova
+
+Skins não se adicionam aqui. Abra um PR em
+[`rpgterm-engine`](https://github.com/flippelt/rpgterm-engine) com o JSON em
+`src/themes/<id>.json` e o registro em `src/engine/scenario.js`. Depois este
+host herda a skin no próximo bump do pacote.
 
 ## Traduções (i18n)
 
 A interface e as mensagens internas já vêm em **inglês** (padrão) e
-**português** (veja `src/i18n/`). Os **comandos nunca mudam de idioma** — só os
+**português** (no engine). Os **comandos nunca mudam de idioma** — só os
 textos. O idioma sai do botão no canto inferior esquerdo.
 
 Para traduzir o **conteúdo de um cenário** (nome, motd, diálogos, comandos
@@ -82,8 +98,6 @@ scenarios/<tema>/<cenário>/
 (Alternativa: um mapa `i18n.<lang>.files` no `scenario.json`, com
 `"/caminho": "corpo traduzido"`.)
 
-Para **temas**, o mesmo bloco `i18n` traduz `extraHelp`, `unknownHint`, etc.
-
 > Limitação: strings de front-matter **por arquivo** (`lockLabel`,
 > `crackFailMessage`, `crackSuccessMessage`) ainda não são localizadas — use os
 > rótulos de `locks` no tema, que são traduzíveis.
@@ -98,6 +112,9 @@ npm test
 npm run build
 ```
 
+O CI também valida cada `scenario.json` e o front-matter dos arquivos contra
+o schema do engine.
+
 ## Conteúdo de fã e direitos
 
 - Mantenha o conteúdo **transformativo e curto** (flavor original) — não cole
@@ -111,7 +128,7 @@ npm run build
 
 1. Crie uma branch a partir de `main`, commite e dê push no **seu fork**.
 2. Abra um PR contra a `main` deste repositório.
-3. Descreva o tema/cenário e **como testar** (qual tema, quais comandos, senhas
+3. Descreva o cenário e **como testar** (qual tema, quais comandos, senhas
    de arquivos trancados se houver).
 
 A `main` é protegida por um *ruleset*. Para um PR ser mergeado:

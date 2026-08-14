@@ -2,8 +2,17 @@
 
 **English** · [Português](CONTRIBUTING.md)
 
-Thanks for your interest! The most welcome contribution is **adding a new
-theme** (skin) and/or **scenario** (campaign). This guide focuses on that.
+Thanks for your interest! The most welcome contribution to this repository is a
+**scenario** (demo campaign). System skins (themes) live in the
+[`rpgterm-engine`](https://github.com/flippelt/rpgterm-engine) package, not here.
+
+The scenario contract — `scenario.json`, front-matter, `events`, `tracer`,
+`login` — is the engine's JSON Schema:
+
+- [`scenario.schema.json`](https://github.com/flippelt/rpgterm-engine/blob/main/src/schema/scenario.schema.json)
+- [`frontmatter.schema.json`](https://github.com/flippelt/rpgterm-engine/blob/main/src/schema/frontmatter.schema.json)
+
+The narrative reference is the [Wiki](https://github.com/flippelt/Immersive-Terminal-for-RPGs/wiki).
 
 ## Before you start
 
@@ -17,32 +26,38 @@ npm install
 npm run dev        # http://localhost:5173
 ```
 
-## Adding a new theme
+## Adding a scenario
 
-A **theme** is the skin (colors, font, banner, sound). A **scenario** is the
-campaign content (text, files, commands). The full schema is in the
-[*Authoring content*](README.en.md#authoring-content) section of the README.
+A **theme** is the skin (colors, font, banner, sound) — eight already ship from
+the engine (`alien`, `lancer`, `br`, `wh40k`, `fallout`, `cprd`, `dataslate`,
+`ibm`). A **scenario** is the campaign content and lives in this repo.
 
-1. **Skin** — create `src/themes/<id>.json` with `palette`, `font`, `crt`,
-   `banner`, `boot`, `locks`, `defaultScenario`, etc.
-2. **Scenario** — create the folder `src/themes/scenarios/<id>/<scenario>/`:
-   - `scenario.json` — `motd`, `commands`, and optionally `login` / `events`.
+1. Create the folder `src/themes/scenarios/<theme>/<scenario>/`:
+   - `scenario.json` — `motd`, `commands`, and optionally `login` / `events` / `tracer` / `dialog`.
    - `files/` — the terminal files as **real files**:
      - `.md` → rendered as markdown (cinematic)
      - `.log` / `.dat` / others → raw text
      - locked files carry a `---` front-matter block at the top
        (`locked`, `password`, `crackDC`, `reveals`, …)
-3. **Register** the theme by importing it in
-   [`src/themes/index.js`](src/themes/index.js) and adding it to `THEME_LIST`.
-4. **Do not** add it to `DEMO_IDS` — the demo lineup is curated by the
-   maintainer.
+2. The loader (`import.meta.glob` in `src/themes/index.js`) picks the scenario
+   up on its own. Do not edit a theme list.
+3. Scenarios here are **schema fixtures** (short demos). Real table campaigns
+   belong in the private fork, not this engine host.
 
-Use the existing themes in `src/themes/` as a template.
+The IBM workstation (`ibm/workstation`) is the spec-by-example: login, tracer,
+DC crack, Wordle decrypt, and a hardened file.
+
+## Adding a new skin
+
+Skins are not added here. Open a PR on
+[`rpgterm-engine`](https://github.com/flippelt/rpgterm-engine) with the JSON in
+`src/themes/<id>.json` and the register in `src/engine/scenario.js`. This host
+inherits the skin on the next package bump.
 
 ## Translations (i18n)
 
 The UI and built-in messages ship in **English** (default) and **Portuguese**
-(see `src/i18n/`). **Commands never change language** — only the text does. The
+(in the engine). **Commands never change language** — only the text does. The
 language is picked from the bottom-left control.
 
 To translate a **scenario's content** (name, motd, dialog, custom commands,
@@ -82,8 +97,6 @@ scenarios/<theme>/<scenario>/
 (Alternative: an `i18n.<lang>.files` map in `scenario.json`, with
 `"/path": "translated body"`.)
 
-For **themes**, the same `i18n` block translates `extraHelp`, `unknownHint`, etc.
-
 > Limitation: **per-file** front-matter strings (`lockLabel`,
 > `crackFailMessage`, `crackSuccessMessage`) aren't localized yet — use the
 > theme's `locks` labels, which are translatable.
@@ -98,6 +111,9 @@ npm test
 npm run build
 ```
 
+CI also validates every `scenario.json` and file front-matter against the
+engine schema.
+
 ## Fan content and rights
 
 - Keep content **transformative and short** (original flavor) — don't paste
@@ -111,7 +127,7 @@ npm run build
 
 1. Create a branch off `main`, commit, and push to **your fork**.
 2. Open a PR against this repository's `main`.
-3. Describe the theme/scenario and **how to test** it (which theme, which
+3. Describe the scenario and **how to test** it (which theme, which
    commands, passwords for any locked files).
 
 `main` is protected by a *ruleset*. For a PR to merge:

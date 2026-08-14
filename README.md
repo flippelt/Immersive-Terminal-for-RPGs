@@ -56,7 +56,7 @@ Build de produção:
 ```bash
 npm run build        # app completo → dist/
 npm run lint         # ESLint
-npm test             # Vitest (engine: parser, filesystem, autocomplete, locks)
+npm test             # Vitest (schema dos cenários + smoke do Terminal + UI)
 ```
 
 ### Deploy
