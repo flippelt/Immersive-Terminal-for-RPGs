@@ -361,7 +361,7 @@ export default function Terminal({
     const tr = themeRef.current.tracer
     if (tr && node.tracer && tracerEndsAt != null) setTracerEndsAt(null)
     unlock(path)
-    const duration = node.decryptTime ?? themeRef.current.locks?.decryptDefault ?? 1500
+    const duration = node.decryptTime ?? themeRef.current.locks?.decryptDefault ?? 2300
     const label = node.decryptLabel ?? themeRef.current.locks?.decryptLabel ?? 'DECRYPTING'
     // Dedicated progress modal (not a queued line) so it always shows,
     // independent of the output animation cursor. Its onDone runs the

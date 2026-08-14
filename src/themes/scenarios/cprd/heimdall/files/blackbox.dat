@@ -5,7 +5,7 @@ crackable: false
 tracer: true
 crackFailMessage: FEDERAL ENCRYPTION. ATTEMPT FLAGGED TO INTERNAL AFFAIRS.
 decryptLabel: FEDERAL CERTIFICATE EXCHANGE
-decryptTime: 2500
+decryptTime: 3600
 ---
 // NETWATCH INTERNAL — OPERATION PHARMAKOS //
 
