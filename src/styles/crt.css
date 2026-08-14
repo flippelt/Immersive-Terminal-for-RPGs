@@ -1028,69 +1028,115 @@
   50% { opacity: 0.9; }
 }
 
-/* === Trace caught climax (FOUND YOU) === */
+/* === Trace caught climax (FOUND YOU) ===
+   ICE colors are fixed (magenta/cyan), not theme --error — CPRD's error
+   is yellow and would turn the hit into a warning, not a trace lock. */
 .caught {
+  --caught: #ff2bd6;
+  --caught-ice: #00ffff;
   position: fixed;
   inset: 0;
   z-index: 100;
 }
 .caught--final {
-  background: #000;
+  background: #050010;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 .caught__popup {
   position: absolute;
-  padding: 10px 16px;
-  background: #000;
-  color: var(--error, #ff3b3b);
-  border: 2px solid var(--error, #ff3b3b);
+  padding: 8px 14px;
+  background: #0a0014;
+  color: var(--caught);
+  border: 1px solid var(--caught);
   font-family: var(--font), monospace;
   font-weight: bold;
-  font-size: 1.15rem;
-  letter-spacing: 1px;
+  font-size: 1.05rem;
+  letter-spacing: 2px;
   white-space: nowrap;
-  box-shadow: 0 0 22px color-mix(in srgb, var(--error, #ff3b3b) 60%, transparent);
-  animation: caught-pop 0.12s ease-out;
+  clip-path: polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px);
+  text-shadow:
+    -1px 0 var(--caught-ice),
+    1px 0 var(--caught);
+  box-shadow:
+    0 0 18px color-mix(in srgb, var(--caught) 55%, transparent),
+    inset 0 0 12px color-mix(in srgb, var(--caught) 18%, transparent);
+  animation: caught-pop 0.16s ease-out;
+}
+.caught__popup--invert {
+  background: var(--caught);
+  color: #0a0014;
+  text-shadow: none;
+  box-shadow: 0 0 22px var(--caught);
 }
 @keyframes caught-pop {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from { opacity: 0; filter: blur(2px); }
+  to { opacity: 1; filter: none; }
 }
 .caught__final {
+  position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: clamp(12px, 3vh, 32px);
+  gap: clamp(14px, 3vh, 36px);
   text-align: center;
-  color: var(--error, #ff3b3b);
+  color: var(--caught);
   font-family: var(--font), monospace;
-  text-shadow: 0 0 18px currentColor;
+}
+.caught__scan {
+  position: absolute;
+  inset: -40vh -20vw;
+  pointer-events: none;
+  background:
+    repeating-linear-gradient(
+      to bottom,
+      transparent 0,
+      transparent 2px,
+      rgba(0, 0, 0, 0.35) 3px,
+      rgba(0, 0, 0, 0.35) 3px
+    );
+  mix-blend-mode: multiply;
+}
+.caught__tag {
+  font-size: clamp(0.7rem, 1.6vw, 0.95rem);
+  letter-spacing: 0.45em;
+  color: var(--caught-ice);
+  text-shadow: 0 0 10px var(--caught-ice);
 }
 .caught__text {
+  position: relative;
   font-size: clamp(2.4rem, 12vw, 7rem);
   font-weight: bold;
-  letter-spacing: 0.15em;
+  letter-spacing: 0.16em;
   white-space: pre;
   line-height: 1;
+  color: #fff;
+  text-shadow:
+    -3px 0 var(--caught),
+    3px 0 var(--caught-ice),
+    0 0 28px var(--caught);
 }
 .caught__smiley {
   font-size: clamp(3rem, 16vw, 9rem);
   line-height: 1;
-  animation: caught-throb 1.1s ease-in-out infinite;
+  animation: caught-throb 1.4s ease-in-out infinite;
 }
-/* Drawn menacing face — perfectly centered, with a red glow. */
 .caught__face {
   display: block;
-  width: clamp(120px, 26vw, 240px);
+  width: clamp(130px, 24vw, 220px);
   height: auto;
-  filter: drop-shadow(0 0 16px currentColor);
+  color: var(--caught);
+  filter:
+    drop-shadow(-2px 0 var(--caught-ice))
+    drop-shadow(2px 0 var(--caught))
+    drop-shadow(0 0 14px var(--caught));
+  animation: caught-throb 1.4s ease-in-out infinite;
 }
 @keyframes caught-throb {
   0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.1) rotate(-2deg); }
+  50% { transform: scale(1.06); }
 }
 
 /* Monitor powering off: collapse to a bright line, then a dot, then black. */
@@ -1499,6 +1545,7 @@
   .tracer--done,
   .caught__popup,
   .caught__smiley,
+  .caught__face,
   .caught__off,
   .ice-alert__title,
   .tracer-vignette,
