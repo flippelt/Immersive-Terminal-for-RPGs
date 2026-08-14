@@ -17,12 +17,6 @@ function EvilSmile() {
         strokeWidth="6"
         strokeLinecap="round"
       />
-      <path
-        d="M78 86 L82 98 L88 84"
-        fill="currentColor"
-        stroke="currentColor"
-        strokeWidth="1"
-      />
     </svg>
   )
 }
