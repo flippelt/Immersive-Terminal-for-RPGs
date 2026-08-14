@@ -1,17 +1,28 @@
 import { useEffect, useRef, useState } from 'react'
 import { playGlitch, playPowerOff } from '../audio/sfx.js'
 
-// Lock-on reticle — not a face. Same ICE palette as the FOUND YOU line.
-function IceLock() {
+// Evil smiley — circle, furrowed brows, wide grin. Same ICE palette as the type.
+function EvilSmile() {
   return (
     <svg className="caught__smiley caught__face" viewBox="0 0 120 120" aria-hidden="true">
-      <circle cx="60" cy="60" r="28" fill="none" stroke="currentColor" strokeWidth="1.5" opacity="0.55" />
-      <circle cx="60" cy="60" r="4" fill="currentColor" />
-      <path d="M60 8 V28 M60 92 V112 M8 60 H28 M92 60 H112" stroke="currentColor" strokeWidth="2" />
-      <path d="M18 18 H38 V38" fill="none" stroke="currentColor" strokeWidth="3" />
-      <path d="M102 18 H82 V38" fill="none" stroke="currentColor" strokeWidth="3" />
-      <path d="M18 102 H38 V82" fill="none" stroke="currentColor" strokeWidth="3" />
-      <path d="M102 102 H82 V82" fill="none" stroke="currentColor" strokeWidth="3" />
+      <circle cx="60" cy="60" r="50" fill="none" stroke="currentColor" strokeWidth="5" />
+      <path d="M28 36 L48 48" stroke="currentColor" strokeWidth="6" strokeLinecap="round" />
+      <path d="M92 36 L72 48" stroke="currentColor" strokeWidth="6" strokeLinecap="round" />
+      <circle cx="42" cy="56" r="5" fill="currentColor" />
+      <circle cx="78" cy="56" r="5" fill="currentColor" />
+      <path
+        d="M26 70 Q60 112 94 70"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="6"
+        strokeLinecap="round"
+      />
+      <path
+        d="M78 86 L82 98 L88 84"
+        fill="currentColor"
+        stroke="currentColor"
+        strokeWidth="1"
+      />
     </svg>
   )
 }
@@ -19,7 +30,7 @@ function IceLock() {
 // The "you ran out of time" climax (config-driven; currently only Cyberpunk
 // ships a `tracer.caught`). A burst of FOUND YOU popups scatters across the
 // screen, then a black takeover types the final line letter-by-letter, a
-// lock-on reticle lands, holds, the monitor "powers off", and the console reboots.
+// evil smiley lands, holds, the monitor "powers off", and the console reboots.
 export default function TraceCaught({ config = {}, onReboot }) {
   const popupMsgs = config.popups ?? ['FOUND YOU!']
   const popupCount = config.popupCount ?? 14
@@ -144,7 +155,7 @@ export default function TraceCaught({ config = {}, onReboot }) {
             (config.smiley ? (
               <span className="caught__smiley">{config.smiley}</span>
             ) : (
-              <IceLock />
+              <EvilSmile />
             ))}
         </div>
       )}

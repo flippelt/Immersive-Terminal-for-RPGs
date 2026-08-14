@@ -1125,13 +1125,14 @@
 }
 .caught__face {
   display: block;
-  width: clamp(96px, 16vw, 160px);
+  width: clamp(120px, 22vw, 220px);
   height: auto;
-  color: var(--caught-ice);
+  color: var(--caught);
   filter:
-    drop-shadow(-1px 0 var(--caught))
-    drop-shadow(1px 0 var(--caught-ice))
-    drop-shadow(0 0 10px var(--caught-ice));
+    drop-shadow(-2px 0 var(--caught-ice))
+    drop-shadow(2px 0 var(--caught))
+    drop-shadow(0 0 16px var(--caught));
+  animation: caught-throb 1.4s ease-in-out infinite;
 }
 @keyframes caught-throb {
   0%, 100% { transform: scale(1); }
