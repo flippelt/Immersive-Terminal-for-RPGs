@@ -36,8 +36,6 @@ function applyThemeCssVars(theme) {
   root.style.setProperty('--flicker', String(crt.flicker ?? 1))
   root.style.setProperty('--curve', `${crt.curve ?? 0.6}deg`)
   root.style.setProperty('--bloom', String(crt.bloom ?? 1))
-  root.style.setProperty('--bezel', crt.bezel ?? '#1a1a1a')
-  root.style.setProperty('--bezel-hi', crt.bezelHi ?? '#2e2e2e')
   root.style.setProperty('--led', crt.led ?? p.fg ?? '#33ff33')
   const themeColor = document.querySelector('meta[name="theme-color"]')
   if (themeColor) themeColor.setAttribute('content', p.bg ?? '#000')
@@ -291,33 +289,27 @@ export default function App() {
 
   return (
     <div className="crt">
-      <div className="crt__bezel">
-        <div className="chrome">
-          <span>{theme.header}</span>
-          <span className="chrome__right">
-            {gmMode && <span className="chrome__gm">★ GM</span>}
-            {theme.custom && <span className="chrome__demo">CUSTOM</span>}
-          </span>
-        </div>
-        <div className="crt__screen">
-          <Terminal
-            theme={theme}
-            themes={THEMES}
-            lang={lang}
-            onSwitchTheme={setTheme}
-            onSwitchScenario={switchScenario}
-            onLoadScenarioUrl={loadScenarioUrl}
-            onOpenScenarioPaste={openScenarioPaste}
-            onShareScenario={shareScenario}
-            gmMode={gmMode}
-            onToggleGm={toggleGm}
-          />
-          <div className="crt__vignette" />
-        </div>
-        {theme.crt?.plate && (
-          <div className="crt__plate" aria-hidden="true">{theme.crt.plate}</div>
-        )}
-        <span className="crt__led" aria-hidden="true" />
+      <div className="chrome">
+        <span>{theme.header}</span>
+        <span className="chrome__right">
+          {gmMode && <span className="chrome__gm">★ GM</span>}
+          {theme.custom && <span className="chrome__demo">CUSTOM</span>}
+        </span>
+      </div>
+      <div className="crt__screen">
+        <Terminal
+          theme={theme}
+          themes={THEMES}
+          lang={lang}
+          onSwitchTheme={setTheme}
+          onSwitchScenario={switchScenario}
+          onLoadScenarioUrl={loadScenarioUrl}
+          onOpenScenarioPaste={openScenarioPaste}
+          onShareScenario={shareScenario}
+          gmMode={gmMode}
+          onToggleGm={toggleGm}
+        />
+        <div className="crt__vignette" />
       </div>
       <ThemeSwitcher
         themes={THEMES}
