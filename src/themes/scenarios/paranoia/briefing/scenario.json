@@ -1,0 +1,47 @@
+{
+  "id": "briefing",
+  "name": "Mandatory Happiness Briefing",
+  "motd": [
+    "THE COMPUTER IS YOUR FRIEND.",
+    "your current clone is #4. do not waste it.",
+    "today's assigned mission is in the briefing file.",
+    "",
+    "try: `cat briefing.md`, `ls sector`, `loyalty`"
+  ],
+  "commands": {
+    "loyalty": [
+      "LOYALTY INDEX: 71 / 100",
+      "status: adequate. additional volunteering is encouraged.",
+      "remember: unhappiness is treason."
+    ],
+    "confess": [
+      "CONFESSION LOGGED.",
+      "the computer appreciates your honesty.",
+      "a replacement clone has been queued, just in case."
+    ]
+  },
+  "i18n": {
+    "pt": {
+      "name": "Briefing obrigatório de felicidade",
+      "motd": [
+        "O COMPUTADOR É SEU AMIGO.",
+        "seu clone atual é o #4. não o desperdice.",
+        "a missão de hoje está no arquivo de briefing.",
+        "",
+        "tente: `cat briefing.md`, `ls sector`, `loyalty`"
+      ],
+      "commands": {
+        "loyalty": [
+          "ÍNDICE DE LEALDADE: 71 / 100",
+          "status: adequado. voluntariado extra é encorajado.",
+          "lembre-se: infelicidade é traição."
+        ],
+        "confess": [
+          "CONFISSÃO REGISTRADA.",
+          "o Computador agradece a honestidade.",
+          "um clone reserva já foi enfileirado, por precaução."
+        ]
+      }
+    }
+  }
+}

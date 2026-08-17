@@ -28,9 +28,12 @@ npm run dev        # http://localhost:5173
 
 ## Adicionando um cenário
 
-Um **tema** é a skin (cores, fonte, banner, sons) — 8 já vêm do engine
-(`alien`, `lancer`, `br`, `wh40k`, `fallout`, `cprd`, `dataslate`, `ibm`).
-Um **cenário** é o conteúdo da campanha e fica neste repo.
+Um **tema** é a skin (cores, fonte, banner, sons) — os universos vêm do
+engine (`alien`, `lancer`, `br`, `wh40k`, `fallout`, `cprd`, `ibm`,
+`paranoia`, `expanse`, `eclipse`). `dataslate` é um aparelho do Império
+(`wh40k`), não um chip separado. Um **cenário** é o conteúdo da campanha
+e fica neste repo. Use `"device": "cogitator"` ou `"device": "dataslate"`
+no `scenario.json` do Império para escolher o visual.
 
 1. Crie a pasta `src/themes/scenarios/<tema>/<cenário>/`:
    - `scenario.json` — `motd`, `commands`, e opcionalmente `login` / `events` / `tracer` / `dialog`.
