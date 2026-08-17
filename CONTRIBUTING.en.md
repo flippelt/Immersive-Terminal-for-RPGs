@@ -28,9 +28,12 @@ npm run dev        # http://localhost:5173
 
 ## Adding a scenario
 
-A **theme** is the skin (colors, font, banner, sound) — eight already ship from
-the engine (`alien`, `lancer`, `br`, `wh40k`, `fallout`, `cprd`, `dataslate`,
-`ibm`). A **scenario** is the campaign content and lives in this repo.
+A **theme** is the skin (colors, font, banner, sound) — universes ship from
+the engine (`alien`, `lancer`, `br`, `wh40k`, `fallout`, `cprd`, `ibm`,
+`paranoia`, `expanse`, `eclipse`). `dataslate` is an Imperium (`wh40k`)
+device, not a separate chip. A **scenario** is the campaign content and
+lives in this repo. Set `"device": "cogitator"` or `"device": "dataslate"`
+on an Imperium `scenario.json` to pick the look.
 
 1. Create the folder `src/themes/scenarios/<theme>/<scenario>/`:
    - `scenario.json` — `motd`, `commands`, and optionally `login` / `events` / `tracer` / `dialog`.

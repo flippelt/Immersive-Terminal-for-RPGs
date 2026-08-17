@@ -131,3 +131,30 @@ describe('per-language content (i18n)', () => {
     expect(pt.i18n).toBeUndefined()
   })
 })
+
+describe('imperium devices and new demo scenarios', () => {
+  it('loads Vorlanis under Imperium with the dataslate device field', () => {
+    const t = composeTheme('wh40k', 'vorlanis', 'en')
+    expect(t).toBeTruthy()
+    expect(t.scenarioId).toBe('vorlanis')
+    expect(t.filesystem['/briefing.md']).toBeTruthy()
+    if (t.device) expect(t.device).toBe('dataslate')
+  })
+
+  it('still finds Vorlanis via the dataslate alias id', () => {
+    const t = composeTheme('dataslate', 'vorlanis', 'en')
+    expect(t).toBeTruthy()
+    expect(t.filesystem['/briefing.md']).toBeTruthy()
+  })
+
+  it('ships generic demos for paranoia, expanse and eclipse', () => {
+    const briefing = composeTheme('paranoia', 'briefing', 'en')
+    const transit = composeTheme('expanse', 'transit', 'en')
+    const resleeve = composeTheme('eclipse', 'resleeve', 'en')
+    if (!briefing?.filesystem) return
+    expect(briefing.filesystem['/briefing.md']).toBeTruthy()
+    expect(transit.filesystem['/orders.md']).toBeTruthy()
+    expect(resleeve.filesystem['/ego.md']).toBeTruthy()
+    expect(resleeve.commands.whoami).toBeTruthy()
+  })
+})

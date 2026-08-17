@@ -51,7 +51,8 @@ function initialSelection() {
     (saved && THEME_BY_ID[saved]?.id) ||
     DEFAULT_THEME.id
   // null scenario -> composeTheme falls back to the theme's defaultScenario.
-  return { themeId, scenarioId: urlScenario || null }
+  const urlDevice = params.get('device')
+  return { themeId, scenarioId: urlScenario || null, deviceId: urlDevice || null }
 }
 
 export default function App() {
@@ -114,10 +115,10 @@ export default function App() {
       try {
         return composeCustomScenario(customBundle, lang)
       } catch {
-        return composeTheme(sel.themeId, sel.scenarioId, lang)
+        return composeTheme(sel.themeId, sel.scenarioId, lang, {}, sel.deviceId)
       }
     }
-    return composeTheme(sel.themeId, sel.scenarioId, lang)
+    return composeTheme(sel.themeId, sel.scenarioId, lang, {}, sel.deviceId)
   }, [customBundle, sel, lang])
 
   const dropCustom = useCallback(() => {
@@ -128,13 +129,25 @@ export default function App() {
     // Switching theme resets to that theme's default scenario and drops
     // any custom scenario that was loaded.
     dropCustom()
-    setSel({ themeId: themeSkin.id, scenarioId: null })
+    if (themeSkin.aliasOf) {
+      setSel({ themeId: themeSkin.aliasOf, scenarioId: null, deviceId: themeSkin.device ?? null })
+      return
+    }
+    if (themeSkin.id === 'dataslate') {
+      setSel({ themeId: 'wh40k', scenarioId: null, deviceId: 'dataslate' })
+      return
+    }
+    setSel({ themeId: themeSkin.id, scenarioId: null, deviceId: null })
   }, [dropCustom])
 
   const switchScenario = useCallback((scenarioId) => {
     dropCustom()
-    setSel((s) => ({ ...s, scenarioId }))
+    setSel((s) => ({ ...s, scenarioId, deviceId: null }))
   }, [dropCustom])
+
+  const switchDevice = useCallback((deviceId) => {
+    setSel((s) => ({ ...s, deviceId }))
+  }, [])
 
   // Custom-scenario loading (URL, pasted JSON, or share link). Composing
   // throws on a malformed bundle; callers surface the message.
@@ -302,6 +315,7 @@ export default function App() {
           themes={THEMES}
           lang={lang}
           onSwitchTheme={setTheme}
+          onSwitchDevice={switchDevice}
           onSwitchScenario={switchScenario}
           onLoadScenarioUrl={loadScenarioUrl}
           onOpenScenarioPaste={openScenarioPaste}

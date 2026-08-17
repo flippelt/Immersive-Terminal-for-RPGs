@@ -9,6 +9,7 @@ import {
   composeTheme as engineComposeTheme,
   composeCustomScenario
 } from 'rpgterm-engine'
+import * as engine from 'rpgterm-engine'
 
 // A THEME is a skin (palette, font, banner, sounds, boot, locks defaults).
 // A SCENARIO is a campaign that plugs into a theme. Its layout on disk:
@@ -87,20 +88,36 @@ export function loadedScenario(themeId, scenarioId) {
 // Resolve a repo scenario id (falling back to the skin's default) and let
 // the engine apply i18n + merge the skin. `defaultScenarioOverrides` lets a
 // private host (rpgterm) pin a table campaign without forking compose.
-export function composeTheme(themeId, scenarioId, lang = 'en', defaultScenarioOverrides = {}) {
-  const base = THEME_REGISTRY[themeId]
-  if (!base) return null
-  const available = SCENARIOS[themeId] ?? {}
-  const override = defaultScenarioOverrides[themeId]
-  const fallback = override && available[override] ? override : base.defaultScenario
+// Host-side alias so `?theme=dataslate` still finds Vorlanis after the
+// folder moved under wh40k, even on engine 0.2.1 (no resolveThemeRef yet).
+const HOST_THEME_ALIASES = {
+  dataslate: { themeId: 'wh40k', device: 'dataslate' }
+}
+
+export function composeTheme(themeId, scenarioId, lang = 'en', defaultScenarioOverrides = {}, deviceId = null) {
+  const resolveThemeRef = engine.resolveThemeRef
+  const ref = (typeof resolveThemeRef === 'function' ? resolveThemeRef(themeId) : null)
+    ?? HOST_THEME_ALIASES[themeId]
+    ?? { themeId, device: null }
+  if (!THEME_REGISTRY[ref.themeId]) return null
+  const available = {
+    ...(SCENARIOS[ref.themeId] ?? {}),
+    ...(SCENARIOS[themeId] ?? {})
+  }
+  const override = defaultScenarioOverrides[ref.themeId] ?? defaultScenarioOverrides[themeId]
+  const fallback = override && available[override] ? override : THEME_REGISTRY[ref.themeId].defaultScenario
   const sid = available[scenarioId] ? scenarioId : fallback
   const raw = available[sid] ?? {}
-  return engineComposeTheme(themeId, { ...raw, id: raw.id ?? sid ?? null }, lang)
+  return engineComposeTheme(ref.themeId, {
+    ...raw,
+    id: raw.id ?? sid ?? null,
+    device: deviceId ?? raw.device ?? ref.device ?? null
+  }, lang)
 }
 
 export { composeCustomScenario }
 
 // Every theme is always available — no curated demo subset.
 export const THEMES = THEME_LIST
-export const THEME_BY_ID = Object.fromEntries(THEMES.map((t) => [t.id, t]))
+export const THEME_BY_ID = THEME_REGISTRY
 export const DEFAULT_THEME = THEMES[0] ?? THEME_LIST[0]

@@ -1,0 +1,51 @@
+{
+  "id": "resleeve",
+  "name": "Resleeve — mesh node 14",
+  "motd": [
+    "mesh node 14 — ego authenticated.",
+    "you are not your morph.",
+    "",
+    "try: `cat ego.md`, `ls mesh`, `resleeve`"
+  ],
+  "commands": {
+    "whoami": [
+      "ego: authenticated (backup 11h stale)",
+      "morph: rented splicer, hab ring 2",
+      "forks: 1 queued, unmerged",
+      "XP: 14"
+    ],
+    "resleeve": [
+      "available morphs at this hab:",
+      "  - splicer (default, rented)",
+      "  - synth (warehouse, scratched)",
+      "  - infomorph (no body; mesh only)",
+      "resleeve is a narrative beat — pick one at the table."
+    ]
+  },
+  "i18n": {
+    "pt": {
+      "name": "Resleeve — nó mesh 14",
+      "motd": [
+        "nó mesh 14 — ego autenticado.",
+        "você não é o seu morph.",
+        "",
+        "tente: `cat ego.md`, `ls mesh`, `resleeve`"
+      ],
+      "commands": {
+        "whoami": [
+          "ego: autenticado (backup 11h atrasado)",
+          "morph: splicer alugado, anel 2 do hab",
+          "forks: 1 na fila, sem merge",
+          "XP: 14"
+        ],
+        "resleeve": [
+          "morphs disponíveis neste hab:",
+          "  - splicer (padrão, alugado)",
+          "  - synth (depósito, riscados)",
+          "  - infomorph (sem corpo; só mesh)",
+          "resleeve é um beat narrativo — escolha na mesa."
+        ]
+      }
+    }
+  }
+}

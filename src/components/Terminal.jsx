@@ -80,6 +80,7 @@ export default function Terminal({
   themes,
   lang = 'en',
   onSwitchTheme,
+  onSwitchDevice,
   onSwitchScenario,
   onLoadScenarioUrl,
   onOpenScenarioPaste,
@@ -250,6 +251,15 @@ export default function Terminal({
       return true
     },
     [themes, onSwitchTheme]
+  )
+
+  const switchDevice = useCallback(
+    (id) => {
+      if (!theme.devices?.[id]) return false
+      onSwitchDevice?.(id)
+      return true
+    },
+    [theme, onSwitchDevice]
   )
 
   const unlock = useCallback((path) => {
@@ -654,6 +664,7 @@ export default function Terminal({
         clear,
         reboot,
         switchTheme,
+        switchDevice,
         unlocked,
         unlock,
         resetProgress,
@@ -708,7 +719,7 @@ export default function Terminal({
       // pad with a blank line so the next prompt isn't stuck against output.
       if (!fail) push([{ text: '', instant: true }])
     },
-    [theme, themes, cwd, push, clear, reboot, switchTheme, unlocked, unlock, resetProgress, openPasswordPrompt, openCrackPrompt, openCheckPrompt, openDecryptGame, openSelfDestruct, tripTracer, flagRescan, evadeTracer, resolveDecryptTarget, lang, checkResults, crackAttempts, gmMode, onToggleGm, onSwitchScenario, onLoadScenarioUrl, onOpenScenarioPaste, onShareScenario, openFileViewer, showFailureFromDirective]
+    [theme, themes, cwd, push, clear, reboot, switchTheme, switchDevice, unlocked, unlock, resetProgress, openPasswordPrompt, openCrackPrompt, openCheckPrompt, openDecryptGame, openSelfDestruct, tripTracer, flagRescan, evadeTracer, resolveDecryptTarget, lang, checkResults, crackAttempts, gmMode, onToggleGm, onSwitchScenario, onLoadScenarioUrl, onOpenScenarioPaste, onShareScenario, openFileViewer, showFailureFromDirective]
   )
 
   const inputReady = animIdx >= history.length

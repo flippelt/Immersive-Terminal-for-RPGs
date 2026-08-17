@@ -1,6 +1,7 @@
 {
   "id": "mechanicus-archive",
   "name": "Magos' archive — STC fragments",
+  "device": "cogitator",
   "tracer": {
     "seconds": 30,
     "penalty": 7,

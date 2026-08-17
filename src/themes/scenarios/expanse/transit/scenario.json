@@ -1,0 +1,45 @@
+{
+  "id": "transit",
+  "name": "Belt transit — CIC watch",
+  "motd": [
+    "UNN CIC — you have the deck.",
+    "epstein idle. belt traffic on secondary.",
+    "",
+    "try: `cat orders.md`, `ls nav`, `sitrep`"
+  ],
+  "commands": {
+    "sitrep": [
+      "DRIVE: idle (coolant in spec)",
+      "BEARING: belt inbound, 14 hours to Ceres control",
+      "CONTACTS: 2 rocks, 1 unregistered torch (far)",
+      "CREW: 6 on watch, 2 in rack"
+    ],
+    "hail": [
+      "tightbeam open — no handshake.",
+      "whoever is out there is not answering UNN codes."
+    ]
+  },
+  "i18n": {
+    "pt": {
+      "name": "Trânsito do cinturão — vigia do CIC",
+      "motd": [
+        "UNN CIC — o convés é seu.",
+        "epstein em idle. tráfego do cinturão no secundário.",
+        "",
+        "tente: `cat orders.md`, `ls nav`, `sitrep`"
+      ],
+      "commands": {
+        "sitrep": [
+          "MOTOR: idle (coolant no spec)",
+          "RUMO: cinturão inbound, 14 horas até o controle de Ceres",
+          "CONTATOS: 2 rochas, 1 tocha sem registro (longe)",
+          "TRIPULAÇÃO: 6 de vigia, 2 no beliche"
+        ],
+        "hail": [
+          "tightbeam aberto — sem handshake.",
+          "quem está lá fora não responde códigos UNN."
+        ]
+      }
+    }
+  }
+}

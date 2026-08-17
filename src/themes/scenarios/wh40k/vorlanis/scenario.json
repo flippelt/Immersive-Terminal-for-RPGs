@@ -1,6 +1,7 @@
 {
   "id": "vorlanis",
   "name": "Cadian 412th — Vorlanis Secundus",
+  "device": "dataslate",
   "tracer": {
     "seconds": 30,
     "penalty": 7,
