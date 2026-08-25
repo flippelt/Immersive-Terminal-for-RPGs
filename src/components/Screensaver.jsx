@@ -11,7 +11,7 @@ import { useEffect, useRef } from 'react'
 
 const MATRIX_CHARS = 'アイウエオカキクケコ0123456789ABCDEF<>/\\[]{}#$%&*+='
 // Original was 20 rows/s at ~20fps. Painted every refresh.
-const MATRIX_ROWS_PER_SEC = 9.75
+const MATRIX_ROWS_PER_SEC = 10.5
 const MATRIX_FADE_PER_SEC = 1.8
 
 function makeEffect(name, ctx, w, h, fg, label) {
