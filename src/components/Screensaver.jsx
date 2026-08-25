@@ -12,7 +12,7 @@ import { useEffect, useRef } from 'react'
 const MATRIX_CHARS = 'アイウエオカキクケコ0123456789ABCDEF<>/\\[]{}#$%&*+='
 // Original was 20 rows/s at ~20fps. Painted every refresh.
 const MATRIX_ROWS_PER_SEC = 10.5
-const MATRIX_FADE_PER_SEC = 1.8
+const MATRIX_TRAIL_SEC = 1.8
 
 function makeEffect(name, ctx, w, h, fg, label) {
   const fade = (a = 0.09) => {
@@ -27,27 +27,40 @@ function makeEffect(name, ctx, w, h, fg, label) {
       const pick = () => MATRIX_CHARS[(Math.random() * MATRIX_CHARS.length) | 0]
       const drops = Array.from({ length: cols }, () => ({
         y: Math.random() * -60,
-        ch: pick(),
-        row: -1e9
+        trail: []
       }))
       let lastT = 0
       return (t) => {
         const dt = lastT ? Math.min((t - lastT) / 1000, 0.05) : 1 / 60
         lastT = t
-        fade(Math.min(0.2, MATRIX_FADE_PER_SEC * dt))
-        ctx.fillStyle = fg
+        ctx.fillStyle = '#000'
+        ctx.fillRect(0, 0, w, h)
         ctx.font = `${fs}px monospace`
+        ctx.fillStyle = fg
         for (let i = 0; i < cols; i++) {
           const d = drops[i]
+          const prevRow = Math.floor(d.y)
           d.y += MATRIX_ROWS_PER_SEC * dt
           const row = Math.floor(d.y)
-          if (row !== d.row) {
-            d.ch = pick()
-            d.row = row
+          if (row > prevRow) {
+            const from = Math.max(0, prevRow + 1)
+            for (let r = from; r <= row; r++) d.trail.push({ ch: pick(), row: r, age: 0 })
             if (d.y * fs > h && Math.random() > 0.975) d.y = 0
           }
-          if (row >= 0) ctx.fillText(d.ch, i * fs, row * fs)
+          const x = i * fs
+          for (let k = d.trail.length - 1; k >= 0; k--) {
+            const g = d.trail[k]
+            g.age += dt
+            const a = 1 - g.age / MATRIX_TRAIL_SEC
+            if (a <= 0) {
+              d.trail.splice(k, 1)
+              continue
+            }
+            ctx.globalAlpha = a
+            ctx.fillText(g.ch, x, g.row * fs)
+          }
         }
+        ctx.globalAlpha = 1
       }
     }
     case 'rain': {
