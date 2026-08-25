@@ -72,7 +72,13 @@ function easeOut(linear) {
 // ms and calls onDone when it completes. Cinematic replacement for the
 // old inline bar. Coexists with corner popups; the password/roll dialog
 // has already closed by the time this shows.
-export default function ProgressModal({ label, duration = 5000, t = makeT('en'), onDone }) {
+export default function ProgressModal({
+  label,
+  duration = 5000,
+  jitter = true,
+  t = makeT('en'),
+  onDone
+}) {
   const labelText = label ?? t('modal.progress.label')
   const [pct, setPct] = useState(0)
   const [spin, setSpin] = useState(0)
@@ -82,7 +88,7 @@ export default function ProgressModal({ label, duration = 5000, t = makeT('en'),
   useEffect(() => {
     const dur = Math.max(200, duration)
     const reduce = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
-    const schedule = reduce ? null : buildProgressSchedule(dur)
+    const schedule = reduce || !jitter ? null : buildProgressSchedule(dur)
     const start = performance.now()
     let raf
     const spinIv = setInterval(() => setSpin((s) => (s + 1) % SPINNER.length), 90)
@@ -105,7 +111,7 @@ export default function ProgressModal({ label, duration = 5000, t = makeT('en'),
       cancelAnimationFrame(raf)
       clearInterval(spinIv)
     }
-  }, [duration])
+  }, [duration, jitter])
 
   const done = pct >= 100
   const spinner = done ? '✓' : SPINNER[spin]

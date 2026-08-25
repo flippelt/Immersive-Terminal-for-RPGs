@@ -65,6 +65,7 @@ const toLine = (l) => ({
   instant: !!l.instant,
   duration: l.duration,
   label: l.label,
+  jitter: l.jitter,
   onComplete: l.onComplete,
   // countdown fields
   from: l.from,
@@ -527,6 +528,7 @@ export default function Terminal({
         // player sees what they just unlocked without having to type `cat`.
         const onUnlock = (p) => { unlock(p); openFileViewer(p, node) }
         const lines = buildDecryptLines(theme, path, node, value, onUnlock, theme.filesystem, tRef.current)
+          .map((l) => (l.type === 'progress' ? { ...l, jitter: false } : l))
         // Wrong key surfaces as a quick failure popup (history lines + any
         // side effects run on dismissal, not while the player is reading it).
         const fail = lines.find((l) => l.type === 'failure')
@@ -714,7 +716,16 @@ export default function Terminal({
       const printable = out.filter(
         (l) => l.type !== 'fileview' && l.type !== 'helpview' && l.type !== 'failure'
       )
-      if (printable.length) push(printable)
+      if (printable.length) {
+        const token = raw.trim().split(/\s+/)[0]?.toLowerCase() ?? ''
+        const cmd = theme.aliases?.[token] ?? token
+        // `unlock` shares the decrypt progress line; keep that bar smooth.
+        push(
+          cmd === 'unlock'
+            ? printable.map((l) => (l.type === 'progress' ? { ...l, jitter: false } : l))
+            : printable
+        )
+      }
       // A failure popup defers its own trailing blank to onClose; otherwise
       // pad with a blank line so the next prompt isn't stuck against output.
       if (!fail) push([{ text: '', instant: true }])
@@ -792,6 +803,7 @@ export default function Terminal({
           key={progressLine.id}
           label={progressLine.label}
           duration={progressLine.duration}
+          jitter={progressLine.jitter !== false}
           t={tRef.current}
           onDone={advance}
         />
