@@ -10,6 +10,9 @@ import { useEffect, useRef } from 'react'
 //   bounce    DVD-style label      (Fallout)
 
 const MATRIX_CHARS = 'アイウエオカキクケコ0123456789ABCDEF<>/\\[]{}#$%&*+='
+// Original was 20 rows/s at ~20fps. A bit slower, painted every refresh.
+const MATRIX_ROWS_PER_SEC = 15
+const MATRIX_FADE_PER_SEC = 1.8
 
 function makeEffect(name, ctx, w, h, fg, label) {
   const fade = (a = 0.09) => {
@@ -21,15 +24,29 @@ function makeEffect(name, ctx, w, h, fg, label) {
     case 'matrix': {
       const fs = 16
       const cols = Math.ceil(w / fs)
-      const drops = Array.from({ length: cols }, () => Math.random() * -60)
-      return () => {
-        fade(0.09)
+      const pick = () => MATRIX_CHARS[(Math.random() * MATRIX_CHARS.length) | 0]
+      const drops = Array.from({ length: cols }, () => ({
+        y: Math.random() * -60,
+        ch: pick(),
+        row: -1e9
+      }))
+      let lastT = 0
+      return (t) => {
+        const dt = lastT ? Math.min((t - lastT) / 1000, 0.05) : 1 / 60
+        lastT = t
+        fade(Math.min(0.2, MATRIX_FADE_PER_SEC * dt))
         ctx.fillStyle = fg
         ctx.font = `${fs}px monospace`
         for (let i = 0; i < cols; i++) {
-          ctx.fillText(MATRIX_CHARS[(Math.random() * MATRIX_CHARS.length) | 0], i * fs, drops[i] * fs)
-          if (drops[i] * fs > h && Math.random() > 0.975) drops[i] = 0
-          drops[i]++
+          const d = drops[i]
+          d.y += MATRIX_ROWS_PER_SEC * dt
+          const row = Math.floor(d.y)
+          if (row !== d.row) {
+            d.ch = pick()
+            d.row = row
+            if (d.y * fs > h && Math.random() > 0.975) d.y = 0
+          }
+          if (row >= 0) ctx.fillText(d.ch, i * fs, row * fs)
         }
       }
     }
@@ -188,9 +205,9 @@ export default function Screensaver({ onWake, effect = 'starfield', label }) {
 
     const loop = (t) => {
       raf = requestAnimationFrame(loop)
-      if (t - last < 50) return
+      if (effect !== 'matrix' && t - last < 50) return
       last = t
-      frame()
+      frame(t)
     }
     raf = requestAnimationFrame(loop)
     return () => {
