@@ -2,6 +2,71 @@ import { useEffect, useRef, useState } from 'react'
 import { makeT } from '../i18n/ui.js'
 
 const SPINNER = ['|', '/', '-', '\\']
+const MIN_PAUSE_MS = 80
+
+function weights(n, rng, min = 0.35) {
+  const w = Array.from({ length: n }, () => min + rng())
+  const s = w.reduce((a, b) => a + b, 0)
+  return w.map((x) => x / s)
+}
+
+// Piecewise 0→100 curve with random bursts and holds. Pauses steal time
+// from movement so the bar still hits 100% at `duration`.
+export function buildProgressSchedule(duration, rng = Math.random) {
+  const T = Math.max(200, duration)
+  let pauseCount = 0
+  if (T >= 1000) pauseCount = 2 + Math.floor(rng() * 3)
+  else if (T >= 450) pauseCount = rng() < 0.55 ? 1 : 2
+
+  const runCount = pauseCount + 1
+  const pauseFrac = pauseCount === 0 ? 0 : 0.12 + rng() * 0.12
+  const pauseBudget = T * pauseFrac
+  const runBudget = T - pauseBudget
+  const runTimes = weights(runCount, rng).map((w) => runBudget * w)
+  const pauseTimes = pauseCount
+    ? weights(pauseCount, rng, 0.5).map((w) => pauseBudget * w)
+    : []
+
+  const finish = runCount === 1 ? 100 : 14 + rng() * 18
+  const early = 100 - finish
+  const progs =
+    runCount === 1
+      ? [100]
+      : [...weights(runCount - 1, rng, 0.25).map((w) => early * w), finish]
+
+  const pts = [{ t: 0, p: 0 }]
+  let t = 0
+  let p = 0
+  for (let i = 0; i < runCount; i++) {
+    t += runTimes[i]
+    p += progs[i]
+    pts.push({ t, p: i === runCount - 1 ? 100 : p })
+    if (i < pauseCount && pauseTimes[i] >= MIN_PAUSE_MS) {
+      t += pauseTimes[i]
+      pts.push({ t, p: pts[pts.length - 1].p })
+    }
+  }
+  pts[pts.length - 1].t = T
+  pts[pts.length - 1].p = 100
+  return pts
+}
+
+export function sampleProgress(pts, elapsed) {
+  const end = pts[pts.length - 1]
+  if (elapsed <= 0) return 0
+  if (elapsed >= end.t) return 100
+  let i = 1
+  while (i < pts.length && pts[i].t < elapsed) i++
+  const a = pts[i - 1]
+  const b = pts[i]
+  const span = b.t - a.t
+  if (span <= 0) return b.p
+  return a.p + (b.p - a.p) * ((elapsed - a.t) / span)
+}
+
+function easeOut(linear) {
+  return (1 - (1 - linear) ** 2) * 100
+}
 
 // Centered popup that runs a progress bar (crack/decrypt) for `duration`
 // ms and calls onDone when it completes. Cinematic replacement for the
@@ -16,15 +81,18 @@ export default function ProgressModal({ label, duration = 5000, t = makeT('en'),
 
   useEffect(() => {
     const dur = Math.max(200, duration)
+    const reduce = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
+    const schedule = reduce ? null : buildProgressSchedule(dur)
     const start = performance.now()
     let raf
     const spinIv = setInterval(() => setSpin((s) => (s + 1) % SPINNER.length), 90)
     const tick = () => {
-      const linear = Math.min(1, (performance.now() - start) / dur)
-      // Ease-out so the last stretch feels like a lock yielding.
-      const p = (1 - (1 - linear) ** 2) * 100
+      const elapsed = performance.now() - start
+      const p = schedule
+        ? sampleProgress(schedule, elapsed)
+        : easeOut(Math.min(1, elapsed / dur))
       setPct(p)
-      if (linear < 1) {
+      if (elapsed < dur) {
         raf = requestAnimationFrame(tick)
       } else {
         setPct(100)
