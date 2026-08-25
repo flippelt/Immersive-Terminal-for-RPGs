@@ -10,10 +10,9 @@ import { useEffect, useRef } from 'react'
 //   bounce    DVD-style label      (Fallout)
 
 const MATRIX_CHARS = 'アイウエオカキクケコ0123456789ABCDEF<>/\\[]{}#$%&*+='
-// One glyph-row every N ticks of the ~50ms loop (~6.7 rows/s). Fade is
-// scaled down so trails stay about as long as they were at full speed.
-const MATRIX_STEP_TICKS = 3
-const MATRIX_FADE = 0.03
+const MATRIX_MIN_SPEED = 16
+const MATRIX_MAX_SPEED = 24
+const MATRIX_FADE_PER_SEC = 1.2
 
 function makeEffect(name, ctx, w, h, fg, label) {
   const fade = (a = 0.09) => {
@@ -25,19 +24,30 @@ function makeEffect(name, ctx, w, h, fg, label) {
     case 'matrix': {
       const fs = 16
       const cols = Math.ceil(w / fs)
-      const rows = h / fs
-      const drops = Array.from({ length: cols }, () => Math.random() * rows)
-      let tick = 0
-      return () => {
-        fade(MATRIX_FADE)
-        tick = (tick + 1) % MATRIX_STEP_TICKS
-        if (tick) return
+      const pick = () => MATRIX_CHARS[(Math.random() * MATRIX_CHARS.length) | 0]
+      const drops = Array.from({ length: cols }, () => ({
+        y: Math.random() * -60,
+        v: MATRIX_MIN_SPEED + Math.random() * (MATRIX_MAX_SPEED - MATRIX_MIN_SPEED),
+        ch: pick(),
+        row: -1e9
+      }))
+      let lastT = 0
+      return (t) => {
+        const dt = lastT ? Math.min((t - lastT) / 1000, 0.05) : 1 / 60
+        lastT = t
+        fade(Math.min(0.2, MATRIX_FADE_PER_SEC * dt))
         ctx.fillStyle = fg
         ctx.font = `${fs}px monospace`
         for (let i = 0; i < cols; i++) {
-          ctx.fillText(MATRIX_CHARS[(Math.random() * MATRIX_CHARS.length) | 0], i * fs, drops[i] * fs)
-          if (drops[i] * fs > h && Math.random() > 0.975) drops[i] = 0
-          drops[i]++
+          const d = drops[i]
+          d.y += d.v * dt
+          const row = Math.floor(d.y)
+          if (row !== d.row) {
+            d.ch = pick()
+            d.row = row
+            if (d.y * fs > h && Math.random() > 0.975) d.y = Math.random() * -20
+          }
+          if (row >= 0) ctx.fillText(d.ch, i * fs, row * fs)
         }
       }
     }
@@ -196,9 +206,11 @@ export default function Screensaver({ onWake, effect = 'starfield', label }) {
 
     const loop = (t) => {
       raf = requestAnimationFrame(loop)
-      if (t - last < 50) return
+      // Matrix paints every refresh so the rain stays fluid; the other
+      // effects were tuned against the ~20fps throttle.
+      if (effect !== 'matrix' && t - last < 50) return
       last = t
-      frame()
+      frame(t)
     }
     raf = requestAnimationFrame(loop)
     return () => {
