@@ -10,6 +10,10 @@ import { useEffect, useRef } from 'react'
 //   bounce    DVD-style label      (Fallout)
 
 const MATRIX_CHARS = 'アイウエオカキクケコ0123456789ABCDEF<>/\\[]{}#$%&*+='
+// One glyph-row every N ticks of the ~50ms loop (~6.7 rows/s). Fade is
+// scaled down so trails stay about as long as they were at full speed.
+const MATRIX_STEP_TICKS = 3
+const MATRIX_FADE = 0.03
 
 function makeEffect(name, ctx, w, h, fg, label) {
   const fade = (a = 0.09) => {
@@ -21,9 +25,13 @@ function makeEffect(name, ctx, w, h, fg, label) {
     case 'matrix': {
       const fs = 16
       const cols = Math.ceil(w / fs)
-      const drops = Array.from({ length: cols }, () => Math.random() * -60)
+      const rows = h / fs
+      const drops = Array.from({ length: cols }, () => Math.random() * rows)
+      let tick = 0
       return () => {
-        fade(0.09)
+        fade(MATRIX_FADE)
+        tick = (tick + 1) % MATRIX_STEP_TICKS
+        if (tick) return
         ctx.fillStyle = fg
         ctx.font = `${fs}px monospace`
         for (let i = 0; i < cols; i++) {
