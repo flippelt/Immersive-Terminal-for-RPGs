@@ -4,35 +4,49 @@ import { makeT } from '../i18n/ui.js'
 const SPINNER = ['|', '/', '-', '\\']
 const MIN_PAUSE_MS = 80
 
-function weights(n, rng, min = 0.35) {
+function weights(n, rng, min = 0.12) {
   const w = Array.from({ length: n }, () => min + rng())
   const s = w.reduce((a, b) => a + b, 0)
   return w.map((x) => x / s)
 }
 
-// Piecewise 0→100 curve with random bursts and holds. Pauses steal time
-// from movement so the bar still hits 100% at `duration`.
+// Piecewise 0→100 curve with random bursts and holds. Each burst gets its
+// own fill rate (crawl ↔ zip); leftover time becomes uneven holds. The bar
+// still hits 100% at `duration`.
 export function buildProgressSchedule(duration, rng = Math.random) {
   const T = Math.max(200, duration)
-  let pauseCount = 0
-  if (T >= 1000) pauseCount = 2 + Math.floor(rng() * 3)
-  else if (T >= 450) pauseCount = rng() < 0.55 ? 1 : 2
+  let wantPauses = 0
+  if (T >= 1000) wantPauses = 2 + Math.floor(rng() * 3)
+  else if (T >= 450) wantPauses = rng() < 0.55 ? 1 : 2
 
-  const runCount = pauseCount + 1
-  const pauseFrac = pauseCount === 0 ? 0 : 0.12 + rng() * 0.12
+  // 8–42% of the timeline is holds when the fill is hurried; a crawl
+  // leaves much less. Fast bursts make room for long stalls.
+  const pauseFrac = wantPauses === 0 ? 0 : 0.08 + rng() * 0.34
   const pauseBudget = T * pauseFrac
+  const pauseCount =
+    wantPauses === 0 || pauseBudget < MIN_PAUSE_MS
+      ? 0
+      : Math.min(wantPauses, Math.floor(pauseBudget / MIN_PAUSE_MS))
+  const runCount = pauseCount + 1
   const runBudget = T - pauseBudget
-  const runTimes = weights(runCount, rng).map((w) => runBudget * w)
-  const pauseTimes = pauseCount
-    ? weights(pauseCount, rng, 0.5).map((w) => pauseBudget * w)
-    : []
 
-  const finish = runCount === 1 ? 100 : 14 + rng() * 18
+  const finish = runCount === 1 ? 100 : 12 + rng() * 20
   const early = 100 - finish
   const progs =
     runCount === 1
       ? [100]
-      : [...weights(runCount - 1, rng, 0.25).map((w) => early * w), finish]
+      : [...weights(runCount - 1, rng, 0.15).map((w) => early * w), finish]
+
+  // Rate per burst, ~0.28× to ~2.7×. runTime ∝ progress / rate, then
+  // scaled into runBudget so a zip and a crawl can sit on the same bar.
+  const rawRun = progs.map((dp) => dp / (0.28 + rng() * 2.4))
+  const rawSum = rawRun.reduce((a, b) => a + b, 0)
+  const runTimes = rawRun.map((x) => (x / rawSum) * runBudget)
+
+  const rest = pauseBudget - pauseCount * MIN_PAUSE_MS
+  const pauseTimes = pauseCount
+    ? weights(pauseCount, rng, 0.08).map((w) => MIN_PAUSE_MS + rest * w)
+    : []
 
   const pts = [{ t: 0, p: 0 }]
   let t = 0
