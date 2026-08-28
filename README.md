@@ -6,6 +6,12 @@
 
 ### → [**LIVE DEMO**](https://flippelt.github.io/Immersive-Terminal-for-RPGs/) ←
 
+## Screenshots
+
+![Cenário Heimdall aberto, `cat case.md`](docs/screenshots/scenario-load.png)
+
+![Crack em `voidchild.dat` com ICE TRACE ativo](docs/screenshots/crack-attempt.png)
+
 Um site que simula um terminal de console retrô (estilo *cool-retro-term*) para
 usar como prop em mesas de RPG. Troque de "sistema" e o visual, os textos e o
 conteúdo mudam por completo. O Mestre cria cenários editando só arquivos JSON.

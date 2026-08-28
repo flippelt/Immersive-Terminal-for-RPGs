@@ -4,6 +4,12 @@
 
 ### → [**LIVE DEMO**](https://flippelt.github.io/Immersive-Terminal-for-RPGs/) ←
 
+## Screenshots
+
+![Heimdall scenario open, `cat case.md`](docs/screenshots/scenario-load.png)
+
+![Crack on `voidchild.dat` with ICE TRACE running](docs/screenshots/crack-attempt.png)
+
 A website that simulates a retro console terminal (*cool-retro-term* style) to
 use as a prop at the tabletop. Switch "system" and the look, the text, and the
 content change completely. The GM authors scenarios by editing plain files.
