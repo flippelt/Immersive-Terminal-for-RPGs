@@ -10,8 +10,8 @@ content change completely. The GM authors scenarios by editing plain files.
 
 Included systems: **Alien** (MU/TH/UR), **Lancer** (COMP/CON), **Blade Runner**
 (Esper), **Warhammer 40K** (Cogitator and Imperial Dataslate), **Fallout** (RobCo
-Termlink), **Cyberpunk RED** (NetWatch), and **IBM 5151** (PC-DOS, green
-phosphor — a neutral retro skin for your own scenarios).
+Termlink), **Cyberpunk RED** (NetWatch), **IBM 5151** (PC-DOS, green phosphor),
+**Paranoia**, **The Expanse**, and **Eclipse Phase**.
 
 Stack: **React + Vite**, fully static, no backend. Audio is synthesized in the
 browser (no assets); fonts are self-hosted (no Google Fonts).
@@ -72,6 +72,7 @@ The detailed reference lives in the **[Wiki](https://github.com/flippelt/Immersi
 - **[Commands](https://github.com/flippelt/Immersive-Terminal-for-RPGs/wiki/Commands)** — every command, shortcuts, GM mode, loading a campaign from the URL.
 - **[Authoring: Themes](https://github.com/flippelt/Immersive-Terminal-for-RPGs/wiki/Authoring-Themes)** — the skin JSON (palette, font, CRT, sounds, banner, boot).
 - **[Authoring: Scenarios](https://github.com/flippelt/Immersive-Terminal-for-RPGs/wiki/Authoring-Scenarios)** — scenario folder, `scenario.json`, the `files/` tree, markdown, login.
+- **[Custom Scenarios](https://github.com/flippelt/Immersive-Terminal-for-RPGs/wiki/Custom-Scenarios)** — JSON bundle, `?scenario64=`, `loadscenario`.
 - **[Locked Files](https://github.com/flippelt/Immersive-Terminal-for-RPGs/wiki/Locked-Files)** — front-matter, `crack` vs `decrypt`, difficulty rolls, chains.
 - **[Cinematics](https://github.com/flippelt/Immersive-Terminal-for-RPGs/wiki/Cinematics)** — events, countdowns, self-destruct, the tracer.
 - **[Architecture](https://github.com/flippelt/Immersive-Terminal-for-RPGs/wiki/Architecture)** — source layout and the fonts.
@@ -81,10 +82,20 @@ Quick recap: navigate with `ls`/`cd`/`cat`, open locked files with `crack`/
 mode** with `Ctrl+Shift+G`. Load a campaign straight from the URL:
 `.../?theme=cprd&scenario=heimdall`.
 
-> 🛠 **Visual editor:** rather not hand-edit JSON? **[scenario-forge](https://github.com/flippelt/scenario-forge)**
-> (a Win/Mac/Linux desktop app) builds scenarios from forms — file tree, flags
-> (crack/tracer/lock), dialog (`query`/`ask`), events — and previews them **live in
-> this terminal**, exporting the versionable folder, the JSON bundle, or a link.
+> 🛠 **Visual editor (web):** rather not hand-edit JSON?
+> **[scenario-forge](https://flippelt.github.io/scenario-forge/)** builds scenarios
+> from forms — file tree, flags (crack/tracer/lock), dialog (`query`/`ask`),
+> events — and previews them in-process (same `rpgterm-engine`). Export a folder,
+> a `.zip`, the JSON bundle, or a `?scenario64=` link.
+
+## Family
+
+| Project | Role |
+|---|---|
+| [scenario-forge](https://github.com/flippelt/scenario-forge) | web scenario editor · [demo](https://flippelt.github.io/scenario-forge/) |
+| [rpgterm-engine](https://www.npmjs.com/package/rpgterm-engine) | npm engine (VFS, commands, crack/tracer) |
+| [rpg-prop-kit](https://www.npmjs.com/package/rpg-prop-kit) | CRT and analog props |
+| [session-kit](https://github.com/flippelt/session-kit) | one session YAML → this terminal and the other tools |
 
 ---
 
