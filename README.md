@@ -8,9 +8,11 @@
 
 ## Screenshots
 
-![Cenário Heimdall aberto, `cat case.md`](docs/screenshots/scenario-load.png)
+Clique para ver em 1080p.
 
-![Crack em `voidchild.dat` com ICE TRACE ativo](docs/screenshots/crack-attempt.png)
+[<img src="docs/screenshots/scenario-load.png" width="720" alt="Cenário Heimdall aberto, cat case.md">](docs/screenshots/scenario-load.png)
+
+[<img src="docs/screenshots/crack-attempt.png" width="720" alt="Crack em voidchild.dat com ICE TRACE ativo">](docs/screenshots/crack-attempt.png)
 
 Um site que simula um terminal de console retrô (estilo *cool-retro-term*) para
 usar como prop em mesas de RPG. Troque de "sistema" e o visual, os textos e o

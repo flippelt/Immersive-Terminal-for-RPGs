@@ -6,9 +6,11 @@
 
 ## Screenshots
 
-![Heimdall scenario open, `cat case.md`](docs/screenshots/scenario-load.png)
+Click to open at 1080p.
 
-![Crack on `voidchild.dat` with ICE TRACE running](docs/screenshots/crack-attempt.png)
+[<img src="docs/screenshots/scenario-load.png" width="720" alt="Heimdall scenario open, cat case.md">](docs/screenshots/scenario-load.png)
+
+[<img src="docs/screenshots/crack-attempt.png" width="720" alt="Crack on voidchild.dat with ICE TRACE running">](docs/screenshots/crack-attempt.png)
 
 A website that simulates a retro console terminal (*cool-retro-term* style) to
 use as a prop at the tabletop. Switch "system" and the look, the text, and the
