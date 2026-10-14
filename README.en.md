@@ -28,8 +28,10 @@ browser (no assets); fonts are self-hosted (no Google Fonts).
 
 ## Features
 
-- **Pure-CSS CRT** — scanlines, phosphor glow, flicker, sweep, curvature, and
-  vignette. Honors `prefers-reduced-motion`.
+- **CRT** — scanlines, phosphor glow, flicker, sweep, curvature, and vignette
+  in CSS. Where WebGPU exists, a GPU layer (from `rpg-prop-kit`) adds an
+  aperture grille, grain, and colour fringing; switch back to CSS in the
+  system picker. Honors `prefers-reduced-motion`.
 - **Hybrid terminal** — typewriter boot animation + an interactive prompt with
   an inline cursor that follows typing and the ←/→ keys.
 - **Bilingual (EN / PT-BR)** — UI and scenarios in English and Portuguese;

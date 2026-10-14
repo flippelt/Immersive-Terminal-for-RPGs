@@ -30,8 +30,10 @@ navegador (sem assets), fontes self-hosted (sem Google Fonts).
 
 ## Recursos
 
-- **CRT em CSS puro** — scanlines, glow de fósforo, flicker, sweep, curvatura e
-  vinheta. Respeita `prefers-reduced-motion`.
+- **CRT** — scanlines, glow de fósforo, flicker, sweep, curvatura e vinheta em
+  CSS. Onde há WebGPU, uma camada na GPU (do `rpg-prop-kit`) soma grade de
+  abertura, granulado e franja de cor; dá para voltar ao CSS no seletor de
+  sistema. Respeita `prefers-reduced-motion`.
 - **Terminal híbrido** — boot animado por typewriter + prompt interativo com
   cursor inline que segue a digitação e as setas ←/→.
 - **Bilíngue (EN / PT-BR)** — interface e cenários em inglês e português;

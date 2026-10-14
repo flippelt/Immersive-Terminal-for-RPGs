@@ -77,3 +77,31 @@ describe('ThemeSwitcher', () => {
     expect(onToggleDisabled).toHaveBeenCalledWith('alien')
   })
 })
+
+describe('ThemeSwitcher screen (GPU) toggle', () => {
+  const base = {
+    themes,
+    current: 'lancer',
+    onSelect: () => {},
+    gmMode: false,
+    disabled: new Set(),
+    onToggleDisabled: () => {},
+    onSetLang: () => {}
+  }
+
+  it('is hidden when WebGPU is unavailable', () => {
+    render(<ThemeSwitcher {...base} lang="en" />)
+    open()
+    expect(screen.queryByText('screen')).toBeNull()
+  })
+
+  it('shows CSS/GPU chips and reports the choice', () => {
+    const onSetGpu = vi.fn()
+    render(<ThemeSwitcher {...base} lang="pt" gpuAvailable gpuOn onSetGpu={onSetGpu} />)
+    open()
+    expect(screen.getByText('tela')).toBeTruthy()
+    expect(screen.getByText('GPU').getAttribute('aria-pressed')).toBe('true')
+    fireEvent.click(screen.getByText('CSS'))
+    expect(onSetGpu).toHaveBeenCalledWith(false)
+  })
+})
