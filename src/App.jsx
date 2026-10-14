@@ -16,6 +16,8 @@ import {
   composeTheme,
   composeCustomScenario
 } from './themes/index.js'
+import { CRTGpuOverlay } from 'rpg-prop-kit'
+import { crtGpuOptions, readGpuPref, gpuSupported, GPU_PREF_KEY } from './crt/gpuOptions.js'
 
 const LS_KEY = 'tirpg.theme'
 
@@ -77,6 +79,22 @@ export default function App() {
       // storage unavailable — language still applies for the session
     }
   }, [])
+  // WebGPU CRT overlay (rpg-prop-kit). On by default where WebGPU exists;
+  // while it runs, the CSS scanlines/sweep/vignette step aside.
+  const [gpuPref, setGpuPref] = useState(readGpuPref)
+  const [gpuActive, setGpuActive] = useState(false)
+  const changeGpu = useCallback((on) => {
+    setGpuPref(on)
+    if (!on) setGpuActive(false)
+    try {
+      localStorage.setItem(GPU_PREF_KEY, on ? '1' : '0')
+    } catch {
+      // storage unavailable — choice still applies for the session
+    }
+  }, [])
+  const gpuAvailable = useMemo(gpuSupported, [])
+  const gpuOn = gpuAvailable && gpuPref
+
   // UI translator for App-level chrome (load-error toasts) and the
   // components App renders directly (scenario paste dialog, audio toggle).
   const t = useMemo(() => makeT(lang), [lang])
@@ -301,7 +319,7 @@ export default function App() {
   }, [toggleGm])
 
   return (
-    <div className="crt">
+    <div className={`crt${gpuOn && gpuActive ? ' crt--gpu' : ''}`}>
       <div className="chrome">
         <span>{theme.header}</span>
         <span className="chrome__right">
@@ -324,6 +342,13 @@ export default function App() {
           onToggleGm={toggleGm}
         />
         <div className="crt__vignette" />
+        {gpuOn && (
+          <CRTGpuOverlay
+            className="crt__gpu"
+            {...crtGpuOptions(theme)}
+            onStatusChange={(status) => setGpuActive(status === 'gpu')}
+          />
+        )}
       </div>
       <ThemeSwitcher
         themes={THEMES}
@@ -334,6 +359,9 @@ export default function App() {
         onToggleDisabled={toggleThemeDisabled}
         lang={lang}
         onSetLang={changeLang}
+        gpuAvailable={gpuAvailable}
+        gpuOn={gpuOn}
+        onSetGpu={changeGpu}
       />
       <AudioToggle t={t} />
       {pasteOpen && (

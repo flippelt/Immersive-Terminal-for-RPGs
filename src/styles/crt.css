@@ -96,6 +96,23 @@
       rgba(0, 0, 0, 0.55) 100%);
 }
 
+/* WebGPU overlay (rpg-prop-kit). While it runs, the CSS scanlines, sweep
+   and vignette step aside so the effects don't double up. */
+.crt__gpu {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 3;
+}
+
+.crt--gpu .crt__screen::before,
+.crt--gpu .crt__screen::after,
+.crt--gpu .crt__vignette {
+  display: none;
+}
+
 /* Flicker — subtle opacity jitter on the whole content */
 .crt__content {
   animation: flicker 4s infinite;

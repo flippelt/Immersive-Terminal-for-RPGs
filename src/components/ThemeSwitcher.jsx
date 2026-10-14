@@ -17,7 +17,10 @@ export default function ThemeSwitcher({
   disabled,
   onToggleDisabled,
   lang,
-  onSetLang
+  onSetLang,
+  gpuAvailable = false,
+  gpuOn = false,
+  onSetGpu
 }) {
   const t = makeT(lang)
   const [open, setOpen] = useState(false)
@@ -103,6 +106,29 @@ export default function ThemeSwitcher({
               </span>
             ))}
           </div>
+          {gpuAvailable && (
+            <>
+              {/* Local labels: the engine's UI dictionary has no keys for this yet. */}
+              <p className="switcher__label">{lang === 'pt' ? 'tela' : 'screen'}</p>
+              <div className="switcher__row">
+                {[
+                  [false, 'CSS'],
+                  [true, 'GPU']
+                ].map(([on, label]) => (
+                  <span key={label} className="switcher-chip">
+                    <button
+                      className={on === gpuOn ? 'active' : ''}
+                      onClick={() => onSetGpu?.(on)}
+                      aria-pressed={on === gpuOn}
+                      title={on ? 'WebGPU CRT' : 'CSS CRT'}
+                    >
+                      {label}
+                    </button>
+                  </span>
+                ))}
+              </div>
+            </>
+          )}
         </div>
       )}
       <button
